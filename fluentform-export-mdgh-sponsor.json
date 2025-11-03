@@ -1,0 +1,543 @@
+[
+  {
+    "id": null,
+    "title": "MDGH – Sponsor / Partner Application",
+    "status": "published",
+    "appearance_settings": null,
+    "form_fields": {
+      "fields": [
+        {
+          "index": 0,
+          "element": "input_text",
+          "attributes": {
+            "type": "text",
+            "name": "company",
+            "value": "",
+            "id": "",
+            "class": "",
+            "placeholder": ""
+          },
+          "settings": {
+            "container_class": "",
+            "label": "Company / Organization Name",
+            "label_placement": "",
+            "help_message": "",
+            "validation_rules": {
+              "required": {
+                "value": true,
+                "message": "This field is required"
+              }
+            },
+            "conditional_logics": []
+          },
+          "editor_options": {
+            "title": "Company / Organization Name",
+            "icon_class": "ff-edit-text",
+            "template": "inputText"
+          },
+          "uniqElKey": "el_1758667567887573"
+        },
+        {
+          "index": 1,
+          "element": "input_url",
+          "attributes": {
+            "type": "url",
+            "name": "website",
+            "value": "",
+            "id": "",
+            "class": "",
+            "placeholder": "https://"
+          },
+          "settings": {
+            "container_class": "",
+            "label": "Website",
+            "label_placement": "",
+            "help_message": "",
+            "validation_rules": {
+              "required": {
+                "value": false,
+                "message": "This field is required"
+              }
+            },
+            "conditional_logics": []
+          },
+          "editor_options": {
+            "title": "Website",
+            "icon_class": "ff-edit-text",
+            "template": "inputText"
+          },
+          "uniqElKey": "el_1758667567887784"
+        },
+        {
+          "index": 2,
+          "element": "textarea",
+          "attributes": {
+            "name": "address",
+            "value": "",
+            "id": "",
+            "class": "",
+            "placeholder": "Street, City, Country",
+            "rows": 4,
+            "cols": 2
+          },
+          "settings": {
+            "container_class": "",
+            "label": "Address",
+            "admin_field_label": "",
+            "label_placement": "",
+            "help_message": "",
+            "validation_rules": {
+              "required": {
+                "value": true,
+                "message": "This field is required"
+              }
+            },
+            "conditional_logics": {
+              "type": "any",
+              "status": false,
+              "conditions": [
+                {
+                  "field": "",
+                  "value": "",
+                  "operator": ""
+                }
+              ]
+            }
+          },
+          "editor_options": {
+            "title": "Text Area",
+            "icon_class": "ff-edit-textarea",
+            "template": "inputTextarea"
+          },
+          "uniqElKey": "el_1758667567887644"
+        },
+        {
+          "index": 3,
+          "element": "input_text",
+          "attributes": {
+            "type": "text",
+            "name": "contact_name",
+            "value": "",
+            "id": "",
+            "class": "",
+            "placeholder": ""
+          },
+          "settings": {
+            "container_class": "",
+            "label": "Contact Person",
+            "label_placement": "",
+            "help_message": "",
+            "validation_rules": {
+              "required": {
+                "value": true,
+                "message": "This field is required"
+              }
+            },
+            "conditional_logics": []
+          },
+          "editor_options": {
+            "title": "Contact Person",
+            "icon_class": "ff-edit-text",
+            "template": "inputText"
+          },
+          "uniqElKey": "el_1758667567887382"
+        },
+        {
+          "index": 4,
+          "element": "input_email",
+          "attributes": {
+            "type": "email",
+            "name": "contact_email",
+            "value": "",
+            "id": "",
+            "class": "",
+            "placeholder": "name@company.com"
+          },
+          "settings": {
+            "container_class": "",
+            "label": "Contact Email",
+            "label_placement": "",
+            "help_message": "",
+            "admin_field_label": "",
+            "validation_rules": {
+              "required": {
+                "value": true,
+                "message": "This field is required"
+              },
+              "email": {
+                "value": true,
+                "message": "This field must contain a valid email"
+              }
+            },
+            "conditional_logics": []
+          },
+          "editor_options": {
+            "title": "Email Address",
+            "icon_class": "ff-edit-email",
+            "template": "inputText"
+          },
+          "uniqElKey": "el_1758667567887414"
+        },
+        {
+          "index": 5,
+          "element": "input_text",
+          "attributes": {
+            "type": "text",
+            "name": "contact_phone",
+            "value": "",
+            "id": "",
+            "class": "",
+            "placeholder": ""
+          },
+          "settings": {
+            "container_class": "",
+            "label": "Contact Phone / WhatsApp",
+            "label_placement": "",
+            "help_message": "",
+            "validation_rules": {
+              "required": {
+                "value": true,
+                "message": "This field is required"
+              }
+            },
+            "conditional_logics": []
+          },
+          "editor_options": {
+            "title": "Contact Phone / WhatsApp",
+            "icon_class": "ff-edit-text",
+            "template": "inputText"
+          },
+          "uniqElKey": "el_1758667567887967"
+        },
+        {
+          "index": 6,
+          "element": "radio",
+          "attributes": {
+            "name": "sponsorship_level"
+          },
+          "settings": {
+            "container_class": "",
+            "label": "Sponsorship Level",
+            "options": [
+              {
+                "label": "Platinum",
+                "value": "Platinum"
+              },
+              {
+                "label": "Gold",
+                "value": "Gold"
+              },
+              {
+                "label": "Silver",
+                "value": "Silver"
+              },
+              {
+                "label": "Bronze",
+                "value": "Bronze"
+              },
+              {
+                "label": "In-kind",
+                "value": "In-kind"
+              }
+            ],
+            "validation_rules": {
+              "required": {
+                "value": true,
+                "message": "This field is required"
+              }
+            },
+            "conditional_logics": []
+          },
+          "editor_options": {
+            "title": "Radio Field",
+            "icon_class": "ff-edit-radio",
+            "template": "radio"
+          },
+          "uniqElKey": "el_1758667567887314"
+        },
+        {
+          "index": 7,
+          "element": "select",
+          "attributes": {
+            "name": "budget_range"
+          },
+          "settings": {
+            "container_class": "",
+            "label": "Budget Range (USD)",
+            "label_placement": "",
+            "help_message": "",
+            "options": [
+              {
+                "label": "<$1,000",
+                "value": "<1000"
+              },
+              {
+                "label": "$1,000–$4,999",
+                "value": "1000-4999"
+              },
+              {
+                "label": "$5,000–$9,999",
+                "value": "5000-9999"
+              },
+              {
+                "label": "$10,000–$24,999",
+                "value": "10000-24999"
+              },
+              {
+                "label": "$25,000+",
+                "value": ">=25000"
+              }
+            ],
+            "validation_rules": {
+              "required": {
+                "value": true,
+                "message": "This field is required"
+              }
+            },
+            "conditional_logics": []
+          },
+          "editor_options": {
+            "title": "Select Field",
+            "icon_class": "ff-edit-select",
+            "template": "select"
+          },
+          "uniqElKey": "el_1758667567887139"
+        },
+        {
+          "index": 8,
+          "element": "checkbox",
+          "attributes": {
+            "name": "areas_of_interest"
+          },
+          "settings": {
+            "container_class": "",
+            "label": "Areas of Interest",
+            "options": [
+              {
+                "label": "Main Event",
+                "value": "main_event"
+              },
+              {
+                "label": "Cultural Night",
+                "value": "cultural_night"
+              },
+              {
+                "label": "Contestant Welfare",
+                "value": "welfare"
+              },
+              {
+                "label": "Media/PR",
+                "value": "media_pr"
+              },
+              {
+                "label": "Scholarships",
+                "value": "scholarships"
+              },
+              {
+                "label": "Venue/Logistics",
+                "value": "logistics"
+              },
+              {
+                "label": "Other",
+                "value": "other"
+              }
+            ],
+            "validation_rules": {
+              "required": {
+                "value": false,
+                "message": "This field is required"
+              }
+            },
+            "conditional_logics": []
+          },
+          "editor_options": {
+            "title": "Checkbox Field",
+            "icon_class": "ff-edit-checkbox",
+            "template": "checkbox"
+          },
+          "uniqElKey": "el_1758667567887193"
+        },
+        {
+          "index": 9,
+          "element": "input_file",
+          "attributes": {
+            "name": "brand_assets",
+            "multiple": false
+          },
+          "settings": {
+            "container_class": "",
+            "label": "Upload Logo/Brand Assets (ZIP/JPG/PNG)",
+            "validation_rules": {
+              "required": {
+                "value": false,
+                "message": "This field is required"
+              }
+            }
+          },
+          "editor_options": {
+            "title": "File Upload",
+            "icon_class": "ff-edit-upload",
+            "template": "fileUpload"
+          },
+          "uniqElKey": "el_1758667567887790"
+        },
+        {
+          "index": 10,
+          "element": "textarea",
+          "attributes": {
+            "name": "message",
+            "value": "",
+            "id": "",
+            "class": "",
+            "placeholder": "Tell us your goals, preferred visibility, and audience.",
+            "rows": 4,
+            "cols": 2
+          },
+          "settings": {
+            "container_class": "",
+            "label": "Message / Objectives",
+            "admin_field_label": "",
+            "label_placement": "",
+            "help_message": "",
+            "validation_rules": {
+              "required": {
+                "value": true,
+                "message": "This field is required"
+              }
+            },
+            "conditional_logics": {
+              "type": "any",
+              "status": false,
+              "conditions": [
+                {
+                  "field": "",
+                  "value": "",
+                  "operator": ""
+                }
+              ]
+            }
+          },
+          "editor_options": {
+            "title": "Text Area",
+            "icon_class": "ff-edit-textarea",
+            "template": "inputTextarea"
+          },
+          "uniqElKey": "el_1758667567887293"
+        },
+        {
+          "index": 11,
+          "element": "checkbox",
+          "attributes": {
+            "name": "agree_contact"
+          },
+          "settings": {
+            "container_class": "",
+            "label": "Consent",
+            "options": [
+              {
+                "label": "I agree to be contacted by the MDGH Sponsorship Team.",
+                "value": "agree"
+              }
+            ],
+            "validation_rules": {
+              "required": {
+                "value": true,
+                "message": "This field is required"
+              }
+            },
+            "conditional_logics": []
+          },
+          "editor_options": {
+            "title": "Checkbox Field",
+            "icon_class": "ff-edit-checkbox",
+            "template": "checkbox"
+          },
+          "uniqElKey": "el_1758667567887278"
+        }
+      ],
+      "submitButton": {
+        "uniqElKey": "el_1758667567888862",
+        "element": "button",
+        "attributes": {
+          "type": "submit",
+          "class": ""
+        },
+        "settings": {
+          "align": "left",
+          "button_style": "default",
+          "container_class": "",
+          "help_message": "",
+          "background_color": "#ffcc00",
+          "button_size": "md",
+          "color": "#000000",
+          "button_ui": {
+            "type": "default",
+            "text": "Submit Sponsorship Request",
+            "img_url": ""
+          }
+        },
+        "editor_options": {
+          "title": "Submit Button"
+        }
+      }
+    },
+    "has_payment": "0",
+    "type": "form",
+    "conditions": null,
+    "created_by": "1",
+    "created_at": "2025-09-23 22:46:07",
+    "updated_at": "2025-09-23 22:46:07",
+    "form_meta": [
+      {
+        "id": 1,
+        "form_id": "1",
+        "meta_key": "template_name",
+        "value": "custom_mdgh_sponsor"
+      },
+      {
+        "id": 2,
+        "form_id": "1",
+        "meta_key": "formSettings",
+        "value": "{\"confirmation\": {\"redirectTo\": \"samePage\", \"messageToShow\": \"Thank you! Your submission has been received.\", \"customPage\": null, \"samePageFormBehavior\": \"hide_form\", \"customUrl\": null}, \"restrictions\": {\"limitNumberOfEntries\": {\"enabled\": false, \"numberOfEntries\": null, \"period\": \"total\", \"limitReachedMsg\": \"Maximum number of entries exceeded.\"}, \"scheduleForm\": {\"enabled\": false, \"start\": null, \"end\": null, \"selectedDays\": [\"Monday\", \"Tuesday\", \"Wednesday\", \"Thursday\", \"Friday\", \"Saturday\", \"Sunday\"], \"pendingMsg\": \"Form submission is not started yet.\", \"expiredMsg\": \"Form submission is now closed.\"}, \"requireLogin\": {\"enabled\": false, \"requireLoginMsg\": \"You must be logged in to submit the form.\"}, \"denyEmptySubmission\": {\"enabled\": false, \"message\": \"Sorry, you cannot submit an empty form. Let's hear what you wanna say.\"}}, \"layout\": {\"labelPlacement\": \"top\", \"helpMessagePlacement\": \"with_label\", \"errorMessagePlacement\": \"inline\", \"cssClassName\": \"\", \"asteriskPlacement\": \"asterisk-right\"}, \"delete_entry_on_submission\": \"no\", \"appendSurveyResult\": {\"enabled\": false, \"showLabel\": false, \"showCount\": false}}"
+      },
+      {
+        "id": 3,
+        "form_id": "1",
+        "meta_key": "advancedValidationSettings",
+        "value": "{\"status\":false,\"type\":\"all\",\"conditions\":[{\"field\":\"\",\"operator\":\"=\",\"value\":\"\"}],\"error_message\":\"\",\"validation_type\":\"fail_on_condition_met\"}"
+      },
+      {
+        "id": 4,
+        "form_id": "1",
+        "meta_key": "_primary_email_field",
+        "value": "contact_email"
+      }
+    ],
+    "metas": [
+      {
+        "id": 1,
+        "form_id": "1",
+        "meta_key": "template_name",
+        "value": "custom_mdgh_sponsor"
+      },
+      {
+        "id": 2,
+        "form_id": "1",
+        "meta_key": "formSettings",
+        "value": "{\"confirmation\": {\"redirectTo\": \"samePage\", \"messageToShow\": \"Thank you! Your submission has been received.\", \"customPage\": null, \"samePageFormBehavior\": \"hide_form\", \"customUrl\": null}, \"restrictions\": {\"limitNumberOfEntries\": {\"enabled\": false, \"numberOfEntries\": null, \"period\": \"total\", \"limitReachedMsg\": \"Maximum number of entries exceeded.\"}, \"scheduleForm\": {\"enabled\": false, \"start\": null, \"end\": null, \"selectedDays\": [\"Monday\", \"Tuesday\", \"Wednesday\", \"Thursday\", \"Friday\", \"Saturday\", \"Sunday\"], \"pendingMsg\": \"Form submission is not started yet.\", \"expiredMsg\": \"Form submission is now closed.\"}, \"requireLogin\": {\"enabled\": false, \"requireLoginMsg\": \"You must be logged in to submit the form.\"}, \"denyEmptySubmission\": {\"enabled\": false, \"message\": \"Sorry, you cannot submit an empty form. Let's hear what you wanna say.\"}}, \"layout\": {\"labelPlacement\": \"top\", \"helpMessagePlacement\": \"with_label\", \"errorMessagePlacement\": \"inline\", \"cssClassName\": \"\", \"asteriskPlacement\": \"asterisk-right\"}, \"delete_entry_on_submission\": \"no\", \"appendSurveyResult\": {\"enabled\": false, \"showLabel\": false, \"showCount\": false}}"
+      },
+      {
+        "id": 3,
+        "form_id": "1",
+        "meta_key": "advancedValidationSettings",
+        "value": "{\"status\":false,\"type\":\"all\",\"conditions\":[{\"field\":\"\",\"operator\":\"=\",\"value\":\"\"}],\"error_message\":\"\",\"validation_type\":\"fail_on_condition_met\"}"
+      },
+      {
+        "id": 4,
+        "form_id": "1",
+        "meta_key": "_primary_email_field",
+        "value": "contact_email"
+      }
+    ]
+  }
+]
