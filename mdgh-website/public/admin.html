@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MDGH Admin Dashboard | Content Management</title>
+    <link rel="stylesheet" href="../assets/css/admin.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Login Screen -->
+    <div id="loginScreen" class="login-screen">
+        <div class="login-particles">
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+        </div>
+        <div class="login-container">
+            <div class="login-card">
+                <div class="login-header">
+                    <img src="../assets/images/logos/mdgh main logo mini.png" alt="MDGH" class="login-logo">
+                    <h2>MDGH Admin Dashboard</h2>
+                    <p>Content Management System</p>
+                </div>
+                <form id="loginForm" class="login-form">
+                    <div class="form-group">
+                        <label for="adminUsername">Username</label>
+                        <input type="text" id="adminUsername" required autocomplete="username">
+                    </div>
+                    <div class="form-group">
+                        <label for="adminPassword">Password</label>
+                        <input type="password" id="adminPassword" required autocomplete="current-password">
+                    </div>
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="rememberMe">
+                            <span>Remember me</span>
+                        </label>
+                    </div>
+                    <button type="submit" class="btn-login">Login</button>
+                    <div class="login-instructions">
+                        <p><strong>Default Credentials:</strong></p>
+                        <p>Username: <code>admin</code></p>
+                        <p>Password: <code>mdgh2025</code></p>
+                        <p class="note">⚠️ Change these credentials after first login!</p>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Dashboard -->
+    <div id="adminDashboard" class="admin-dashboard" style="display: none;">
+        <!-- Admin Header -->
+        <header class="admin-header">
+            <div class="admin-header-content">
+                <div class="admin-logo">
+                    <img src="mdgh main logo mini.png" alt="MDGH">
+                    <span>Admin Dashboard</span>
+                </div>
+                <div class="admin-actions">
+                    <button class="btn-preview" id="previewBtn">Preview Site</button>
+                    <button class="btn-save" id="saveAllBtn">Save All Changes</button>
+                    <button class="btn-logout" id="logoutBtn">Logout</button>
+                </div>
+            </div>
+        </header>
+
+        <div class="admin-body">
+            <!-- Sidebar Navigation -->
+            <aside class="admin-sidebar">
+                <nav class="admin-nav">
+                    <a href="#general" class="nav-item active" data-section="general">
+                        <span class="nav-icon">⚙️</span>
+                        <span>General Settings</span>
+                    </a>
+                    <a href="#hero" class="nav-item" data-section="hero">
+                        <span class="nav-icon">🎬</span>
+                        <span>Hero Section</span>
+                    </a>
+                    <a href="#navigation" class="nav-item" data-section="navigation">
+                        <span class="nav-icon">🧭</span>
+                        <span>Navigation</span>
+                    </a>
+                    <a href="#content" class="nav-item" data-section="content">
+                        <span class="nav-icon">📝</span>
+                        <span>Page Content</span>
+                    </a>
+                    <a href="#images" class="nav-item" data-section="images">
+                        <span class="nav-icon">🖼️</span>
+                        <span>Images & Media</span>
+                    </a>
+                    <a href="#footer" class="nav-item" data-section="footer">
+                        <span class="nav-icon">📄</span>
+                        <span>Footer</span>
+                    </a>
+                    <a href="#sponsorship" class="nav-item" data-section="sponsorship">
+                        <span class="nav-icon">💼</span>
+                        <span>Sponsorship</span>
+                    </a>
+                    <a href="#contestants" class="nav-item" data-section="contestants">
+                        <span class="nav-icon">👑</span>
+                        <span>Contestants</span>
+                    </a>
+                </nav>
+            </aside>
+
+            <!-- Main Content Area -->
+            <main class="admin-main">
+                <!-- General Settings -->
+                <section id="general" class="admin-section active">
+                    <div class="section-header">
+                        <h2>General Settings</h2>
+                        <p>Configure site-wide settings and branding</p>
+                    </div>
+                    <div class="section-content">
+                        <div class="settings-group">
+                            <h3>Site Information</h3>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Site Title</label>
+                                    <input type="text" id="siteTitle" data-target="title" placeholder="Miss Diaspora Ghana">
+                                </div>
+                                <div class="form-group">
+                                    <label>Site Description</label>
+                                    <textarea id="siteDescription" data-target="meta-description" rows="3" placeholder="Meta description for SEO"></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="settings-group">
+                            <h3>Logo & Favicon</h3>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Main Logo</label>
+                                    <div class="image-upload">
+                                        <img id="mainLogoPreview" src="mdgh main logo mini.png" alt="Logo Preview">
+                                        <input type="file" id="mainLogoUpload" accept="image/*" data-target="logo-main">
+                                        <button type="button" class="btn-upload">Change Logo</button>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label>Favicon</label>
+                                    <div class="image-upload">
+                                        <img id="faviconPreview" src="md fav.png" alt="Favicon Preview">
+                                        <input type="file" id="faviconUpload" accept="image/*" data-target="favicon">
+                                        <button type="button" class="btn-upload">Change Favicon</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="settings-group">
+                            <h3>Brand Colors</h3>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Primary Color (Gold)</label>
+                                    <input type="color" id="primaryColor" value="#F8B92F" data-target="color-primary">
+                                </div>
+                                <div class="form-group">
+                                    <label>Secondary Color</label>
+                                    <input type="color" id="secondaryColor" value="#000000" data-target="color-secondary">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Hero Section -->
+                <section id="hero" class="admin-section">
+                    <div class="section-header">
+                        <h2>Hero Section</h2>
+                        <p>Edit the main hero section content</p>
+                    </div>
+                    <div class="section-content">
+                        <div class="settings-group">
+                            <h3>Hero Content</h3>
+                            <div class="form-group">
+                                <label>Main Title Line 1</label>
+                                <input type="text" id="heroTitle1" data-target="hero-title-1" placeholder="Celebrating Beauty,">
+                            </div>
+                            <div class="form-group">
+                                <label>Main Title Line 2</label>
+                                <input type="text" id="heroTitle2" data-target="hero-title-2" placeholder="Culture & Impact">
+                            </div>
+                            <div class="form-group">
+                                <label>Main Title Line 3 (Highlighted)</label>
+                                <input type="text" id="heroTitle3" data-target="hero-title-3" placeholder="Across the Diaspora">
+                            </div>
+                            <div class="form-group">
+                                <label>Subtitle</label>
+                                <textarea id="heroSubtitle" data-target="hero-subtitle" rows="3" placeholder="MDGH empowers young women..."></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>Primary Button Text</label>
+                                <input type="text" id="heroBtn1" data-target="hero-btn-1" placeholder="Explore The Pageant">
+                            </div>
+                            <div class="form-group">
+                                <label>Secondary Button Text</label>
+                                <input type="text" id="heroBtn2" data-target="hero-btn-2" placeholder="Become a Sponsor">
+                            </div>
+                        </div>
+
+                        <div class="settings-group">
+                            <h3>Hero Background</h3>
+                            <div class="form-group">
+                                <label>Background Video</label>
+                                <input type="text" id="heroVideo" data-target="hero-video" placeholder="mdgh intro vid.mp4">
+                                <input type="file" id="heroVideoUpload" accept="video/*" class="file-upload">
+                                <small>Upload new video or enter filename</small>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Navigation -->
+                <section id="navigation" class="admin-section">
+                    <div class="section-header">
+                        <h2>Navigation Menu</h2>
+                        <p>Manage navigation links and menu items</p>
+                    </div>
+                    <div class="section-content">
+                        <div class="settings-group">
+                            <h3>Menu Items</h3>
+                            <div id="navItemsList" class="nav-items-list">
+                                <!-- Navigation items will be dynamically generated -->
+                            </div>
+                            <button type="button" class="btn-add" id="addNavItem">+ Add Menu Item</button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Page Content -->
+                <section id="content" class="admin-section">
+                    <div class="section-header">
+                        <h2>Page Content</h2>
+                        <p>Edit content across all sections</p>
+                    </div>
+                    <div class="section-content">
+                        <div class="settings-group">
+                            <h3>About Section</h3>
+                            <div class="form-group">
+                                <label>About Title</label>
+                                <input type="text" id="aboutTitle" data-target="about-title" placeholder="About Miss Diaspora GH">
+                            </div>
+                            <div class="form-group">
+                                <label>About Description 1</label>
+                                <textarea id="aboutDesc1" data-target="about-desc-1" rows="3"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>About Description 2</label>
+                                <textarea id="aboutDesc2" data-target="about-desc-2" rows="3"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>About Image</label>
+                                <input type="file" id="aboutImageUpload" accept="image/*" data-target="about-image">
+                                <input type="text" id="aboutImage" data-target="about-image-text" placeholder="Image filename">
+                            </div>
+                        </div>
+
+                        <div class="settings-group">
+                            <h3>Objectives Section</h3>
+                            <div id="objectivesList" class="objectives-list">
+                                <!-- Objectives will be dynamically generated -->
+                            </div>
+                        </div>
+
+                        <div class="settings-group">
+                            <h3>Programs Section</h3>
+                            <div id="programsList" class="programs-list">
+                                <!-- Programs will be dynamically generated -->
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Images & Media -->
+                <section id="images" class="admin-section">
+                    <div class="section-header">
+                        <h2>Images & Media</h2>
+                        <p>Manage images throughout the site</p>
+                    </div>
+                    <div class="section-content">
+                        <div class="settings-group">
+                            <h3>Hero Background Video</h3>
+                            <div class="form-group">
+                                <label>Current Video</label>
+                                <input type="file" id="heroVideoFile" accept="video/*">
+                                <button type="button" class="btn-upload">Upload New Video</button>
+                            </div>
+                        </div>
+
+                        <div class="settings-group">
+                            <h3>Content Images</h3>
+                            <div class="image-grid">
+                                <div class="image-item">
+                                    <label>About Section Image</label>
+                                    <img id="aboutImgPreview" src="a-medium-shot-of-a-confident-elegant-gha.jpg" alt="Preview">
+                                    <input type="file" class="image-upload-input" data-target="about-image">
+                                </div>
+                                <div class="image-item">
+                                    <label>Culture Icon</label>
+                                    <img id="cultureIconPreview" src="culture.png" alt="Preview">
+                                    <input type="file" class="image-upload-input" data-target="culture-icon">
+                                </div>
+                                <div class="image-item">
+                                    <label>Leadership Icon</label>
+                                    <img id="leadershipIconPreview" src="leadership.png" alt="Preview">
+                                    <input type="file" class="image-upload-input" data-target="leadership-icon">
+                                </div>
+                                <div class="image-item">
+                                    <label>Social Impact Icon</label>
+                                    <img id="socialImpactIconPreview" src="social impact.png" alt="Preview">
+                                    <input type="file" class="image-upload-input" data-target="social-impact-icon">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Footer -->
+                <section id="footer" class="admin-section">
+                    <div class="section-header">
+                        <h2>Footer Settings</h2>
+                        <p>Edit footer content and links</p>
+                    </div>
+                    <div class="section-content">
+                        <div class="settings-group">
+                            <h3>Footer Content</h3>
+                            <div class="form-group">
+                                <label>Copyright Text</label>
+                                <input type="text" id="footerCopyright" data-target="footer-copyright" placeholder="© 2025 Miss Diaspora Ghana (MDGH)...">
+                            </div>
+                            <div class="form-group">
+                                <label>Organization Text</label>
+                                <input type="text" id="footerOrg" data-target="footer-org" placeholder="An initiative of Nubian Crown Company Limited.">
+                            </div>
+                        </div>
+
+                        <div class="settings-group">
+                            <h3>Footer Links</h3>
+                            <div id="footerLinksList" class="footer-links-list">
+                                <!-- Footer links will be dynamically generated -->
+                            </div>
+                            <button type="button" class="btn-add" id="addFooterLink">+ Add Footer Link</button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Sponsorship -->
+                <section id="sponsorship" class="admin-section">
+                    <div class="section-header">
+                        <h2>Sponsorship Tiers</h2>
+                        <p>Edit sponsorship pricing and benefits</p>
+                    </div>
+                    <div class="section-content">
+                        <div id="sponsorshipTiersList" class="sponsorship-tiers-admin">
+                            <!-- Sponsorship tiers will be dynamically generated -->
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Contestants -->
+                <section id="contestants" class="admin-section">
+                    <div class="section-header">
+                        <h2>Contestant Management</h2>
+                        <p>Add, edit, or remove contestants</p>
+                    </div>
+                    <div class="section-content">
+                        <div class="settings-group">
+                            <button type="button" class="btn-primary" id="addContestantBtn">+ Add New Contestant</button>
+                            <div id="contestantsAdminList" class="contestants-admin-list">
+                                <!-- Contestants will be dynamically generated -->
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </main>
+        </div>
+
+        <!-- Save Status Indicator -->
+        <div id="saveStatus" class="save-status"></div>
+    </div>
+
+    <!-- Contestant Modal for Admin -->
+    <div id="contestantAdminModal" class="admin-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">Add New Contestant</h3>
+                <button class="modal-close" id="closeContestantModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="contestantAdminForm">
+                    <div class="form-group">
+                        <label>Name *</label>
+                        <input type="text" id="adminContestantName" required>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Location *</label>
+                            <input type="text" id="adminContestantLocation" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Cause *</label>
+                            <input type="text" id="adminContestantCause" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Category *</label>
+                            <select id="adminContestantCategory" required>
+                                <option value="finalist">Finalist</option>
+                                <option value="semifinalist">Semifinalist</option>
+                                <option value="contestant">Contestant</option>
+                                <option value="alumni">Alumni</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Image</label>
+                            <input type="file" id="adminContestantImage" accept="image/*">
+                            <input type="text" id="adminContestantImageText" placeholder="or enter filename">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Education</label>
+                            <input type="text" id="adminContestantEducation">
+                        </div>
+                        <div class="form-group">
+                            <label>Profession</label>
+                            <input type="text" id="adminContestantProfession">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Bio *</label>
+                        <textarea id="adminContestantBio" rows="4" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Achievements (one per line) *</label>
+                        <textarea id="adminContestantAchievements" rows="4" required placeholder="Achievement 1&#10;Achievement 2&#10;Achievement 3"></textarea>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Projects Count</label>
+                            <input type="number" id="adminContestantProjects" value="0">
+                        </div>
+                        <div class="form-group">
+                            <label>Impact</label>
+                            <input type="text" id="adminContestantImpact" placeholder="500+">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Instagram URL</label>
+                            <input type="url" id="adminContestantInstagram">
+                        </div>
+                        <div class="form-group">
+                            <label>Twitter URL</label>
+                            <input type="url" id="adminContestantTwitter">
+                        </div>
+                        <div class="form-group">
+                            <label>LinkedIn URL</label>
+                            <input type="url" id="adminContestantLinkedIn">
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn-secondary" id="cancelContestantBtn">Cancel</button>
+                        <button type="submit" class="btn-primary">Save Contestant</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="../assets/js/admin.js"></script>
+</body>
+</html>
+
