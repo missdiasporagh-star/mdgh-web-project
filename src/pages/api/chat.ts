@@ -1,4 +1,5 @@
 import type { APIRoute } from 'astro';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
 export const prerender = false;
 
@@ -15,10 +16,10 @@ export const POST: APIRoute = async ({ request, locals }) => {
 
     // Get API key from Cloudflare environment
     // @ts-ignore - Cloudflare runtime env
-    const apiKey = locals.runtime?.env?.OPENROUTER_API_KEY || import.meta.env.OPENROUTER_API_KEY;
+    const apiKey = locals.runtime?.env?.GEMINI_API_KEY || import.meta.env.GEMINI_API_KEY;
 
     if (!apiKey) {
-      return new Response(JSON.stringify({ error: 'API key not configured' }), {
+      return new Response(JSON.stringify({ error: 'API key not configured. Please add GEMINI_API_KEY to Cloudflare environment variables.' }), {
         status: 500,
         headers: { 'Content-Type': 'application/json' },
       });
@@ -76,50 +77,17 @@ PRIZES:
 
 Always be friendly, informative, and encouraging. If asked about applying, direct them to contact us or fill out the form. If unsure about specific dates or details, advise them to contact us directly.`;
 
-    // Call OpenRouter API
-    // Using Qwen 2.5 7B - free and reliable
-    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
-        'HTTP-Referer': 'https://mdgh-web-project.pages.dev',
-        'X-Title': 'MDGH Chatbot'
-      },
-      body: JSON.stringify({
-        model: 'meta-llama/llama-3.1-8b-instruct:free', // Meta Llama - widely available free model
-        messages: [
-          {
-            role: 'system',
-            content: context
-          },
-          {
-            role: 'user',
-            content: message
-          }
-        ]
-      })
-    });
+    // Initialize Google Gemini API
+    const genAI = new GoogleGenerativeAI(apiKey);
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      let errorData;
-      try {
-        errorData = JSON.parse(errorText);
-      } catch {
-        throw new Error(`OpenRouter API error (${response.status}): ${errorText.substring(0, 200)}`);
-      }
-      const errorMsg = errorData.error?.message || errorData.message || JSON.stringify(errorData);
-      throw new Error(`OpenRouter: ${errorMsg}`);
-    }
+    // Combine context and user message
+    const prompt = `${context}\n\nUser: ${message}\n\nAssistant:`;
 
-    const data = await response.json();
-
-    if (!data.choices || !data.choices[0]) {
-      throw new Error('Invalid response from OpenRouter API');
-    }
-
-    const text = data.choices[0].message.content;
+    // Generate response
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    const text = response.text();
 
     return new Response(JSON.stringify({ response: text }), {
       status: 200,
