@@ -86,7 +86,7 @@ Always be friendly, informative, and encouraging. If asked about applying, direc
         'X-Title': 'MDGH Chatbot'
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.0-flash-exp:free', // Google's free experimental model via OpenRouter
+        model: 'mistralai/mistral-7b-instruct:free', // Mistral 7B - stable, reliable free model
         messages: [
           {
             role: 'system',
