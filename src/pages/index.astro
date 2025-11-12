@@ -23,7 +23,10 @@ import {
 	Phone,
 	Mail,
 	Globe as WebIcon,
-	Check
+	Check,
+	Instagram,
+	Facebook,
+	Music
 } from 'lucide-astro';
 import '../styles/global.css';
 ---
@@ -513,28 +516,38 @@ import '../styles/global.css';
 				<!-- Contact Information -->
 				<div class="space-y-8">
 					{[
-						{ icon: User, title: 'Yvonne Kofigah', subtitle: 'General Manager', description: 'Leading MDGH with vision and dedication' },
-						{ icon: Phone, title: 'Phone', subtitle: '+233 591942227\n+233 256123084', description: 'Available Mon-Fri, 9AM-5PM GMT' },
-						{ icon: Mail, title: 'Email', subtitle: 'info@missdiasporagh.org', description: 'We respond within 24 hours' },
-						{ icon: WebIcon, title: 'Website', subtitle: 'www.missdiasporagh.org', description: 'Explore more about our mission' }
+						{ icon: User, title: 'Yvonne Kofigah', subtitle: 'General Manager', description: 'Leading MDGH with vision and dedication', link: null },
+						{ icon: Phone, title: 'Phone', subtitle: '+233 591942227\n+233 256123084', description: 'Available Mon-Fri, 9AM-5PM GMT', link: null },
+						{ icon: Mail, title: 'Email', subtitle: 'info@missdiasporagh.org', description: 'We respond within 24 hours', link: null },
+						{ icon: Instagram, title: 'Instagram', subtitle: '@missdiasporagh', description: 'Follow us for daily updates and behind the scenes', link: 'https://instagram.com/missdiasporagh' },
+						{ icon: Facebook, title: 'Facebook', subtitle: 'Miss Diaspora Ghana', description: 'Connect with our community', link: 'https://www.facebook.com/share/1HEzAJq1ye/?mibextid=wwXIfr' },
+						{ icon: Music, title: 'TikTok', subtitle: '@missdiasporagh', description: 'Watch our exclusive content and highlights', link: 'https://tiktok.com/@missdiasporagh' }
 					].map((contact) => {
 						const IconComponent = contact.icon;
-						return (
-							<div class="glass-dark p-8 rounded-2xl border border-[#F8B92F]/20 hover:border-[#F8B92F]/50 transition-all duration-300 group">
-								<div class="flex items-start gap-6">
-									<!-- Icon -->
-									<div class="flex-shrink-0">
-										<div class="w-16 h-16 rounded-xl bg-gradient-to-br from-[#F8B92F] to-[#FFD700] flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-											<IconComponent class="w-8 h-8 text-black" stroke-width="2" />
-										</div>
-									</div>
-									<!-- Content -->
-									<div class="flex-1">
-										<h4 class="text-white font-bold text-xl mb-2">{contact.title}</h4>
-										<p class="text-white/90 font-medium whitespace-pre-line mb-2">{contact.subtitle}</p>
-										<p class="text-white/50 text-sm">{contact.description}</p>
+						const CardContent = (
+							<div class="flex items-start gap-6">
+								<!-- Icon -->
+								<div class="flex-shrink-0">
+									<div class="w-16 h-16 rounded-xl bg-gradient-to-br from-[#F8B92F] to-[#FFD700] flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+										<IconComponent class="w-8 h-8 text-black" stroke-width="2" />
 									</div>
 								</div>
+								<!-- Content -->
+								<div class="flex-1">
+									<h4 class="text-white font-bold text-xl mb-2">{contact.title}</h4>
+									<p class="text-white/90 font-medium whitespace-pre-line mb-2">{contact.subtitle}</p>
+									<p class="text-white/50 text-sm">{contact.description}</p>
+								</div>
+							</div>
+						);
+
+						return contact.link ? (
+							<a href={contact.link} target="_blank" rel="noopener noreferrer" class="block glass-dark p-8 rounded-2xl border border-[#F8B92F]/20 hover:border-[#F8B92F]/50 transition-all duration-300 group hover:scale-[1.02] hover:-translate-y-1">
+								{CardContent}
+							</a>
+						) : (
+							<div class="glass-dark p-8 rounded-2xl border border-[#F8B92F]/20 hover:border-[#F8B92F]/50 transition-all duration-300 group">
+								{CardContent}
 							</div>
 						);
 					})}
