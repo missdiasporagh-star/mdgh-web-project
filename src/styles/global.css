@@ -9,6 +9,65 @@
   --accent: #FF6B35;
 }
 
+/* Light Mode Theme */
+.light-mode {
+  --bg-primary: #FFFFFF;
+  --bg-secondary: #F5F5F5;
+  --text-primary: #1A1A1A;
+  --text-secondary: #4A4A4A;
+  --border-color: rgba(0, 0, 0, 0.1);
+}
+
+.light-mode body {
+  @apply bg-white text-gray-900;
+}
+
+.light-mode .glass,
+.light-mode .glass-dark {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(20px);
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+.light-mode .text-white {
+  @apply text-gray-900;
+}
+
+.light-mode .text-white\/80,
+.light-mode .text-white\/90 {
+  @apply text-gray-700;
+}
+
+.light-mode .text-white\/60 {
+  @apply text-gray-600;
+}
+
+.light-mode .text-white\/40,
+.light-mode .text-white\/50 {
+  @apply text-gray-500;
+}
+
+.light-mode .bg-black {
+  @apply bg-white;
+}
+
+.light-mode .border-white\/10,
+.light-mode .border-white\/20 {
+  @apply border-gray-200;
+}
+
+.light-mode .animated-gradient {
+  background: linear-gradient(135deg, #f5f5f5 0%, #ffffff 50%, #f0f0f0 100%);
+}
+
+.light-mode .grid-pattern::before {
+  opacity: 0.03;
+}
+
+.light-mode .noise::before {
+  opacity: 0.015;
+}
+
 /* Smooth Scrolling */
 html {
   scroll-behavior: smooth;
@@ -47,42 +106,7 @@ body {
 }
 
 /* Custom Cursor - Desktop Only */
-@media (min-width: 1024px) {
-  body {
-    cursor: none;
-  }
-
-  .custom-cursor {
-    position: fixed;
-    width: 20px;
-    height: 20px;
-    border: 2px solid var(--primary);
-    border-radius: 50%;
-    pointer-events: none;
-    z-index: 9999;
-    transition: all 0.1s ease;
-    mix-blend-mode: difference;
-  }
-
-  .custom-cursor-dot {
-    position: fixed;
-    width: 6px;
-    height: 6px;
-    background: var(--primary);
-    border-radius: 50%;
-    pointer-events: none;
-    z-index: 10000;
-    transition: all 0.05s ease;
-  }
-}
-
-/* Hide custom cursor on mobile */
-@media (max-width: 1023px) {
-  .custom-cursor,
-  .custom-cursor-dot {
-    display: none !important;
-  }
-}
+/* Custom cursor removed - using default cursor */
 
 /* Custom Scrollbar */
 ::-webkit-scrollbar {

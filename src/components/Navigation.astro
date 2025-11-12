@@ -41,20 +41,21 @@ const navLinks = [
           </a>
         ))}
 
-        <!-- CTA Button -->
-        <a
-          href="#contact"
-          class="magnetic ml-4 relative px-6 xl:px-8 py-2.5 xl:py-3 bg-gradient-to-r from-[#F8B92F] to-[#FFD700] text-black font-bold text-sm xl:text-base uppercase tracking-wider overflow-hidden group"
+        <!-- Theme Toggle Button -->
+        <button
+          id="themeToggle"
+          class="magnetic ml-4 relative p-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-[#F8B92F]/50 transition-all duration-300 group"
+          aria-label="Toggle theme"
         >
-          <span class="relative z-10 flex items-center gap-2">
-            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-            </svg>
-            Apply Now
-          </span>
-          <!-- Shine Effect -->
-          <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent transform -skew-x-12 translate-x-full group-hover:translate-x-[-200%] transition-transform duration-1000"></div>
-        </a>
+          <!-- Sun Icon (Light Mode) -->
+          <svg class="sun-icon w-5 h-5 text-[#F8B92F] transition-transform duration-300 group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+          </svg>
+          <!-- Moon Icon (Dark Mode) -->
+          <svg class="moon-icon hidden w-5 h-5 text-[#F8B92F] transition-transform duration-300 group-hover:-rotate-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+          </svg>
+        </button>
       </div>
 
       <!-- Mobile Menu Button -->
@@ -93,19 +94,21 @@ const navLinks = [
           </a>
         ))}
 
-        <!-- Mobile CTA -->
-        <a
-          href="#contact"
-          class="mobile-link mt-8 px-10 py-5 bg-gradient-to-r from-[#F8B92F] to-[#FFD700] text-black font-bold text-xl uppercase tracking-wider relative overflow-hidden group"
+        <!-- Mobile Theme Toggle -->
+        <button
+          id="mobileThemeToggle"
+          class="mobile-link mt-8 px-10 py-5 bg-white/5 hover:bg-white/10 border-2 border-[#F8B92F]/30 hover:border-[#F8B92F] text-white font-bold text-xl uppercase tracking-wider rounded-xl transition-all duration-300 flex items-center justify-center gap-3"
           style="animation-delay: 0.6s"
+          aria-label="Toggle theme"
         >
-          <span class="relative z-10 flex items-center gap-2">
-            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-            </svg>
-            Apply Now
-          </span>
-        </a>
+          <svg class="mobile-sun-icon w-6 h-6 text-[#F8B92F]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+          </svg>
+          <svg class="mobile-moon-icon hidden w-6 h-6 text-[#F8B92F]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+          </svg>
+          <span class="theme-text">Light Mode</span>
+        </button>
 
         <!-- Social Proof -->
         <div class="mobile-link text-center space-y-2 mt-8" style="animation-delay: 0.7s">
@@ -161,6 +164,43 @@ const navLinks = [
       toggleMenu();
     });
   });
+
+  // Theme Toggle Functionality
+  const themeToggle = document.getElementById('themeToggle');
+  const mobileThemeToggle = document.getElementById('mobileThemeToggle');
+  const sunIcons = document.querySelectorAll('.sun-icon, .mobile-sun-icon');
+  const moonIcons = document.querySelectorAll('.moon-icon, .mobile-moon-icon');
+  const themeText = document.querySelector('.theme-text');
+
+  // Check for saved theme preference or default to 'dark'
+  const currentTheme = localStorage.getItem('theme') || 'dark';
+
+  // Set initial theme
+  if (currentTheme === 'light') {
+    document.documentElement.classList.add('light-mode');
+    sunIcons.forEach(icon => icon.classList.add('hidden'));
+    moonIcons.forEach(icon => icon.classList.remove('hidden'));
+    if (themeText) themeText.textContent = 'Dark Mode';
+  }
+
+  // Toggle theme function
+  function toggleTheme() {
+    const isLight = document.documentElement.classList.toggle('light-mode');
+
+    sunIcons.forEach(icon => icon.classList.toggle('hidden'));
+    moonIcons.forEach(icon => icon.classList.toggle('hidden'));
+
+    if (themeText) {
+      themeText.textContent = isLight ? 'Dark Mode' : 'Light Mode';
+    }
+
+    // Save preference
+    localStorage.setItem('theme', isLight ? 'light' : 'dark');
+  }
+
+  // Add click listeners
+  themeToggle?.addEventListener('click', toggleTheme);
+  mobileThemeToggle?.addEventListener('click', toggleTheme);
 </script>
 
 <style>

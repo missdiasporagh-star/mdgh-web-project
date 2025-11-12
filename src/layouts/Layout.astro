@@ -46,10 +46,6 @@ const { title, description = "Miss Diaspora Ghana - Celebrating Beauty, Culture 
 		</style>
 	</head>
 	<body class="antialiased">
-		<!-- Custom Cursor -->
-		<div class="custom-cursor"></div>
-		<div class="custom-cursor-dot"></div>
-
 		<slot />
 
 		<script>
@@ -75,55 +71,6 @@ const { title, description = "Miss Diaspora Ghana - Celebrating Beauty, Culture 
 
 			// Update ScrollTrigger on Lenis scroll
 			lenis.on('scroll', ScrollTrigger.update);
-
-			// Custom Cursor - Desktop Only
-			if (window.innerWidth >= 1024) {
-				const cursor = document.querySelector('.custom-cursor');
-				const cursorDot = document.querySelector('.custom-cursor-dot');
-
-				let mouseX = 0, mouseY = 0;
-				let cursorX = 0, cursorY = 0;
-				let dotX = 0, dotY = 0;
-
-				document.addEventListener('mousemove', (e) => {
-					mouseX = e.clientX;
-					mouseY = e.clientY;
-				});
-
-				function animateCursor() {
-					// Smooth follow with easing
-					cursorX += (mouseX - cursorX) * 0.1;
-					cursorY += (mouseY - cursorY) * 0.1;
-					dotX += (mouseX - dotX) * 0.3;
-					dotY += (mouseY - dotY) * 0.3;
-
-					if (cursor) {
-						cursor.style.left = cursorX + 'px';
-						cursor.style.top = cursorY + 'px';
-					}
-					if (cursorDot) {
-						cursorDot.style.left = dotX + 'px';
-						cursorDot.style.top = dotY + 'px';
-					}
-
-					requestAnimationFrame(animateCursor);
-				}
-
-				animateCursor();
-
-				// Cursor hover effects
-				const interactiveElements = document.querySelectorAll('a, button, .magnetic');
-				interactiveElements.forEach((el) => {
-					el.addEventListener('mouseenter', () => {
-						cursor?.classList.add('scale-150');
-						cursorDot?.classList.add('scale-0');
-					});
-					el.addEventListener('mouseleave', () => {
-						cursor?.classList.remove('scale-150');
-						cursorDot?.classList.remove('scale-0');
-					});
-				});
-			}
 		</script>
 	</body>
 </html>
