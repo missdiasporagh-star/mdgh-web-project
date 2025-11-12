@@ -77,7 +77,7 @@ PRIZES:
 Always be friendly, informative, and encouraging. If asked about applying, direct them to contact us or fill out the form. If unsure about specific dates or details, advise them to contact us directly.`;
 
     // Call OpenRouter API
-    // Using Google Gemini Flash 1.5 - free and reliable
+    // Using Qwen 2.5 7B - free and reliable
     const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -87,7 +87,7 @@ Always be friendly, informative, and encouraging. If asked about applying, direc
         'X-Title': 'MDGH Chatbot'
       },
       body: JSON.stringify({
-        model: 'google/gemini-flash-1.5', // Free and reliable Google model
+        model: 'qwen/qwen-2.5-7b-instruct:free', // Free and fast model
         messages: [
           {
             role: 'system',
