@@ -345,10 +345,10 @@ import '../styles/global.css';
 					</span>
 				</div>
 				<h2 class="text-heading text-6xl lg:text-7xl text-white mb-6">
-					Sponsorship <span class="gradient-text">Tiers</span>
+					Partnership <span class="gradient-text">Levels</span>
 				</h2>
 				<p class="text-body-premium text-xl text-white/60 max-w-3xl mx-auto">
-					Join us in empowering young women and connecting the diaspora with Ghana through strategic partnership
+					Join us in empowering young women and connecting the diaspora with Ghana through strategic partnerships. Let's discuss how we can collaborate.
 				</p>
 			</div>
 
@@ -357,31 +357,31 @@ import '../styles/global.css';
 				{[
 					{
 						tier: 'Platinum',
-						price: '150,000+',
-						currency: 'GHS',
+						level: 'Elite Partner',
+						description: 'Title Sponsor Level',
 						gradient: 'from-yellow-400 via-yellow-500 to-yellow-600',
-						benefits: ['Title sponsor status', 'Full logo placement', 'Speaking opportunity', '5 VIP tickets', 'Full-page advertisement']
+						benefits: ['Exclusive title sponsor status', 'Maximum brand visibility', 'Premium speaking opportunities', 'VIP access & hospitality', 'Full-page advertisement placement']
 					},
 					{
 						tier: 'Gold',
-						price: '100,000',
-						currency: 'GHS',
+						level: 'Premier Partner',
+						description: 'Major Supporter Level',
 						gradient: 'from-yellow-500 via-yellow-600 to-yellow-700',
-						benefits: ['Prominent logo placement', '3 VIP tickets', 'Half-page advertisement', 'Media mentions', 'Product display booth']
+						benefits: ['Prominent brand positioning', 'VIP event access', 'Strategic media presence', 'Product showcase opportunities', 'Extensive marketing exposure']
 					},
 					{
 						tier: 'Silver',
-						price: '50,000',
-						currency: 'GHS',
+						level: 'Valued Partner',
+						description: 'Core Supporter Level',
 						gradient: 'from-gray-300 via-gray-400 to-gray-500',
-						benefits: ['Logo on event banners', '2 VIP tickets', 'Quarter-page advertisement', 'Social media recognition']
+						benefits: ['Brand recognition across events', 'VIP guest privileges', 'Marketing collateral inclusion', 'Social media acknowledgment', 'Community engagement opportunities']
 					},
 					{
 						tier: 'Bronze',
-						price: '25,000',
-						currency: 'GHS',
+						level: 'Supporting Partner',
+						description: 'Foundation Level',
 						gradient: 'from-amber-600 via-amber-700 to-amber-800',
-						benefits: ['Logo listing', '1 VIP ticket', 'Event acknowledgment', 'Branded materials inclusion']
+						benefits: ['Official partner recognition', 'Event participation access', 'Brand acknowledgment', 'Branded materials inclusion', 'Network engagement']
 					}
 				].map((tier, index) => (
 					<div class={`tier-card glass p-8 rounded-3xl hover:scale-[1.02] transition-all duration-500 border-2 border-[#F8B92F]/30 hover:border-[#F8B92F] relative overflow-hidden group ${index === 0 ? 'lg:transform lg:-translate-y-4' : ''}`}>
@@ -391,12 +391,10 @@ import '../styles/global.css';
 							{tier.tier}
 						</div>
 
-						<!-- Price Display -->
+						<!-- Partnership Level Display -->
 						<div class="mb-8">
-							<div class="flex items-start gap-2">
-								<span class="text-[#F8B92F] text-2xl font-bold mt-2">{tier.currency}</span>
-								<span class="text-display text-5xl font-black gradient-text">{tier.price}</span>
-							</div>
+							<h3 class="text-3xl font-bold text-white mb-2">{tier.level}</h3>
+							<p class="text-[#F8B92F] text-lg font-semibold">{tier.description}</p>
 						</div>
 
 						<!-- Benefits List -->
@@ -418,7 +416,7 @@ import '../styles/global.css';
 							href="#contact"
 							class="block w-full text-center px-6 py-4 bg-gradient-to-r from-[#F8B92F] to-[#FFD700] text-black font-bold rounded-full hover:shadow-2xl hover:shadow-[#F8B92F]/30 transition-all duration-300 group-hover:scale-105"
 						>
-							Get Started
+							Discuss Partnership
 						</a>
 
 						<!-- Decorative Element -->
@@ -454,7 +452,7 @@ import '../styles/global.css';
 					Let's <span class="gradient-text">Connect</span>
 				</h2>
 				<p class="text-body-premium text-xl text-white/60 max-w-3xl mx-auto">
-					We'd love to hear from you. Reach out about the pageant, sponsorship opportunities, or how to get involved
+					We'd love to hear from you. Reach out about the pageant, partnership opportunities, or how to get involved
 				</p>
 			</div>
 
@@ -513,7 +511,7 @@ import '../styles/global.css';
 							<label class="block text-white/70 text-sm font-medium mb-2">Subject</label>
 							<select class="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:border-[#F8B92F] focus:bg-white/10 transition-all duration-300">
 								<option value="" class="bg-black">Select a subject</option>
-								<option class="bg-black">Sponsorship Inquiry</option>
+								<option class="bg-black">Partnership Inquiry</option>
 								<option class="bg-black">Pageant Application</option>
 								<option class="bg-black">General Inquiry</option>
 								<option class="bg-black">Media Inquiry</option>
@@ -562,7 +560,7 @@ import '../styles/global.css';
 						{ label: 'Home', href: '#home' },
 						{ label: 'About', href: '#about' },
 						{ label: 'Programs', href: '#programs' },
-						{ label: 'Sponsorship', href: '#sponsorship' },
+						{ label: 'Partnership', href: '#sponsorship' },
 						{ label: 'Contact', href: '#contact' }
 					].map((link) => (
 						<a
