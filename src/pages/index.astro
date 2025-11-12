@@ -26,7 +26,6 @@ import {
 	Check,
 	Instagram,
 	Facebook,
-	Music,
 	X
 } from 'lucide-astro';
 import '../styles/global.css';
@@ -537,7 +536,7 @@ import '../styles/global.css';
 						{ icon: Mail, title: 'Email', subtitle: 'info@missdiasporagh.org', description: 'We respond within 24 hours', link: null },
 						{ icon: Instagram, title: 'Instagram', subtitle: '@missdiasporagh', description: 'Follow us for daily updates and behind the scenes', link: 'https://instagram.com/missdiasporagh' },
 						{ icon: Facebook, title: 'Facebook', subtitle: 'Miss Diaspora Ghana', description: 'Connect with our community', link: 'https://www.facebook.com/share/1HEzAJq1ye/?mibextid=wwXIfr' },
-						{ icon: Music, title: 'TikTok', subtitle: '@missdiasporagh', description: 'Watch our exclusive content and highlights', link: 'https://tiktok.com/@missdiasporagh' }
+						{ iconImage: '/assets/images/icons/tiktok.png', title: 'TikTok', subtitle: '@missdiasporagh', description: 'Watch our exclusive content and highlights', link: 'https://tiktok.com/@missdiasporagh' }
 					].map((contact) => {
 						const IconComponent = contact.icon;
 						const CardContent = (
@@ -545,7 +544,11 @@ import '../styles/global.css';
 								<!-- Icon -->
 								<div class="flex-shrink-0">
 									<div class="w-16 h-16 rounded-xl bg-gradient-to-br from-[#F8B92F] to-[#FFD700] flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-										<IconComponent class="w-8 h-8 text-black" stroke-width="2" />
+										{contact.iconImage ? (
+											<img src={contact.iconImage} alt={contact.title} class="w-10 h-10" />
+										) : (
+											<IconComponent class="w-8 h-8 text-black" stroke-width="2" />
+										)}
 									</div>
 								</div>
 								<!-- Content -->
