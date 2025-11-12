@@ -87,7 +87,7 @@ Always be friendly, informative, and encouraging. If asked about applying, direc
         'X-Title': 'MDGH Chatbot'
       },
       body: JSON.stringify({
-        model: 'qwen/qwen-2.5-7b-instruct:free', // Free and fast model
+        model: 'meta-llama/llama-3.1-8b-instruct:free', // Meta Llama - widely available free model
         messages: [
           {
             role: 'system',
