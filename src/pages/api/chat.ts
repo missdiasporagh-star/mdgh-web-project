@@ -86,7 +86,7 @@ Always be friendly, informative, and encouraging. If asked about applying, direc
         'X-Title': 'MDGH Chatbot'
       },
       body: JSON.stringify({
-        model: 'meta-llama/llama-3.2-3b-instruct:free',
+        model: 'google/gemini-2.0-flash-exp:free', // Google's free experimental model via OpenRouter
         messages: [
           {
             role: 'system',
@@ -102,14 +102,21 @@ Always be friendly, informative, and encouraging. If asked about applying, direc
 
     if (!response.ok) {
       const errorText = await response.text();
+      console.error('OpenRouter Error Response:', errorText);
       let errorData;
       try {
         errorData = JSON.parse(errorText);
       } catch {
-        throw new Error(`OpenRouter API error (${response.status}): ${errorText.substring(0, 200)}`);
+        throw new Error(`OpenRouter API error (${response.status}): ${errorText.substring(0, 300)}`);
       }
-      const errorMsg = errorData.error?.message || errorData.message || JSON.stringify(errorData);
-      throw new Error(`OpenRouter: ${errorMsg}`);
+
+      // Log full error details
+      console.error('OpenRouter Error Details:', JSON.stringify(errorData, null, 2));
+
+      const errorMsg = errorData.error?.message || errorData.message || 'Unknown error';
+      const errorCode = errorData.error?.code || errorData.code || 'no_code';
+
+      throw new Error(`OpenRouter Error [${errorCode}]: ${errorMsg}`);
     }
 
     const data = await response.json();
