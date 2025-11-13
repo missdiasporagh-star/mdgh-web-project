@@ -2,7 +2,6 @@
 import Layout from '../layouts/Layout.astro';
 import Navigation from '../components/Navigation.astro';
 import Hero from '../components/Hero.astro';
-import Chatbot from '../components/Chatbot.astro';
 import {
 	Sparkles,
 	Users,
@@ -706,7 +705,32 @@ import '../styles/global.css';
 		</div>
 	</footer>
 
-	<Chatbot />
+	<!-- WhatsApp Chat Widget -->
+	<a
+		href="https://wa.me/233591942227?text=Hello%20MDGH!%20I%20would%20like%20to%20get%20in%20touch."
+		target="_blank"
+		rel="noopener noreferrer"
+		class="whatsapp-widget fixed bottom-6 right-6 z-50 group"
+		aria-label="Chat with us on WhatsApp"
+	>
+		<div class="relative">
+			<!-- Main Button -->
+			<div class="w-16 h-16 bg-gradient-to-br from-[#25D366] to-[#128C7E] rounded-full flex items-center justify-center shadow-2xl shadow-[#25D366]/50 group-hover:shadow-[#25D366]/70 transition-all duration-300 group-hover:scale-110">
+				<MessageCircle class="w-8 h-8 text-white" stroke-width="2" />
+			</div>
+
+			<!-- Notification Badge -->
+			<div class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center animate-pulse">
+				<span class="text-white text-xs font-bold">1</span>
+			</div>
+
+			<!-- Tooltip -->
+			<div class="absolute right-full mr-4 top-1/2 -translate-y-1/2 bg-white rounded-lg shadow-xl px-4 py-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap pointer-events-none">
+				<p class="text-gray-800 font-semibold text-sm">Chat with us on WhatsApp</p>
+				<div class="absolute top-1/2 -translate-y-1/2 -right-2 w-0 h-0 border-t-8 border-t-transparent border-b-8 border-b-transparent border-l-8 border-l-white"></div>
+			</div>
+		</div>
+	</a>
 
 	<!-- General Manager Modal -->
 	<div id="gmModal" class="fixed inset-0 z-[100] hidden">
@@ -915,4 +939,32 @@ import '../styles/global.css';
 			closeGMModal();
 		}
 	});
+
+	// WhatsApp Widget Animation
+	const whatsappWidget = document.querySelector('.whatsapp-widget');
+	if (whatsappWidget) {
+		// Initial state
+		gsap.set(whatsappWidget, {
+			scale: 0,
+			opacity: 0,
+		});
+
+		// Entrance animation
+		gsap.to(whatsappWidget, {
+			scale: 1,
+			opacity: 1,
+			duration: 0.6,
+			delay: 1.5,
+			ease: 'back.out(1.7)',
+		});
+
+		// Floating animation
+		gsap.to(whatsappWidget, {
+			y: -10,
+			duration: 2,
+			repeat: -1,
+			yoyo: true,
+			ease: 'power1.inOut',
+		});
+	}
 </script>
