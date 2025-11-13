@@ -38,12 +38,6 @@ import { ArrowRight, ChevronDown } from 'lucide-astro';
   <!-- Content (Mobile: On top of video with text shadow, Desktop: Right Half) -->
   <div class="relative w-full lg:w-1/2 lg:ml-auto flex items-start justify-center px-6 sm:px-8 md:px-12 lg:px-16 xl:px-20 z-10" style="padding-top: 180px; background: linear-gradient(to right, rgba(0,0,0,0.8), #1a1a1a);">
     <div class="hero-content max-w-xl lg:max-w-2xl w-full space-y-5 sm:space-y-6 lg:space-y-7" style="margin-top: 80px;">
-      <!-- Decorative Element Top -->
-      <div class="hero-decorative-top flex items-center gap-4 opacity-0">
-        <div class="w-16 h-px bg-gradient-to-r from-[#F8B92F] to-transparent"></div>
-        <span class="text-[#F8B92F] uppercase tracking-[0.3em] text-xs sm:text-sm font-bold">Est. 2025</span>
-      </div>
-
       <!-- Main Title with Premium Styling -->
       <div class="relative">
         <div class="space-y-1 sm:space-y-2 overflow-hidden">
@@ -85,33 +79,6 @@ import { ArrowRight, ChevronDown } from 'lucide-astro';
           <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -skew-x-12 translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000"></div>
         </a>
       </div>
-
-      <!-- Premium Stats with Better Styling -->
-      <div class="hero-stats grid grid-cols-3 gap-4 sm:gap-6 lg:gap-8 pt-5 sm:pt-6 lg:pt-7 border-t border-white/10 opacity-0">
-        <div class="group flex flex-col items-center justify-start">
-          <div class="text-display text-2xl sm:text-3xl lg:text-3xl font-black gradient-text mb-1 sm:mb-2 group-hover:scale-110 transition-transform duration-300 text-center">
-            12+
-          </div>
-          <div class="text-[10px] sm:text-xs lg:text-sm text-white/50 uppercase tracking-[0.15em] sm:tracking-[0.2em] font-semibold text-center">Countries</div>
-        </div>
-        <div class="group flex flex-col items-center justify-start">
-          <div class="text-display text-2xl sm:text-3xl lg:text-3xl font-black gradient-text mb-1 sm:mb-2 group-hover:scale-110 transition-transform duration-300 text-center">
-            50+
-          </div>
-          <div class="text-[10px] sm:text-xs lg:text-sm text-white/50 uppercase tracking-[0.15em] sm:tracking-[0.2em] font-semibold text-center">Contestants</div>
-        </div>
-        <div class="group flex flex-col items-center justify-start">
-          <div class="text-display text-2xl sm:text-3xl lg:text-3xl font-black gradient-text mb-1 sm:mb-2 group-hover:scale-110 transition-transform duration-300 text-center">
-            1M+
-          </div>
-          <div class="text-[10px] sm:text-xs lg:text-sm text-white/50 uppercase tracking-[0.15em] sm:tracking-[0.2em] font-semibold text-center">Reach</div>
-        </div>
-      </div>
-
-      <!-- Decorative Element Bottom -->
-      <div class="hero-decorative-bottom flex items-center gap-4 opacity-0 pt-3 sm:pt-4 lg:pt-5">
-        <div class="w-full h-px bg-gradient-to-r from-transparent via-[#F8B92F]/30 to-transparent"></div>
-      </div>
     </div>
   </div>
 
@@ -131,21 +98,14 @@ import { ArrowRight, ChevronDown } from 'lucide-astro';
   // Premium entrance animation timeline
   const tl = gsap.timeline({ defaults: { ease: 'power4.out' } });
 
-  // Decorative top
-  tl.to('.hero-decorative-top', {
-    opacity: 1,
-    x: 0,
-    duration: 1,
-    delay: 0.3,
-  })
-
   // Title lines with dramatic entrance
-  .to('.hero-line-1', {
+  tl.to('.hero-line-1', {
     y: 0,
     opacity: 1,
     rotateX: 0,
     duration: 1.2,
-  }, '-=0.7')
+    delay: 0.3,
+  })
   .to('.hero-line-2', {
     y: 0,
     opacity: 1,
@@ -178,25 +138,12 @@ import { ArrowRight, ChevronDown } from 'lucide-astro';
     duration: 1,
   }, '-=0.4')
 
-  // Stats
-  .to('.hero-stats', {
-    opacity: 1,
-    y: 0,
-    duration: 1,
-  }, '-=0.6')
-
-  // Decorative bottom
-  .to('.hero-decorative-bottom', {
-    opacity: 1,
-    duration: 1,
-  }, '-=0.6')
-
   // Scroll indicator
   .to('.hero-scroll-indicator', {
     opacity: 1,
     y: 0,
     duration: 1,
-  }, '-=0.8');
+  }, '-=0.6');
 
   // Set initial states for animated elements
   gsap.set('.hero-line-1, .hero-line-2, .hero-line-3', {
@@ -205,7 +152,7 @@ import { ArrowRight, ChevronDown } from 'lucide-astro';
     rotateX: 90,
   });
 
-  gsap.set('.hero-cta, .hero-stats, .hero-scroll-indicator', {
+  gsap.set('.hero-cta, .hero-scroll-indicator', {
     opacity: 0,
     y: 30,
   });
@@ -226,30 +173,6 @@ import { ArrowRight, ChevronDown } from 'lucide-astro';
     ease: 'power1.inOut',
     yoyo: true,
     repeat: -1,
-  });
-
-  // Stats counter animation (on hover)
-  document.querySelectorAll('.hero-stats > div').forEach((stat) => {
-    stat.addEventListener('mouseenter', () => {
-      const number = stat.querySelector('.text-display');
-      if (number) {
-        gsap.to(number, {
-          scale: 1.1,
-          duration: 0.3,
-          ease: 'back.out(2)',
-        });
-      }
-    });
-    stat.addEventListener('mouseleave', () => {
-      const number = stat.querySelector('.text-display');
-      if (number) {
-        gsap.to(number, {
-          scale: 1,
-          duration: 0.3,
-          ease: 'back.out(2)',
-        });
-      }
-    });
   });
 </script>
 
