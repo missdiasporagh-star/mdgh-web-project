@@ -2,6 +2,101 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
+---
+
+## ⚠️ REVISION 2026-04-26 — Pivoted from Sanity to Astro Content Collections
+
+**Read this before dispatching any task from M0.6 onwards.** After completing Tasks 0.1–0.5, the architecture changed. The CMS layer (Sanity Studio + Drive Importer Worker + Drive Importer Sanity plugin + dataset promotion) was replaced with **Astro Content Collections** (markdown/MDX in `src/content/` with TypeScript schemas) and direct `<YouTubeEmbed>` / `<DriveEmbed>` components for media. Reason: solo + technical editor, no need for headless CMS UX; Drive integration is for hosting, not importing.
+
+**Source-of-truth document:** `docs/superpowers/specs/2026-04-26-mdgh-platform-redesign-design.md` (revised §3, §5.3, §7.5, §8, §9, §10, §11, §12, §13). The spec is now canonical; this plan is being updated section by section as tasks come up. **If the plan task body and the spec disagree, follow the spec.**
+
+### Tasks DELETED (do not implement)
+
+- **Task 0.6** (Sanity Studio scaffold + project creation) → replaced with new "Astro Content Collections setup" — see below
+- **Task 0.7** (Sanity client + env wiring) → replaced with simpler "Content collections query helpers" — see below
+- **Task 2.1** (richText + cta Sanity object schemas + PortableTextRenderer) → replaced with collection schemas + MDX rendering (see new M2 outline)
+- **Task 2.2** (siteSettings Sanity singleton + integration) → replaced with `src/data/site.ts` (typed TS object)
+- **Task 2.3** (Singleton helper for Studio + structure customization) → DELETED entirely (no Studio)
+- **Task 4.4** (Drive Importer Cloudflare Worker) → DELETED entirely
+- **Task 4.5** (Drive Importer Sanity Studio plugin) → DELETED entirely
+- **Task 4.6** (DriveAsset render component as written, with Sanity asset wrangling) → replaced with simpler `<DriveEmbed>` Astro component (paste URL → iframe Drive viewer; no rehosting)
+- **Task 7.1** (Promote Sanity staging dataset → production) → DELETED (no datasets)
+- **Task 7.2** (Switch Cloudflare Pages to read production dataset) → DELETED (no datasets)
+
+### Tasks REPLACED — new content (use these going forward)
+
+#### NEW Task 0.6 — Astro Content Collections + MDX setup
+
+**Files:**
+- Modify: `astro.config.mjs` (add `@astrojs/mdx` integration)
+- Modify: `package.json` (add `@astrojs/mdx`)
+- Create: `src/content/config.ts` (collection schema definitions using `defineCollection` + Zod from `astro:content`)
+- Create: `src/content/pages/`, `src/content/cycles/`, `src/content/contestants/`, `src/content/queens/`, `src/content/press/`, `src/content/cities/`, `src/content/quiz-questions/`, `src/content/quiz-results/` (empty dirs with `.gitkeep` files; one starter cycle to make queries non-empty)
+- Create: `src/data/site.ts` (typed singleton config — title, tagline, social, contact, footer copy)
+- Create: `src/data/culturalGreeting.ts` (typed singleton — word, subtitle, image path, audio path, durationMs, skipLabel, enabled)
+
+**Schemas to define in `src/content/config.ts`:**
+- `pages` — flexible `slug` + `seoTitle`/`seoDescription` + body (MDX)
+- `cycles` — year (number), crownNumber (string), theme, status (enum), opensAt/closesAt/finaleAt (date), applicationFee (object), eligibility/whatYoullNeed (rich/array)
+- `contestants` — name, slug, cycle (reference to cycles slug), region, sashNumber, heroImage (string path), heroVideo (object: kind+url), bio (MDX), charityPlatform (object), gallery (array of {kind, src, alt, caption}), social, sortOrder
+- `queens` — name, slug, crownNumber (number), year (number), eraTheme, heroImage, gallery, achievements (string[]), currentCity, currentRole, social, bio (MDX)
+- `press` — title, slug, source, publishedAt (date), excerpt, externalUrl (optional), coverImage (optional), featured (bool), body (MDX, optional)
+- `cities` — name, country, lat, lng, heroImage, video (optional embed), relatedQueens (string[] of slugs), relatedContestants (string[] of slugs), story (MDX)
+- `quizQuestions` — order (number), question, illustration (optional), options (array of {label, weights: array of {region, weight}})
+- `quizResults` — region (enum), archetypeName, shortLine, accentHex, illustration, description (MDX)
+
+Plus a build-time validation: exactly one cycle with `status: 'current'` (write a small content collection plugin or runtime check in queries).
+
+**Commit:** `feat(content): Astro Content Collections + MDX + base data singletons`
+
+#### NEW Task 0.7 — Content collection query helpers
+
+**Files:**
+- Create: `src/lib/content/queries.ts` — wrappers around `getCollection` and `getEntry` from `astro:content` for each content type, returning typed results. Mirrors the original Sanity queries shape so the page templates from later tasks need minimal change.
+- Create: `src/lib/content/getCurrentCycle.ts` — finds the entry with `status: 'current'`; throws at build if none or multiple.
+
+**Commit:** `feat(content): typed query helpers for collections`
+
+### Tasks UPDATED (keep but adjust)
+
+- **Task 0.8** (Cloudflare Pages binding) — **same as written**, except remove the `SANITY_*` env vars (none needed for Spec 1).
+- **Task 0.9** (Vitest + Playwright + CI) — same, except CI doesn't need `SANITY_PROJECT_ID` secret.
+- **Task 0.10** (Prettier) — unchanged.
+- **All M2 tasks (Editorial pages)** — keep the Astro page structure, but replace "Sanity schema + GROQ query + Sanity client fetch" with "Content collection schema (in 0.6's config.ts) + `getEntry`/`getCollection` from `astro:content`". Page rendering uses Astro's `<Content />` component for MDX bodies.
+- **Task 4.1** (videoEmbed/driveAsset) — replaced with two simple Astro components:
+  - `src/components/shared/YouTubeEmbed.astro` — same as originally written (paste URL → render with `lite-youtube-embed`)
+  - `src/components/shared/DriveEmbed.astro` — extracts Drive file ID, renders via direct Drive iframe (`https://drive.google.com/file/d/{id}/preview` for video, `https://drive.google.com/uc?id={id}` for image)
+- **Tasks 4.2 / 4.3 / 4.7 / 4.8 / 4.9 (cycle/queen/contestant/heritage/contestants pages)** — schemas already defined in 0.6; pages read from `astro:content`. Mostly reduces task work to "write the page that calls `getCollection('queens')` and renders QueenCards".
+- **Task 4.10 (e2e)** — unchanged (same pages exist).
+- **Task 5.1** (diasporaCity) — schema already defined in 0.6; just bootstrap a few `cities/*.mdx` entries.
+- **Task 5.2 / 5.3** (Globe island + page) — page reads from `getCollection('cities')`.
+- **Task 5.4** (quizQuestion/quizResult) — schemas already defined in 0.6; bootstrap 6 questions + 7 result entries as MDX files.
+- **Task 5.5** (quiz scoring) — unchanged.
+- **Task 5.6 / 5.7** (Quiz island + result page) — read from `getCollection('quizQuestions')`/`getEntry('quizResults', region)`.
+- **Task 5.8** (OG worker) — unchanged.
+- **Task 5.9** (e2e) — unchanged.
+- **Task 6.1** (applyPage + waitlistEntry schemas) — `applyPage` is now a `pages/apply.mdx` content entry; `waitlistEntry` is replaced with **Google Form embed** at `/apply/waitlist`.
+- **Task 6.2** (PaymentProvider) — unchanged (already TDD'd).
+- **Task 6.3** (Apply page) — reads from `getEntry('cycles', current)` + `pages/apply.mdx`.
+- **Task 6.4** (Waitlist API + form) — replaced with: create a Google Form, embed the iframe at `/apply/waitlist`. No API handler, no Sanity write client. Spec 1 done.
+- **Task 6.5** (Final QA) — unchanged.
+- **Task 7.3** (Move custom domains) — unchanged.
+- **Task 7.4** (Smoke checklist) — unchanged.
+- **Task 7.5** (Document, archive, announce) — unchanged.
+- **Task 7.6** (Rollback plan) — unchanged.
+
+### Net effect
+
+- **Deleted:** ~10 tasks (Sanity scaffold, Sanity client, Sanity singletons enforcement, Drive Importer Worker, Drive Importer plugin, DriveAsset Sanity field, dataset promotion, dataset switching).
+- **Updated:** ~25 tasks (most M2, M4, M5, M6 tasks now use `astro:content` instead of `@sanity/client`).
+- **Unchanged:** ~30 tasks (M0.1–M0.5, M1, M3, all motion/component work, OG worker, Payment abstraction, e2e tests).
+- **Plan size:** roughly 60 tasks instead of 73.
+- **Infra deleted:** Sanity account, Sanity Studio deploy, Drive service account, Sanity write tokens, two-dataset setup.
+
+The original task bodies below remain in this file as historical reference, but follow the rules above when dispatching.
+
+---
+
 **Goal:** Build the multi-page Miss Diaspora Ghana redesign at `staging.missdiasporagh.org` — a Neo-African Futurism Astro 5 platform with 6 wow features, Sanity CMS schemas wired in, a provider-agnostic payment abstraction, and a one-DNS-change cutover plan.
 
 **Architecture:** New repo `mdgh-platform/` (sibling to `mdgh-web-project/`). Astro 5 SSR on Cloudflare Pages. React islands only on `/diaspora`, `/quiz`, `/heritage`. Tailwind v4 with CSS custom properties as design tokens. Self-hosted Fraunces + Inter + JetBrains Mono. Sanity Studio (Sanity-hosted at `mdgh.sanity.studio`) for content. Two Cloudflare Workers (Drive Importer + OG Image generator). Two Sanity datasets: `staging` and `production`.

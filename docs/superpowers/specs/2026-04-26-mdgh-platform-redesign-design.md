@@ -2,9 +2,15 @@
 
 **Spec ID:** 2026-04-26-mdgh-platform-redesign
 **Scope:** Spec 1 of 3 — Public Site Redesign + Foundation
-**Status:** Draft pending user review
+**Status:** Approved (revised 2026-04-26)
 **Author:** ohwpstudios@gmail.com
 **Date:** 2026-04-26
+
+---
+
+## Revision Log
+
+**2026-04-26 (after M0.5):** Switched the content layer from **Sanity Studio** to **Astro Content Collections**. Reason: the editor is solo + technical and doesn't benefit from Sanity's headless-CMS UI; the original Drive integration was about external media *hosting*, not importing. The simpler architecture: markdown/MDX content files in `src/content/` validated by TypeScript schemas, with `<YouTubeEmbed>` and `<DriveEmbed>` components for external media references. This deletes the Drive Importer Worker, the Sanity Studio plugin, the dataset-promotion ritual, and Spec 2 entirely (Spec 2 was "CMS hardening" — there's no CMS to harden). All sections below are updated to reflect this; the vision, audience strategy, design system, six wow features, and quality gates are unchanged.
 
 ---
 
@@ -12,14 +18,14 @@
 
 A diaspora pageantry platform that makes a future contestant feel *"I belong here, and I've never seen a place like this online"* — and gives every other audience (sponsors, alumni, press, community) a dedicated zone that respects their reason for showing up.
 
-The redesign replaces the current single-page site at `missdiasporagh.org` with a multi-page Astro 5 platform (13 top-level pages + 2 dynamic detail templates + the Studio link, ~15 routes total) deployed to `staging.missdiasporagh.org` for review. On approval, custom domains cut over from the existing Cloudflare Pages project (`mdgh-web-project`) to the new project (`mdgh-platform`); the old project is preserved untouched as a rollback.
+The redesign replaces the current single-page site at `missdiasporagh.org` with a multi-page Astro 5 platform (13 top-level pages + 2 dynamic detail templates, ~14 routes total) deployed to `staging.missdiasporagh.org` for review. On approval, custom domains cut over from the existing Cloudflare Pages project (`mdgh-web-project`) to the new project (`mdgh-platform`); the old project is preserved untouched as a rollback.
 
 ## 2. Spec Decomposition Context
 
 This redesign is part of a three-spec plan agreed during brainstorming:
 
-- **Spec 1 (this document):** Public site redesign, foundation, CMS schemas wired in. Ships first.
-- **Spec 2:** Sanity CMS hardening — editor experience polish, roles, scheduled publishing, Drive Importer plugin polish, content migration playbook.
+- **Spec 1 (this document):** Public site redesign, foundation, content collection schemas wired in. Ships first.
+- **Spec 2:** *(Largely obsolete after the 2026-04-26 revision.)* Originally "Sanity CMS hardening." If non-tech editors need to be onboarded later, this spec becomes "Decap CMS layer over the existing content collections" — adds a `/admin` web UI that edits markdown via GitHub. Until then, Spec 2 is on hold.
 - **Spec 3:** Pageant platform features — paid contestant application form (provider-agnostic gateway), live voting + judging portal, AR crown try-on, AI pageant coach, sponsor activation hub.
 
 Spec 1 reserves architectural primitives (e.g., `PaymentProvider` interface, disabled voting CTA stub) so Spec 3 plugs in without re-architecting.
@@ -30,7 +36,8 @@ Spec 1 reserves architectural primitives (e.g., `PaymentProvider` interface, dis
 - A from-scratch site at `staging.missdiasporagh.org` — fresh repo `mdgh-platform`, fresh Cloudflare Pages project, no inheritance from current code.
 - 13 pages in the **Neo-African Futurism** visual world (palette, typography, motion, components defined in §6).
 - 6 wow-factor experiences built into the redesign + a public Apply entry page that links to a Spec 3 placeholder.
-- Wired to a **Sanity Studio** CMS (Sanity-hosted at `mdgh.sanity.studio`) — content models live from day one, Spec 2 hardens the editor experience.
+- Content stored as **Astro Content Collections** (markdown/MDX with type-safe TypeScript schemas in `src/content/`) — version-controlled in git, edited in your code editor, deployed via push.
+- **YouTube + Google Drive media** referenced by URL via `<YouTubeEmbed>` and `<DriveEmbed>` components — media stays where it lives, no rehosting/import pipeline.
 - A clean **`PaymentProvider` abstraction** so Spec 3 plugs in any gateway without re-architecting.
 - A **staging→prod cutover plan** (one Cloudflare DNS change).
 
@@ -40,7 +47,8 @@ Spec 1 reserves architectural primitives (e.g., `PaymentProvider` interface, dis
 - "Find Your Sister" mentor matching → Spec 3.
 - Live runway streaming → Spec 3.
 - Multi-language UI — English-only V1; revisit if data shows demand.
-- CMS editor configuration polish & roles → **Spec 2**.
+- A web-based admin UI for non-tech editors → originally "Spec 2 / Sanity hardening", now reframed as "if needed, add Decap CMS over the same content collections." Not in scope for V1.
+- Drive media *importing/rehosting* (was Spec 1; cut in 2026-04-26 revision). If hot-link throttling becomes a real problem after launch, write a one-time R2-rehost script then.
 
 ### 3.3 Hard Constraint: Asset Reuse Inventory
 No asset, font, copy line, or class name may be copy-pasted from the current site. Reusable inputs are limited to:
@@ -83,9 +91,8 @@ Everything else — color, type, layout, components, animation, photography trea
 | `/sponsors` | Partner roster + sponsorship tiers | Singleton (`sponsorsPage`) |
 | `/news` | Press & newsroom feed | Generated from `pressArticle[]` |
 | `/news/[slug]` | Article detail | Generated from `pressArticle` |
-| `/apply` | Application funnel entry (eligibility, cycle dates, fee, "Begin" CTA → waitlist) | Singleton (`applyPage`) + current `cycle` |
-| `/contact` | Contact + social | Singleton (`contactPage`) |
-| `/studio` link | Redirects to `mdgh.sanity.studio` | Static redirect |
+| `/apply` | Application funnel entry (eligibility, cycle dates, fee, "Begin" CTA → waitlist) | Singleton (`applyPage` config) + current `cycle` collection entry |
+| `/contact` | Contact + social | Singleton (`contactPage` config) |
 
 ### 5.2 Navigation
 
@@ -95,29 +102,33 @@ Everything else — color, type, layout, components, animation, photography trea
 - **Footer:** secondary navigation — About, Mission, Programs, Diaspora Globe, Quiz, Contact, Legal (Privacy, Terms)
 - **Cultural Greeting overlay:** first visit only (cookie-gated), 4–6 second moment, then dissolves into the Home
 
-### 5.3 Sanity Content Types
+### 5.3 Astro Content Collections
 
-**Singletons (one document each):**
-- `siteSettings` — logo, social links, contact info, footer copy
-- `homePage` — six chapter blocks (each: title, body Portable Text, media, CTA)
-- `aboutPage`, `missionPage`, `programsPage`, `sponsorsPage`, `applyPage`, `contactPage`
-- `culturalGreeting` — image, audio asset, greeting text, subtitle, dismiss copy
+Content lives as markdown/MDX files under `src/content/`, validated by TypeScript schemas in `src/content/config.ts`. Editing happens in your code editor; commits trigger Cloudflare Pages redeploys.
 
-**Collections:**
-- `cycle` — year, theme, opens, closes, fee, status (`upcoming` | `current` | `past`). Exactly one document with status `current` at any time (Studio validation rule).
-- `contestant` — name, slug, cycle ref, hero image, hero video, bio (Portable Text), charity platform, photo gallery (Drive-imported), social links
-- `queen` — past winners. Name, crown number, year, era theme, photo, bio, achievements, current city/role
-- `pressArticle` — title, source, date, excerpt, link or full text
-- `diasporaCity` — name, country, lat, lng, hero image, story (Portable Text), embedded video, related contestant/queen refs
-- `quizQuestion` — question text, 4 options, weight-per-region matrix
-- `quizResult` — region archetype, illustration, color theme (Sanity color picker — region-specific accent applied to result card), description, OG image template
-- `waitlistEntry` (added in M6) — name, email, optional notes, source URL, created timestamp. Captures `/apply/waitlist` submissions until Spec 3 swaps in the paid form.
+**Singletons (one TS/JSON file each, `src/data/`):**
+- `site.ts` — logo, social links, contact info, footer copy
+- `culturalGreeting.ts` — image path, audio path, greeting text, subtitle, dismiss copy
 
-**Reusable objects:**
-- `richText` (Portable Text + custom marks for callouts, pull quotes)
-- `videoEmbed` (custom field type — paste YouTube URL → extract ID → render with `lite-youtube-embed`)
-- `driveAsset` (custom field type — paste Drive share URL → Worker imports to Sanity assets or R2)
-- `cta` (label + url + variant — primary | secondary | ghost)
+**Page-config singletons (one MDX file each, `src/content/pages/`):**
+- `home.mdx` — six chapter blocks (each: title, body MDX, media reference, CTA)
+- `about.mdx`, `mission.mdx`, `programs.mdx`, `sponsors.mdx`, `apply.mdx`, `contact.mdx`
+
+**Collections (multiple files per directory):**
+- `src/content/cycles/*.mdx` — year, theme, opens, closes, fee, status (`upcoming` | `current` | `past`). Exactly one with status `current` (build-time validation).
+- `src/content/contestants/*.mdx` — name, slug, cycle ref, hero image path, hero video URL (YouTube/Drive), bio MDX, charity platform, gallery (array of image paths or video URLs), social links.
+- `src/content/queens/*.mdx` — past winners. Name, crown number, year, era theme, photo, bio MDX, achievements, current city/role.
+- `src/content/press/*.mdx` — title, source, date, excerpt, external URL or full body.
+- `src/content/cities/*.mdx` — name, country, lat, lng, hero image, story MDX, optional video URL, related queens/contestants by slug.
+- `src/content/quiz-questions/*.mdx` — question text, 4 options, weight-per-region matrix.
+- `src/content/quiz-results/*.mdx` — region archetype, illustration, accent hex color, description.
+
+**Reusable Astro components (consumed inside MDX or pages):**
+- `<YouTubeEmbed url="..." caption="..." />` — extract ID, render with `lite-youtube-embed`.
+- `<DriveEmbed url="..." kind="image|video" caption="..." />` — extract Drive file ID, render via Drive's direct embed (`uc?id=`/`preview` for video). No rehosting; if throttling becomes an issue post-launch, swap implementation behind the same component API.
+- `<Cta label="..." href="..." variant="primary|secondary|ghost" />`.
+
+**Waitlist storage** (originally `waitlistEntry` Sanity doc): replaced with **Google Form embed** at `/apply/waitlist` — submissions land in a Google Sheet you own. Zero infra. If a custom-styled form is preferred later, a small Cloudflare Worker can POST to a Google Apps Script webhook → same Sheet, same management surface.
 
 ## 6. Visual Design System: Neo-African Futurism
 
@@ -179,7 +190,7 @@ Catalogued in `/design-system` reference route during build. Includes: primary b
 
 ### 6.7 Photography Direction
 
-Skin tones never desaturated. Subtle film grain (8% opacity, multiply blend layer applied via CSS). Cool deep shadows, warm subject highlights, low-key lighting where possible. Subjects centered, full-bleed, rarely cropped tight. Captions on every image stored in Sanity (alt text field is required).
+Skin tones never desaturated. Subtle film grain (8% opacity, multiply blend layer applied via CSS). Cool deep shadows, warm subject highlights, low-key lighting where possible. Subjects centered, full-bleed, rarely cropped tight. Alt text required on every image (TypeScript schema validation in content collections — missing `alt` fails the build).
 
 ## 7. The Six Wow Features
 
@@ -206,7 +217,7 @@ Skin tones never desaturated. Subtle film grain (8% opacity, multiply blend laye
 
 ### 7.5 Current Cycle Contestant Hub — `/contestants` + `/contestants/[slug]`
 - **Index:** Cinematic 3-up grid (1-up mobile), each card = full portrait + name + region + cycle badge. Hover plays muted video preview.
-- **Detail:** Full-bleed hero (photo or video), bio, charity platform, photo gallery (Drive-imported), social links, shareable. **Voting button exists but disabled** with copy *"Opens during finale week"* — Spec 3 turns it on.
+- **Detail:** Full-bleed hero (photo or video), bio, charity platform, photo gallery (mix of `public/` images and `<DriveEmbed>`/`<YouTubeEmbed>`), social links, shareable. **Voting button exists but disabled** with copy *"Opens during finale week"* — Spec 3 turns it on.
 - **CMS:** `contestant[]` collection.
 
 ### 7.6 Diaspora Heritage Quiz — `/quiz`
@@ -222,7 +233,7 @@ V1 stub for the Spec 3 gated paid form.
 - **Cycle info card:** year, theme, opens, closes, application fee — all from the `cycle` document with status `current`.
 - **Eligibility list + "What you'll need" prep checklist:** Portable Text in `applyPage` singleton.
 - **Primary CTA "Begin Application"** → `/apply/waitlist` (Spec 1 ships a waitlist email capture; Spec 3 swaps in the paid form).
-- **Waitlist storage:** Sanity-backed (creates a `waitlistEntry` document) OR forwarded to `WAITLIST_EMAIL_TARGET` env. Pick one in M6 based on whether non-tech staff need to view entries — default to Sanity.
+- **Waitlist storage:** Google Form embed at `/apply/waitlist`. Submissions land in a Google Sheet you own. Zero infra, zero secrets, zero code beyond an iframe. If you later want a custom-styled native form, swap in a tiny Worker that POSTs to a Google Apps Script webhook → same Sheet.
 
 ## 9. Tech Architecture
 
@@ -234,38 +245,50 @@ V1 stub for the Spec 3 gated paid form.
 | Interactive islands | React 19 — only on `/diaspora` (Globe), `/quiz` (state machine), `/heritage` (horizontal scroller). Astro static everywhere else. |
 | Animation | GSAP + ScrollTrigger (cinematic scroll), Lenis (smooth scroll), CSS for micro-interactions |
 | Fonts | Fraunces + Inter + JetBrains Mono via `@fontsource-variable` (self-hosted) |
-| CMS | Sanity Studio, hosted at `mdgh.sanity.studio` (free Sanity-hosted) |
-| Media | Sanity CDN (images), Cloudflare R2 (large videos), `lite-youtube-embed` (YouTube), Drive Importer Worker (Drive → R2/Sanity) |
-| Edge runtime | Cloudflare Workers via Pages Functions |
-| Storage | KV (binding reserved for future server-side session/dedupe needs — Spec 1 cultural-greeting state lives in a browser cookie), R2 (large media), D1 (deferred to Spec 3) |
+| Content | Astro Content Collections — markdown/MDX in `src/content/` validated by TypeScript schemas in `src/content/config.ts`. Edited in your code editor; deployed via git push. |
+| Media | Local images in `public/` referenced by path; YouTube via `lite-youtube-embed`; Drive via direct embed components (no rehosting). |
+| Edge runtime | Cloudflare Workers via Pages Functions (used for OG image worker + waitlist Worker if/when added) |
+| Storage | KV (binding reserved for future server-side session/dedupe needs — Spec 1 cultural-greeting state lives in a browser cookie); D1 deferred to Spec 3. |
 | OG image generation | Satori on Cloudflare Workers |
+| Waitlist storage | Google Form embed (submissions land in a Google Sheet you own). No infra, no secrets. |
 
 ### 9.2 Repo Structure
 ```
 mdgh-platform/
 ├── src/
 │   ├── components/        # Astro + React components, organized by feature
+│   ├── content/           # Astro Content Collections
+│   │   ├── config.ts      # TypeScript schema definitions for all collections
+│   │   ├── pages/         # home.mdx, about.mdx, mission.mdx, programs.mdx, sponsors.mdx, apply.mdx, contact.mdx
+│   │   ├── cycles/        # one .mdx per cycle (e.g., 2026.mdx)
+│   │   ├── contestants/   # one .mdx per contestant
+│   │   ├── queens/        # one .mdx per past winner
+│   │   ├── press/         # one .mdx per article
+│   │   ├── cities/        # one .mdx per diaspora city (with lat/lng)
+│   │   ├── quiz-questions/
+│   │   └── quiz-results/
+│   ├── data/              # Singleton TS/JSON config (siteSettings, culturalGreeting)
 │   ├── layouts/
 │   ├── pages/             # /, /about, /contestants, /heritage, /diaspora, /quiz, /apply, etc.
 │   ├── lib/
-│   │   ├── sanity/        # client, queries, Portable Text components
 │   │   └── payment/       # provider-agnostic abstraction (interface only in Spec 1)
 │   └── styles/
-├── studio/                # Sanity schemas (singletons, collections, custom field types)
 ├── workers/
-│   ├── drive-importer/    # Drive service-account → R2/Sanity pipeline
-│   └── og-image/          # Satori OG image generator
-├── public/                # Static assets (logos only — everything else lives in CMS)
+│   └── og-image/          # Satori OG image generator (only Worker needed in Spec 1)
+├── public/                # Logos, partner marks, hero stills, contestant photos (organized by cycle)
+│   ├── logos/
+│   ├── partners/
+│   └── cycles/2026/contestant-name/...
 ├── astro.config.mjs
-├── wrangler.toml
-└── sanity.config.ts
+└── wrangler.toml
 ```
 
 ### 9.3 Data Flow
-1. Editor publishes in Sanity Studio → Sanity webhook fires.
-2. Webhook calls a Cloudflare Worker → triggers Cloudflare Pages cache purge for the affected routes.
-3. Astro at request time → `@sanity/client` queries the production dataset → SSR-renders → cached at the edge.
-4. React islands (Globe, Quiz, Heritage Timeline) hydrate client-side with data fetched at build time (SSR-baked into the HTML).
+1. Editor edits a markdown file in `src/content/` (e.g., adds a contestant).
+2. Editor commits and pushes to GitHub.
+3. Cloudflare Pages picks up the push → builds the site → deploys.
+4. Astro at request time renders pages by reading the content collections from the bundle (zero runtime CMS calls — content is built into the deploy).
+5. React islands (Globe, Quiz, Heritage Timeline) receive their data via component props at build time (SSR-baked into HTML, hydrate on the client).
 
 ### 9.4 Payment Provider Abstraction
 Defined in `src/lib/payment/`:
@@ -280,41 +303,39 @@ export interface PaymentProvider {
 }
 ```
 
-Spec 1 ships only the interface + a `MockProvider` for local dev. Spec 3 implements the real adapter(s) — Paystack, Stripe, Flutterwave, Hubtel, or any combination — without touching the form, the funnel, or the CMS.
+Spec 1 ships only the interface + a `MockProvider` for local dev. Spec 3 implements the real adapter(s) — Paystack, Stripe, Flutterwave, Hubtel, or any combination — without touching the form or the funnel.
 
 ### 9.5 Environments & Cutover
 
-- **Sanity datasets:** two — `staging` (used by `staging.missdiasporagh.org`) and `production` (used by `missdiasporagh.org` after cutover). Editors test in `staging`, then promote with Sanity's built-in dataset copy.
 - **Cloudflare Pages projects:** new project `mdgh-platform`, branch `main` deploys to `staging.missdiasporagh.org`. Production project `mdgh-web-project` stays live and untouched.
+- **One source of truth:** since content lives in git, "staging" vs. "production" is just which custom domain points at the new project. There is no separate content store to promote.
 - **Cutover when greenlit:**
-  1. Promote Sanity `staging` dataset → `production` via Sanity's built-in dataset copy. Verify all `cycle`, `contestant`, `queen`, `diasporaCity`, `quizQuestion`, `quizResult` content is present.
-  2. Switch `mdgh-platform`'s `SANITY_DATASET` env var to `production`. Trigger a deploy.
-  3. Smoke-test `staging.missdiasporagh.org` against the production dataset.
-  4. Move custom domains `missdiasporagh.org` + `www.missdiasporagh.org` from `mdgh-web-project` → `mdgh-platform` in the Cloudflare dashboard.
-  5. Verify DNS + SSL propagated. Confirm sitemap reflects new content.
-  6. Archive old repo (rename, keep for rollback).
+  1. Smoke-test `staging.missdiasporagh.org` end to end with the final content state in the repo.
+  2. Move custom domains `missdiasporagh.org` + `www.missdiasporagh.org` from `mdgh-web-project` → `mdgh-platform` in the Cloudflare dashboard.
+  3. Verify DNS + SSL propagated. Confirm sitemap reflects new content.
+  4. Archive old repo (rename, keep for rollback).
 - **Rollback:** swap custom domains back. Current site is preserved untouched throughout — no destructive step.
 
 ### 9.6 Secrets & Env
-- Cloudflare Pages project env vars: `SANITY_PROJECT_ID`, `SANITY_DATASET`, `SANITY_TOKEN` (read), `OG_SECRET`, `WAITLIST_EMAIL_TARGET`.
-- Worker secrets: `DRIVE_SERVICE_ACCOUNT_JSON` (Drive Importer), `SANITY_WRITE_TOKEN` (Drive Importer, OG worker).
-- No secret committed to repo. `.env.example` documents required keys.
+- Cloudflare Pages project env vars: `OG_SECRET` (signing query params on the OG image worker, optional).
+- Worker secrets: none required for Spec 1 (the OG worker is fully public).
+- No secret committed to repo. `.env.example` documents the (small) set of required keys.
 
 ## 10. Quality Gates
 
 ### 10.1 Performance (per page, mobile mid-range device)
 - Lighthouse Performance ≥ 95 · FCP < 1s · LCP < 2.5s · INP < 200ms · CLS < 0.1
 - Initial JS bundle < 120 KB gzipped
-- Images: Sanity CDN with `auto=format&q=80&w={responsive}` + `loading="lazy"` below the fold
+- Images: Astro `<Image>` with WebP/AVIF + responsive `srcset` for local images in `public/`; YouTube via `lite-youtube-embed` lazy facade; Drive embeds lazy-loaded via `loading="lazy"` iframe.
 - Videos: `mp4` + `webm` siblings; `preload="metadata"`; no autoplaying loops above-the-fold on cellular (`navigator.connection.saveData` check)
 
 ### 10.2 Accessibility (WCAG 2.1 AA)
 - 4.5:1 contrast for body, 3:1 for large text — design tokens already satisfy this
 - All interactives ≥ 44×44 px hit area, visible focus ring (saffron 2px outline)
 - Full keyboard navigation including the horizontal Heritage Timeline and the Globe (arrow keys + Tab to dot list fallback)
-- Screen-reader landmarks, `aria-live` on dynamic regions, alt text required on every Sanity image (schema validation)
+- Screen-reader landmarks, `aria-live` on dynamic regions, alt text required on every image (TypeScript schema validation in content collections — missing `alt` fails the build)
 - `prefers-reduced-motion` honored throughout
-- Captions on every video (Sanity stores transcript per video asset)
+- Captions on every video (transcript stored alongside the content collection entry; YouTube auto-captions accepted as fallback)
 
 ### 10.3 Browser Support
 Last 2 versions of Chrome / Edge / Safari / Firefox · iOS Safari 15+ · Android Chrome 100+. No IE.
@@ -326,11 +347,11 @@ Last 2 versions of Chrome / Edge / Safari / Firefox · iOS Safari 15+ · Android
 
 ### 10.5 Security
 - CSP headers (strict, nonce-based for inline scripts), HSTS, X-Content-Type-Options, Referrer-Policy
-- All third-party origins explicitly allow-listed (sanity.io CDN, YouTube, R2, Cloudflare)
+- All third-party origins explicitly allow-listed (YouTube, Google Drive, the OG image worker, Cloudflare)
 - No secrets in client bundle; sensitive endpoints via Workers with origin checks
 
 ### 10.6 Testing
-- **Unit:** `PaymentProvider` abstraction interface contract, Sanity query helpers, quiz scoring algorithm
+- **Unit:** `PaymentProvider` abstraction interface contract, content collection query helpers, quiz scoring algorithm
 - **Component:** React islands (Globe loads, Quiz scores correctly, Timeline scrolls)
 - **E2E (Playwright):** home cinematic scroll completes, contestant detail renders from CMS, quiz happy path → result page, apply CTA → waitlist submission
 
@@ -340,14 +361,14 @@ Quality over speed; rough pacing follows.
 
 | Milestone | Focus | Approx. duration |
 |---|---|---|
-| **M0 — Foundation** | Fresh `mdgh-platform` repo, Cloudflare Pages project bound to staging.missdiasporagh.org, Sanity project + base singletons, design tokens & fonts self-hosted, "hello world" live | ~1 week |
+| **M0 — Foundation** | Fresh `mdgh-platform` repo, Cloudflare Pages project bound to staging.missdiasporagh.org, Astro Content Collections set up + base config singletons, design tokens & fonts self-hosted, "hello world" live | ~3–5 days |
 | **M1 — Design system & shell** | Every component from §6 built and tokenized · top nav · footer · base layouts · `/design-system` reference route | ~1 week |
 | **M2 — Editorial pages** | About · Mission · Programs · Sponsors · News (index + detail) · Contact — all CMS-driven | ~1–1.5 weeks |
 | **M3 — Cinematic Home + Cultural Greeting** | Six-chapter scroll, GSAP pinning, greeting overlay with cookie + audio gating | ~1 week |
-| **M4 — Heritage + Contestants** | `/heritage` horizontal timeline · `/contestants` index + detail · Drive Importer Sanity plugin built here | ~1.5 weeks |
+| **M4 — Heritage + Contestants** | `/heritage` horizontal timeline · `/contestants` index + detail · `<DriveEmbed>` + `<YouTubeEmbed>` components | ~1 week |
 | **M5 — Globe + Quiz + OG** | `/diaspora` 3D globe · `/quiz` six-question flow · Satori OG worker for shareable result cards | ~1 week |
 | **M6 — Apply funnel + final QA** | `/apply` page · waitlist capture · full Lighthouse/axe pass · cross-browser sweep | ~1 week |
-| **M7 — Greenlight & Cutover** | Sanity dataset promotion · swap custom domains · DNS/SSL verify · archive old repo | ~1 day |
+| **M7 — Greenlight & Cutover** | Final smoke test · swap custom domains in Cloudflare · DNS/SSL verify · archive old repo | ~1 hour |
 
 Each milestone ends with a deployed staging build the user can review and a demo-ready slice. Nothing waits until the end.
 
@@ -359,11 +380,11 @@ These are explicitly *not* decided now; they belong to Spec 2 or Spec 3.
 - **Application form fields** (Spec 3) — what data we collect, file uploads, video submissions.
 - **Live voting mechanics** (Spec 3) — public web vote, SMS, judge portal, leaderboard.
 - **Sponsor analytics** (Spec 3) — which metrics, dashboard surface.
-- **Multi-language UI** — deferred until data shows demand; Sanity content models are i18n-ready (per-field locale objects) but Spec 1 ships English-only.
+- **Multi-language UI** — deferred until data shows demand; Astro Content Collections support i18n via per-locale subdirectories (e.g., `src/content/contestants/en/` + `src/content/contestants/fr/`) when needed. Spec 1 ships English-only.
 
 ## 13. Glossary
 
-- **Cycle:** one annual edition of the pageant, e.g., "Crown XXVI". Stored as a `cycle` Sanity document. Exactly one is `current` at a time.
+- **Cycle:** one annual edition of the pageant, e.g., "Crown XXVI". Stored as one `.mdx` file in `src/content/cycles/`. Exactly one has `status: current` at a time (build-time validation).
 - **Queen:** a past winner (alumni). Distinct from `contestant` to allow different content schemas.
 - **Contestant:** a current-cycle participant. Carries a `cycle` ref.
 - **Heritage Timeline:** the `/heritage` page rendering all `queen` documents.
