@@ -1017,18 +1017,18 @@ Copy the `id` printed by the KV command into `wrangler.toml`.
 
 - [ ] **Step 3: Push repo to GitHub**
 
-Create a new GitHub repo `mdgh-platform` under your org, then:
+Create a new GitHub repo `mdgh-staging` under your org, then:
 
 ```bash
-git remote add origin git@github.com:missdiasporagh-star/mdgh-platform.git
+git remote add origin git@github.com:missdiasporagh-star/mdgh-staging.git
 git push -u origin main
 ```
 
 - [ ] **Step 4: Create Cloudflare Pages project (via dashboard)**
 
 In Cloudflare dashboard → Workers & Pages → Create → Pages → Connect to Git:
-- Repo: `missdiasporagh-star/mdgh-platform`, branch `main`
-- Project name: `mdgh-platform`
+- Repo: `missdiasporagh-star/mdgh-staging`, branch `main`
+- Project name: `mdgh-staging`
 - Framework preset: Astro
 - Build command: `npm run build`
 - Output dir: `dist`
@@ -7471,7 +7471,7 @@ Switch to the **MDGH (Production)** workspace in Studio. Spot-check that all the
 
 - [ ] **Step 1: Update env var in Cloudflare dashboard**
 
-Cloudflare → Workers & Pages → `mdgh-platform` → Settings → Environment variables (Production). Change `SANITY_DATASET` from `staging` to `production`. Save.
+Cloudflare → Workers & Pages → `mdgh-staging` → Settings → Environment variables (Production). Change `SANITY_DATASET` from `staging` to `production`. Save.
 
 - [ ] **Step 2: Trigger a deploy**
 
@@ -7489,7 +7489,7 @@ Cloudflare → Workers & Pages → `mdgh-web-project` → Custom Domains. Remove
 
 - [ ] **Step 2: Add domains to new project**
 
-Cloudflare → Workers & Pages → `mdgh-platform` → Custom Domains → Set up custom domain → enter `missdiasporagh.org`, then `www.missdiasporagh.org`. Cloudflare auto-creates the DNS records.
+Cloudflare → Workers & Pages → `mdgh-staging` → Custom Domains → Set up custom domain → enter `missdiasporagh.org`, then `www.missdiasporagh.org`. Cloudflare auto-creates the DNS records.
 
 - [ ] **Step 3: Wait for SSL provisioning**
 
@@ -7502,7 +7502,7 @@ curl -sI https://missdiasporagh.org | head -5
 curl -sI https://www.missdiasporagh.org | head -5
 ```
 
-Expected: `HTTP/2 200`, served by `mdgh-platform` (check the `cf-ray` and content for the new design).
+Expected: `HTTP/2 200`, served by `mdgh-staging` (check the `cf-ray` and content for the new design).
 
 ### Task 7.4 — Smoke checklist on production
 
@@ -7541,7 +7541,7 @@ In `mdgh-platform/README.md`, add a "Production" section:
 ## Production
 
 - URL: https://missdiasporagh.org
-- Cloudflare Pages project: `mdgh-platform`
+- Cloudflare Pages project: `mdgh-staging`
 - Sanity dataset: `production`
 - CMS: https://mdgh.sanity.studio
 - Cutover date: <fill in>
@@ -7550,8 +7550,8 @@ In `mdgh-platform/README.md`, add a "Production" section:
 In `mdgh-web-project/README.md`, add a deprecation banner at the top:
 
 ```markdown
-> ⚠️ **DEPRECATED — Replaced by `mdgh-platform`**
-> The MDGH website was rebuilt from scratch as the diaspora platform. This repo is preserved for rollback only. See: https://github.com/missdiasporagh-star/mdgh-platform
+> ⚠️ **DEPRECATED — Replaced by `mdgh-staging`**
+> The MDGH website was rebuilt from scratch as the diaspora platform. This repo is preserved for rollback only. See: https://github.com/missdiasporagh-star/mdgh-staging
 ```
 
 - [ ] **Step 2: Archive old repo (optional)**
@@ -7580,7 +7580,7 @@ git push
 
 - [ ] **Step 1: Revert custom domains in Cloudflare**
 
-Workers & Pages → `mdgh-platform` → Custom Domains → remove `missdiasporagh.org` and `www`. Then `mdgh-web-project` → Custom Domains → add them back.
+Workers & Pages → `mdgh-staging` → Custom Domains → remove `missdiasporagh.org` and `www`. Then `mdgh-web-project` → Custom Domains → add them back.
 
 - [ ] **Step 2: Confirm old site responding**
 
@@ -7592,7 +7592,7 @@ Expected: served by `mdgh-web-project` (the original site).
 
 - [ ] **Step 3: File an incident note**
 
-Add an entry to `INCIDENTS.md` in `mdgh-platform` describing what failed, the rollback timestamp, and remediation. Triage and fix on staging before re-cutting over.
+Add an entry to `INCIDENTS.md` in `mdgh-staging` describing what failed, the rollback timestamp, and remediation. Triage and fix on staging before re-cutting over.
 
 **Spec 1 complete.** Production is the redesigned platform. The old site is preserved as rollback. Sanity production dataset is the canonical content store. The path is now clear for **Spec 2** (CMS hardening) and **Spec 3** (paid application form, voting, AR, AI coach).
 

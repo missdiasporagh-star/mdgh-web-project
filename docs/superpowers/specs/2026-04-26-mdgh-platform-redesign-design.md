@@ -18,7 +18,7 @@
 
 A diaspora pageantry platform that makes a future contestant feel *"I belong here, and I've never seen a place like this online"* — and gives every other audience (sponsors, alumni, press, community) a dedicated zone that respects their reason for showing up.
 
-The redesign replaces the current single-page site at `missdiasporagh.org` with a multi-page Astro 5 platform (13 top-level pages + 2 dynamic detail templates, ~14 routes total) deployed to `staging.missdiasporagh.org` for review. On approval, custom domains cut over from the existing Cloudflare Pages project (`mdgh-web-project`) to the new project (`mdgh-platform`); the old project is preserved untouched as a rollback.
+The redesign replaces the current single-page site at `missdiasporagh.org` with a multi-page Astro 5 platform (13 top-level pages + 2 dynamic detail templates, ~14 routes total) deployed to `staging.missdiasporagh.org` for review. On approval, custom domains cut over from the existing Cloudflare Pages project (`mdgh-web-project`) to the new project (`mdgh-staging`); the old project is preserved untouched as a rollback.
 
 ## 2. Spec Decomposition Context
 
@@ -33,7 +33,7 @@ Spec 1 reserves architectural primitives (e.g., `PaymentProvider` interface, dis
 ## 3. Scope
 
 ### 3.1 Spec 1 IS
-- A from-scratch site at `staging.missdiasporagh.org` — fresh repo `mdgh-platform`, fresh Cloudflare Pages project, no inheritance from current code.
+- A from-scratch site at `staging.missdiasporagh.org` — fresh repo `mdgh-staging`, fresh Cloudflare Pages project, no inheritance from current code.
 - 13 pages in the **Neo-African Futurism** visual world (palette, typography, motion, components defined in §6).
 - 6 wow-factor experiences built into the redesign + a public Apply entry page that links to a Spec 3 placeholder.
 - Content stored as **Astro Content Collections** (markdown/MDX with type-safe TypeScript schemas in `src/content/`) — version-controlled in git, edited in your code editor, deployed via push.
@@ -307,11 +307,11 @@ Spec 1 ships only the interface + a `MockProvider` for local dev. Spec 3 impleme
 
 ### 9.5 Environments & Cutover
 
-- **Cloudflare Pages projects:** new project `mdgh-platform`, branch `main` deploys to `staging.missdiasporagh.org`. Production project `mdgh-web-project` stays live and untouched.
+- **Cloudflare Pages projects:** new project `mdgh-staging`, branch `main` deploys to `staging.missdiasporagh.org`. Production project `mdgh-web-project` stays live and untouched.
 - **One source of truth:** since content lives in git, "staging" vs. "production" is just which custom domain points at the new project. There is no separate content store to promote.
 - **Cutover when greenlit:**
   1. Smoke-test `staging.missdiasporagh.org` end to end with the final content state in the repo.
-  2. Move custom domains `missdiasporagh.org` + `www.missdiasporagh.org` from `mdgh-web-project` → `mdgh-platform` in the Cloudflare dashboard.
+  2. Move custom domains `missdiasporagh.org` + `www.missdiasporagh.org` from `mdgh-web-project` → `mdgh-staging` in the Cloudflare dashboard.
   3. Verify DNS + SSL propagated. Confirm sitemap reflects new content.
   4. Archive old repo (rename, keep for rollback).
 - **Rollback:** swap custom domains back. Current site is preserved untouched throughout — no destructive step.
@@ -361,7 +361,7 @@ Quality over speed; rough pacing follows.
 
 | Milestone | Focus | Approx. duration |
 |---|---|---|
-| **M0 — Foundation** | Fresh `mdgh-platform` repo, Cloudflare Pages project bound to staging.missdiasporagh.org, Astro Content Collections set up + base config singletons, design tokens & fonts self-hosted, "hello world" live | ~3–5 days |
+| **M0 — Foundation** | Fresh `mdgh-staging` repo, Cloudflare Pages project bound to staging.missdiasporagh.org, Astro Content Collections set up + base config singletons, design tokens & fonts self-hosted, "hello world" live | ~3–5 days |
 | **M1 — Design system & shell** | Every component from §6 built and tokenized · top nav · footer · base layouts · `/design-system` reference route | ~1 week |
 | **M2 — Editorial pages** | About · Mission · Programs · Sponsors · News (index + detail) · Contact — all CMS-driven | ~1–1.5 weeks |
 | **M3 — Cinematic Home + Cultural Greeting** | Six-chapter scroll, GSAP pinning, greeting overlay with cookie + audio gating | ~1 week |
