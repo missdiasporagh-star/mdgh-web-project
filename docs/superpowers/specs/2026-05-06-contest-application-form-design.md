@@ -225,12 +225,14 @@ R2 lifecycle policy: incomplete multipart uploads abort after 24 hours.
 ```
 <application_id>.<expiry_unix>.<HMAC-SHA256(APPLY_TOKEN_SECRET, "{application_id}.{expiry_unix}")>
 ```
-base64url-encoded. TTL: 30 days. Stateless validation:
+base64url-encoded. TTL = `min(30 days, applications_close_at - now)`. Stateless validation:
 1. Decode + verify HMAC (constant-time)
 2. `expiry_unix > now`
 3. `application_id` exists in D1 with `payment_status = 'paid'`
 4. `submitted_at IS NULL`
 5. Cycle is open
+
+`/api/applications/recover` always mints a **fresh** token (new HMAC, new expiry) on each successful re-verify; the previous token is not invalidated, but the 24-hr per-application send rate-limit prevents flooding.
 
 ## 6. Payment integration
 
@@ -346,7 +348,7 @@ Resume after browser close: D1-stored R2 keys re-render as "uploaded — replace
 |---|---|---|---|
 | Payment verified `paid` | Applicant | "Your MDGH application link" | Magic link, reference, valid-until date |
 | Submission complete | Applicant | "We've received your MDGH application" | Reference, what to expect, retention notice |
-| Submission complete | Admin | `[MDGH] New application: {name} ({reference})` | Field summary + R2 link + admin dashboard link |
+| Submission complete | Admin | `[MDGH] New application: {name} ({reference})` | Field summary + link to `/admin/applications/[id]` (no direct R2 URLs in email — signed URLs are minted on demand inside the dashboard) |
 | Recover requested + verified | Applicant | "Your MDGH application link (resent)" | Same as original magic-link email |
 
 Sender: `applications@missdiasporagh.org`. Verified domain via Resend (SPF, DKIM, DMARC).
