@@ -1,0 +1,25 @@
+name = "mdgh-web-project"
+compatibility_date = "2025-11-12"
+compatibility_flags = ["nodejs_compat"]
+pages_build_output_dir = "dist"
+
+# D1 database
+[[d1_databases]]
+binding = "DB"
+database_name = "mdgh-applications-db"
+database_id = "REPLACE_WITH_M0_2_STEP_1_UUID"
+
+# R2 bucket (production maps in pages dashboard; this is for local wrangler pages dev)
+[[r2_buckets]]
+binding = "MEDIA"
+bucket_name = "mdgh-applications-staging"
+
+# KV namespace
+[[kv_namespaces]]
+binding = "SESSION"
+id = "e617b51f080c451abe6aade5373fcf6d"
+
+# Local dev variables (never put real secrets here; use .dev.vars)
+[vars]
+PAYAZA_BASE_URL = "https://sandbox-api.payaza.africa"
+R2_ACCOUNT_ID = "233d917842862e30ed5207cf7b95bc33"
