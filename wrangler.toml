@@ -2,12 +2,14 @@ name = "mdgh-web-project"
 compatibility_date = "2025-11-12"
 compatibility_flags = ["nodejs_compat"]
 pages_build_output_dir = "dist"
+# Required because the active wrangler login has multiple accounts; this picks the MDGH one.
+account_id = "233d917842862e30ed5207cf7b95bc33"
 
-# D1 database
+# D1 database — created via `wrangler d1 create mdgh-applications-db` on 2026-05-06
 [[d1_databases]]
 binding = "DB"
 database_name = "mdgh-applications-db"
-database_id = "REPLACE_WITH_M0_2_STEP_1_UUID"
+database_id = "0ab44066-071a-4232-acb8-83bb48a32cb3"
 
 # R2 bucket (production maps in pages dashboard; this is for local wrangler pages dev)
 [[r2_buckets]]
