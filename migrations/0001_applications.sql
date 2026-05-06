@@ -5,7 +5,8 @@ CREATE TABLE applications (
   transaction_reference    TEXT NOT NULL UNIQUE,
   email                    TEXT NOT NULL,
 
-  payment_status           TEXT NOT NULL DEFAULT 'pending',
+  payment_status           TEXT NOT NULL DEFAULT 'pending'
+    CHECK (payment_status IN ('pending','paid','failed','expired')),
   payment_amount_cents     INTEGER NOT NULL,
   payment_currency         TEXT NOT NULL DEFAULT 'USD',
   payaza_transaction_id    TEXT,
@@ -39,7 +40,8 @@ CREATE TABLE applications (
   video_r2_key             TEXT,
 
   submitted_at             TEXT,
-  status                   TEXT NOT NULL DEFAULT 'new',
+  status                   TEXT NOT NULL DEFAULT 'new'
+    CHECK (status IN ('new','reviewing','shortlisted','rejected')),
   admin_notes              TEXT,
 
   created_at               TEXT NOT NULL,
