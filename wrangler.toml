@@ -1,10 +1,18 @@
 name = "mdgh-web-project"
 compatibility_date = "2025-11-12"
 compatibility_flags = ["nodejs_compat"]
-pages_build_output_dir = "dist"
-# NOTE: `account_id` is NOT supported in Pages wrangler.toml (Pages-specific schema).
-# For multi-account wrangler logins, set CLOUDFLARE_ACCOUNT_ID env var instead:
-#   CLOUDFLARE_ACCOUNT_ID=233d917842862e30ed5207cf7b95bc33 npx wrangler pages ...
+# NOTE: This file is intentionally NOT a Pages-config wrangler.toml. The
+# `pages_build_output_dir` line that would trigger Cloudflare Pages's BETA
+# wrangler.toml integration was removed because that beta path was wrapping
+# the deployed Astro 5 worker in a way that returned literal "[object Object]"
+# bodies for every request. Bindings (D1/R2/KV) and env vars below are kept
+# ONLY for local `wrangler pages dev dist` use. In production, bindings are
+# configured via the Cloudflare Pages dashboard (Settings → Functions →
+# Bindings) — that path doesn't go through the broken beta detection.
+#
+# `account_id` is NOT supported in Pages-style wrangler.toml even when this
+# file is non-Pages-mode; for multi-account wrangler logins, set
+# CLOUDFLARE_ACCOUNT_ID env var instead.
 
 # D1 database — created via `wrangler d1 create mdgh-applications-db` on 2026-05-06
 [[d1_databases]]
