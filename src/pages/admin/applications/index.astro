@@ -1,0 +1,81 @@
+---
+import ApplyLayout from '@/layouts/ApplyLayout.astro';
+import { checkAdminAuth } from '@/middleware/admin-auth';
+import { listApplicationsForAdmin } from '@/lib/db/queries';
+
+const env = Astro.locals.runtime.env;
+const auth = await checkAdminAuth(Astro.request, env);
+if (!auth.ok) return Astro.redirect('/admin/login');
+
+const url = Astro.url;
+const status = url.searchParams.get('status') ?? '';
+const q = url.searchParams.get('q') ?? '';
+const offset = Number(url.searchParams.get('offset') ?? '0');
+const limit = 50;
+
+const { rows, total } = await listApplicationsForAdmin(env.DB, {
+  status: status || undefined, q: q || undefined, limit, offset,
+});
+---
+<ApplyLayout title="Admin · Applications | MDGH">
+  <div class="wrap" style="max-width:1100px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">
+      <h1 style="margin:0;font-size:26px">Applications ({total})</h1>
+      <form method="post" action="/api/admin/logout" onsubmit="event.preventDefault();fetch('/api/admin/logout',{method:'POST'}).then(()=>window.location.href='/admin/login')">
+        <button class="btn-ghost" type="submit">Sign out</button>
+      </form>
+    </div>
+
+    <form method="get" class="card" style="display:flex;gap:8px;flex-wrap:wrap;align-items:end">
+      <div style="flex:1;min-width:200px">
+        <label class="muted" style="font-size:11px">Search (email, name, reference)</label>
+        <input class="input" name="q" value={q} />
+      </div>
+      <div>
+        <label class="muted" style="font-size:11px">Status</label>
+        <select class="input" name="status">
+          <option value="">All</option>
+          <option value="new" selected={status === 'new'}>New</option>
+          <option value="reviewing" selected={status === 'reviewing'}>Reviewing</option>
+          <option value="shortlisted" selected={status === 'shortlisted'}>Shortlisted</option>
+          <option value="rejected" selected={status === 'rejected'}>Rejected</option>
+        </select>
+      </div>
+      <button class="btn" type="submit" style="padding:10px 18px">Filter</button>
+      <a class="btn-ghost" href="/api/admin/applications/csv" style="text-decoration:none;display:inline-block;padding:10px 14px">Export CSV</a>
+    </form>
+
+    <div class="card" style="padding:0;overflow:hidden">
+      <table style="width:100%;border-collapse:collapse">
+        <thead>
+          <tr style="background:#0d0d0d">
+            <th style="padding:10px;text-align:left;font-size:11px;color:#F8B92F;letter-spacing:0.15em;text-transform:uppercase">Submitted</th>
+            <th style="padding:10px;text-align:left;font-size:11px;color:#F8B92F">Name</th>
+            <th style="padding:10px;text-align:left;font-size:11px;color:#F8B92F">Email</th>
+            <th style="padding:10px;text-align:left;font-size:11px;color:#F8B92F">Reference</th>
+            <th style="padding:10px;text-align:left;font-size:11px;color:#F8B92F">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.length === 0 && <tr><td colspan="5" style="padding:24px;text-align:center;opacity:0.6">No applications match these filters.</td></tr>}
+          {rows.map((r) => (
+            <tr style="border-top:1px solid #2a2a2a">
+              <td style="padding:10px;font-size:13px">{r.submitted_at?.slice(0, 10) ?? '—'}</td>
+              <td style="padding:10px;font-size:13px"><a href={`/admin/applications/${r.id}`}>{r.full_name ?? '(no name)'}</a></td>
+              <td style="padding:10px;font-size:13px">{r.email}</td>
+              <td style="padding:10px;font-size:12px;font-family:monospace;color:#F8B92F">{r.transaction_reference}</td>
+              <td style="padding:10px;font-size:13px">{r.status}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+
+    {total > limit && (
+      <div style="display:flex;gap:8px;margin-top:14px;justify-content:center">
+        {offset > 0 && <a class="btn-ghost" href={`?status=${status}&q=${q}&offset=${Math.max(0, offset - limit)}`}>Previous</a>}
+        {offset + limit < total && <a class="btn-ghost" href={`?status=${status}&q=${q}&offset=${offset + limit}`}>Next</a>}
+      </div>
+    )}
+  </div>
+</ApplyLayout>
