@@ -1,6 +1,4 @@
 export function applySecurityHeaders(res: Response, opts: { isApply: boolean; isAdmin: boolean }): Response {
-  const headers = new Headers(res.headers);
-
   const csp = [
     "default-src 'self'",
     `script-src 'self' https://challenges.cloudflare.com${opts.isApply ? ' https://checkout.payaza.africa' : ''}`,
@@ -13,12 +11,15 @@ export function applySecurityHeaders(res: Response, opts: { isApply: boolean; is
     "object-src 'none'",
   ].join('; ');
 
-  headers.set('Content-Security-Policy', csp);
-  headers.set('Strict-Transport-Security', 'max-age=63072000; includeSubDomains; preload');
-  headers.set('X-Content-Type-Options', 'nosniff');
-  headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
-  headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
-  headers.set('X-Frame-Options', 'DENY');
+  // Cloudflare Workers Response headers are mutable. Mutate in place to avoid
+  // re-wrapping the body stream (which mangles Astro's SSR template render
+  // output to "[object Object]" in some pipeline configurations).
+  res.headers.set('Content-Security-Policy', csp);
+  res.headers.set('Strict-Transport-Security', 'max-age=63072000; includeSubDomains; preload');
+  res.headers.set('X-Content-Type-Options', 'nosniff');
+  res.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+  res.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+  res.headers.set('X-Frame-Options', 'DENY');
 
-  return new Response(res.body, { status: res.status, statusText: res.statusText, headers });
+  return res;
 }
