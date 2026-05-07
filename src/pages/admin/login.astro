@@ -1,0 +1,30 @@
+---
+import ApplyLayout from '@/layouts/ApplyLayout.astro';
+---
+<ApplyLayout title="Admin login | MDGH">
+  <div class="wrap" style="max-width:420px">
+    <h1 style="text-align:center;font-size:24px;margin:0 0 18px">Admin sign in</h1>
+    <form id="login" class="card">
+      <label class="muted" style="font-size:11px">Email</label>
+      <input class="input" name="email" type="email" required style="margin-bottom:14px" />
+      <label class="muted" style="font-size:11px">Password</label>
+      <input class="input" name="password" type="password" required style="margin-bottom:18px" />
+      <button type="submit" class="btn" style="width:100%;padding:14px">Sign in</button>
+      <p id="login-err" class="err" style="text-align:center;display:none;margin-top:10px"></p>
+    </form>
+  </div>
+  <script type="module">
+    document.getElementById('login').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const f = e.target;
+      const err = document.getElementById('login-err');
+      err.style.display = 'none';
+      const res = await fetch('/api/admin/login', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: f.email.value, password: f.password.value }),
+      });
+      if (res.ok) window.location.href = '/admin/applications';
+      else { err.textContent = 'Invalid email or password.'; err.style.display = 'block'; }
+    });
+  </script>
+</ApplyLayout>
