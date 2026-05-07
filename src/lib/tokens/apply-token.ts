@@ -16,7 +16,7 @@ function b64urlDecode(s: string): Uint8Array {
 async function hmac(secret: string, data: string): Promise<Uint8Array> {
   const key = await crypto.subtle.importKey(
     'raw', enc.encode(secret),
-    { name: 'HMAC', hash: 'SHA-256' }, false, ['sign', 'verify']
+    { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']
   );
   const sig = await crypto.subtle.sign('HMAC', key, enc.encode(data));
   return new Uint8Array(sig);

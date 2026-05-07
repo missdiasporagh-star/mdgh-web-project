@@ -22,6 +22,16 @@ describe('admin-session', () => {
     if (!result.ok) expect(result.reason).toBe('expired');
   });
 
+  it('round-trips a session token for a multi-dot email', async () => {
+    const token = await signAdminSession('admin@a.b.com', 'session-id-2', 9999999999, SECRET);
+    const result = await verifyAdminSession(token, SECRET);
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.adminEmail).toBe('admin@a.b.com');
+      expect(result.sessionId).toBe('session-id-2');
+    }
+  });
+
   it('rejects bad signature', async () => {
     const token = await signAdminSession('a@b.com', 'sid', 9999999999, SECRET);
     const result = await verifyAdminSession(token, 'd'.repeat(64));
