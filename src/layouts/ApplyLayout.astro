@@ -1,0 +1,39 @@
+---
+interface Props { title: string; description?: string; }
+const { title, description = 'Miss Diaspora Ghana — Application' } = Astro.props;
+---
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content={description} />
+  <link rel="icon" type="image/png" href="/assets/images/logos/md fav.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600&family=Inter:wght@400;500;700&display=swap" rel="stylesheet" />
+  <title>{title}</title>
+  <style>
+    body { font-family: 'Inter', sans-serif; background: #0d0d0d; color: #eee; margin: 0; min-height: 100vh; }
+    h1, h2, h3 { font-family: 'Cormorant Garamond', serif; font-weight: 600; letter-spacing: -0.02em; }
+    .wrap { max-width: 720px; margin: 0 auto; padding: 32px 24px; }
+    .card { background: #1a1a1a; border-radius: 12px; padding: 20px; margin-bottom: 14px; }
+    .label { color: #F8B92F; font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; font-weight: 700; }
+    .input { width: 100%; background: #0d0d0d; color: #eee; border: 1px solid #333; border-radius: 6px; padding: 10px 12px; font: inherit; box-sizing: border-box; }
+    .btn { display: inline-block; padding: 14px 20px; background: linear-gradient(135deg, #F8B92F, #FFD700); color: #000; text-decoration: none; border: 0; border-radius: 8px; font-weight: 700; cursor: pointer; }
+    .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .btn-ghost { background: transparent; color: #eee; border: 1px solid rgba(255,255,255,0.2); padding: 10px 14px; border-radius: 6px; cursor: pointer; }
+    .btn-ghost.selected { background: #F8B92F; color: #000; border-color: #F8B92F; }
+    .pill { display: inline-block; padding: 4px 10px; border-radius: 999px; background: rgba(248,185,47,0.1); color: #F8B92F; font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; }
+    .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    @media (max-width: 640px) { .field-row { grid-template-columns: 1fr; } }
+    .err { color: #FF6B6B; font-size: 13px; margin-top: 6px; }
+    .ok { color: #4caf50; font-size: 13px; margin-top: 6px; }
+    .muted { opacity: 0.65; font-size: 13px; }
+    a { color: #F8B92F; }
+  </style>
+</head>
+<body>
+  <slot />
+</body>
+</html>
