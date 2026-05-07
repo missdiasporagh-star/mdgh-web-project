@@ -31,8 +31,14 @@ function fakeEnv() {
       return stmt;
     },
   } as unknown as D1Database;
+  const kvStore = new Map<string, string>();
+  const SESSION: KVNamespace = {
+    get: async (k: string) => kvStore.get(k) ?? null,
+    put: async (k: string, v: string) => { kvStore.set(k, v); },
+    delete: async (k: string) => { kvStore.delete(k); },
+  } as unknown as KVNamespace;
   return {
-    DB, MEDIA: {} as R2Bucket, SESSION: {} as KVNamespace,
+    DB, MEDIA: {} as R2Bucket, SESSION,
     PAYAZA_BASE_URL: 'https://x', PAYAZA_PUBLIC_KEY: 'pk', PAYAZA_SECRET_KEY: 'sk',
     APPLY_TOKEN_SECRET: 'a'.repeat(64), ADMIN_PASSWORD_HASH: '', ADMIN_SESSION_SECRET: 'b'.repeat(64),
     IP_HASH_SALT: 'salt', RESEND_API_KEY: '',

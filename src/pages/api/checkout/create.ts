@@ -7,6 +7,7 @@ import { newTransactionReference } from '@/lib/ids/reference';
 import { hashIp } from '@/lib/crypto/hash';
 import { verifyTurnstile } from '@/lib/turnstile/verify';
 import { getPaymentProvider } from '@/lib/payment';
+import { checkRateLimit } from '@/lib/ratelimit/kv-limiter';
 
 export const prerender = false;
 
@@ -32,6 +33,10 @@ export const POST: APIRoute = async ({ request, locals, clientAddress }) => {
     validPassport: input.validPassport,
   });
   if (!eligibility.eligible) return json({ ok: false, error: 'not_eligible', rule: eligibility.disqualifyingRule }, 400);
+
+  const ipHashForRl = await hashIp(clientAddress ?? 'unknown', env.IP_HASH_SALT);
+  const rl = await checkRateLimit(env.SESSION, `rl:checkout-create:${ipHashForRl}`, 5, 3600);
+  if (!rl.allowed) return json({ ok: false, error: 'rate_limited', retryAfter: rl.retryAfterSeconds }, 429);
 
   const ts = await verifyTurnstile(input.turnstileToken, env.TURNSTILE_SECRET_KEY, clientAddress);
   if (!ts.ok) return json({ ok: false, error: 'turnstile_failed', reason: ts.reason }, 400);
