@@ -26,3 +26,13 @@ pnpm-debug.log*
 
 # brainstorming visual companion
 .superpowers/
+
+# wrangler local state
+.wrangler/
+
+# Playwright test artifacts
+test-results/
+playwright-report/
+
+# Legacy archive (untracked snapshot — never commit)
+mdgh-web-project-main_OLD_archive/

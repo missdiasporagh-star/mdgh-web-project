@@ -49,7 +49,7 @@ export const GET: APIRoute = async ({ request, locals }) => {
 
   // Rate-limit magic-link sends (24 hr per application_id)
   const sendKey = `magic-link-sent:${app.id}`;
-  const alreadySent = await env.SESSION.get(sendKey);
+  const alreadySent = await env.KV.get(sendKey);
   let emailSent = false;
   if (!alreadySent) {
     const email = getEmailProvider(env);
@@ -62,7 +62,7 @@ export const GET: APIRoute = async ({ request, locals }) => {
     const sendResult = await email.send({ to: app.email, ...e });
     if (sendResult.ok) {
       emailSent = true;
-      await env.SESSION.put(sendKey, '1', { expirationTtl: 86400 });
+      await env.KV.put(sendKey, '1', { expirationTtl: 86400 });
     }
   }
   await setApplyTokenIssued(env.DB, app.id, new Date().toISOString());

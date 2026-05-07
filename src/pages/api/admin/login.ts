@@ -27,7 +27,7 @@ export const POST: APIRoute = async ({ request, locals, clientAddress }) => {
   const token = await signAdminSession(ADMIN_EMAIL, sessionId, expiryUnix, env.ADMIN_SESSION_SECRET);
 
   // Track session in KV (allows server-side invalidation)
-  await env.SESSION.put(`admin-session:${sessionId}`, JSON.stringify({ email: ADMIN_EMAIL, expiresAt: expiryUnix }), { expirationTtl: SESSION_TTL_SECONDS });
+  await env.KV.put(`admin-session:${sessionId}`, JSON.stringify({ email: ADMIN_EMAIL, expiresAt: expiryUnix }), { expirationTtl: SESSION_TTL_SECONDS });
 
   // Audit log
   const ipHash = await hashIp(clientAddress ?? 'unknown', env.IP_HASH_SALT);

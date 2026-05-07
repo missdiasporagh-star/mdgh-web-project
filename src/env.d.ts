@@ -5,7 +5,7 @@ type CloudflareEnv = {
   // Bindings
   DB: D1Database;
   MEDIA: R2Bucket;
-  SESSION: KVNamespace;
+  KV: KVNamespace;
 
   // Secrets / vars (typed loosely; populated by Cloudflare Pages env)
   PAYAZA_PUBLIC_KEY: string;

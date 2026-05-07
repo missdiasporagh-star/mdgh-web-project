@@ -32,7 +32,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
   const validation = await validateApplyToken(input.token, env.APPLY_TOKEN_SECRET, env.DB);
   if (!validation.ok) return j({ ok: false, error: 'invalid_token', reason: validation.reason }, 401);
 
-  const rl = await checkRateLimit(env.SESSION, `rl:upload-presign:${validation.applicationId}`, 20, 3600);
+  const rl = await checkRateLimit(env.KV, `rl:upload-presign:${validation.applicationId}`, 20, 3600);
   if (!rl.allowed) return j({ ok: false, error: 'rate_limited', retryAfter: rl.retryAfterSeconds }, 429);
 
   const ext = extensionFor(input.contentType);
@@ -50,7 +50,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
   });
 
   // Track active presign in KV (one per (token, fileType))
-  await env.SESSION.put(
+  await env.KV.put(
     `presign-active:${validation.applicationId}:${input.fileType}`,
     r2Key,
     { expirationTtl: 900 }

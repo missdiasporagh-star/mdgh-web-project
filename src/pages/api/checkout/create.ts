@@ -35,7 +35,7 @@ export const POST: APIRoute = async ({ request, locals, clientAddress }) => {
   if (!eligibility.eligible) return json({ ok: false, error: 'not_eligible', rule: eligibility.disqualifyingRule }, 400);
 
   const ipHashForRl = await hashIp(clientAddress ?? 'unknown', env.IP_HASH_SALT);
-  const rl = await checkRateLimit(env.SESSION, `rl:checkout-create:${ipHashForRl}`, 5, 3600);
+  const rl = await checkRateLimit(env.KV, `rl:checkout-create:${ipHashForRl}`, 5, 3600);
   if (!rl.allowed) return json({ ok: false, error: 'rate_limited', retryAfter: rl.retryAfterSeconds }, 429);
 
   const ts = await verifyTurnstile(input.turnstileToken, env.TURNSTILE_SECRET_KEY, clientAddress);

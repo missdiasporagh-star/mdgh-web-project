@@ -9,7 +9,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
   const match = /mdgh_admin=([^;]+)/.exec(cookie);
   if (match) {
     const v = await verifyAdminSession(match[1], env.ADMIN_SESSION_SECRET);
-    if (v.ok) await env.SESSION.delete(`admin-session:${v.sessionId}`);
+    if (v.ok) await env.KV.delete(`admin-session:${v.sessionId}`);
   }
   return new Response(JSON.stringify({ ok: true }), {
     status: 200,

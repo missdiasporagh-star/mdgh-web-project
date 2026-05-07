@@ -43,9 +43,9 @@ export const POST: APIRoute = async ({ request, locals }) => {
 
   // Rate limit: 3 sends per hour per email
   const rlKey = `rl:recover:${parsed.data.email.toLowerCase()}`;
-  const current = Number(await env.SESSION.get(rlKey)) || 0;
+  const current = Number(await env.KV.get(rlKey)) || 0;
   if (current >= 3) return j({ ok: false, error: 'rate_limited' }, 429);
-  await env.SESSION.put(rlKey, String(current + 1), { expirationTtl: 3600 });
+  await env.KV.put(rlKey, String(current + 1), { expirationTtl: 3600 });
 
   const emailProvider = getEmailProvider(env);
   const magicLink = new URL(`/apply/form?token=${encodeURIComponent(token)}`, request.url).toString();

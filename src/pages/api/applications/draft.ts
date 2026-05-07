@@ -16,7 +16,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
   if (!validation.ok) return j({ ok: false, error: 'invalid_token', reason: validation.reason }, 401);
 
   // Confirm the r2Key matches the active presign for this (applicationId, fileType)
-  const expectedKey = await env.SESSION.get(`presign-active:${validation.applicationId}:${parsed.data.fileType}`);
+  const expectedKey = await env.KV.get(`presign-active:${validation.applicationId}:${parsed.data.fileType}`);
   if (expectedKey !== parsed.data.r2Key) {
     return j({ ok: false, error: 'r2_key_mismatch' }, 400);
   }

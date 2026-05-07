@@ -17,9 +17,11 @@ database_id = "0ab44066-071a-4232-acb8-83bb48a32cb3"
 binding = "MEDIA"
 bucket_name = "mdgh-applications-staging"
 
-# KV namespace
+# KV namespace — bound as KV (NOT "SESSION", which Astro 5 auto-detects and
+# overlays with its own session-cookie middleware that mangles SSR response
+# bodies). Same underlying namespace; binding name change only.
 [[kv_namespaces]]
-binding = "SESSION"
+binding = "KV"
 id = "e617b51f080c451abe6aade5373fcf6d"
 
 # Local dev variables (never put real secrets here; use .dev.vars)
