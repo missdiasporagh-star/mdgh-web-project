@@ -1,0 +1,21 @@
+# Cloudflare Workers Static Assets — _headers config
+# https://developers.cloudflare.com/workers/static-assets/headers/
+#
+# Astro emits content-hashed filenames into /_astro/* (e.g. _id_.CfS-3YyN.css).
+# Those filenames change whenever the file changes, so we can safely cache
+# them forever — saves a 304 round-trip on every repeat visit.
+
+/_astro/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# Public scripts under /scripts/ are NOT content-hashed; let them revalidate
+# but allow cache for short period.
+/scripts/*
+  Cache-Control: public, max-age=300
+
+# Static assets that have stable filenames (logos, favicons) — week-long cache
+/assets/*
+  Cache-Control: public, max-age=604800
+
+/favicon.svg
+  Cache-Control: public, max-age=604800
