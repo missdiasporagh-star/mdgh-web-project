@@ -1,0 +1,35 @@
+---
+import ApplyLayout from '@/layouts/ApplyLayout.astro';
+import { getActiveCycle } from '@/lib/db/queries';
+
+const env = Astro.locals.runtime.env;
+const cycle = await getActiveCycle(env.DB);
+const display = cycle?.display_name ?? 'this cycle';
+---
+<ApplyLayout title="Applications closed | MDGH">
+  <div class="wrap" style="text-align:center">
+    <span class="pill">{display}</span>
+    <h1 style="font-size:34px;margin:12px 0">Applications are closed.</h1>
+    <p class="muted" style="max-width:480px;margin:0 auto 18px">Want to be notified when the next cycle opens?</p>
+    <form id="notify-form" style="max-width:380px;margin:0 auto;display:flex;gap:8px">
+      <input class="input" id="notify-email" type="email" placeholder="email@example.com" required />
+      <button type="submit" class="btn" style="white-space:nowrap">Notify me</button>
+    </form>
+    <p id="notify-msg" style="margin-top:10px;display:none"></p>
+  </div>
+
+  <script type="module">
+    document.getElementById('notify-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('notify-email').value.trim();
+      const msg = document.getElementById('notify-msg');
+      msg.style.display = 'block';
+      const res = await fetch('/api/notifications/subscribe', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, source: 'cycle_closed', disqualifyingRule: null, honeypot: '' }),
+      });
+      if (res.ok) { msg.className = 'ok'; msg.textContent = "You're on the list."; }
+      else { msg.className = 'err'; msg.textContent = 'Something went wrong.'; }
+    });
+  </script>
+</ApplyLayout>
