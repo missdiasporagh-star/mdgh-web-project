@@ -2,8 +2,9 @@ name = "mdgh-web-project"
 compatibility_date = "2025-11-12"
 compatibility_flags = ["nodejs_compat"]
 pages_build_output_dir = "dist"
-# Required because the active wrangler login has multiple accounts; this picks the MDGH one.
-account_id = "233d917842862e30ed5207cf7b95bc33"
+# NOTE: `account_id` is NOT supported in Pages wrangler.toml (Pages-specific schema).
+# For multi-account wrangler logins, set CLOUDFLARE_ACCOUNT_ID env var instead:
+#   CLOUDFLARE_ACCOUNT_ID=233d917842862e30ed5207cf7b95bc33 npx wrangler pages ...
 
 # D1 database — created via `wrangler d1 create mdgh-applications-db` on 2026-05-06
 [[d1_databases]]
