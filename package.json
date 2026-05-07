@@ -7,7 +7,7 @@
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
-    "wrangler:dev": "wrangler pages dev dist",
+    "wrangler:dev": "wrangler pages dev dist --config wrangler.dev.toml",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
