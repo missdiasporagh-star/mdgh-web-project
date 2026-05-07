@@ -17,10 +17,10 @@ function b64urlDecode(s: string): Uint8Array {
 
 async function derive(password: string, salt: Uint8Array, iterations: number): Promise<Uint8Array> {
   const keyMaterial = await crypto.subtle.importKey(
-    'raw', enc.encode(password), 'PBKDF2', false, ['deriveBits']
+    'raw', enc.encode(password) as BufferSource, 'PBKDF2', false, ['deriveBits']
   );
   const bits = await crypto.subtle.deriveBits(
-    { name: 'PBKDF2', salt, iterations, hash: 'SHA-256' },
+    { name: 'PBKDF2', salt: salt as BufferSource, iterations, hash: 'SHA-256' },
     keyMaterial, 256
   );
   return new Uint8Array(bits);

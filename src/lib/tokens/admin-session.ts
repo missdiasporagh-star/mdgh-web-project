@@ -15,19 +15,19 @@ function b64urlDecode(s: string): Uint8Array {
 
 async function hmac(secret: string, data: string): Promise<Uint8Array> {
   const key = await crypto.subtle.importKey(
-    'raw', enc.encode(secret),
+    'raw', enc.encode(secret) as BufferSource,
     { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']
   );
-  const sig = await crypto.subtle.sign('HMAC', key, enc.encode(data));
+  const sig = await crypto.subtle.sign('HMAC', key, enc.encode(data) as BufferSource);
   return new Uint8Array(sig);
 }
 
 async function hmacVerify(secret: string, data: string, sig: Uint8Array): Promise<boolean> {
   const key = await crypto.subtle.importKey(
-    'raw', enc.encode(secret),
+    'raw', enc.encode(secret) as BufferSource,
     { name: 'HMAC', hash: 'SHA-256' }, false, ['verify']
   );
-  return crypto.subtle.verify('HMAC', key, sig, enc.encode(data));
+  return crypto.subtle.verify('HMAC', key, sig as BufferSource, enc.encode(data) as BufferSource);
 }
 
 export async function signAdminSession(adminEmail: string, sessionId: string, expiryUnix: number, secret: string): Promise<string> {
