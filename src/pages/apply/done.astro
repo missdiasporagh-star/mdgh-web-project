@@ -1,0 +1,13 @@
+---
+import ApplyLayout from '@/layouts/ApplyLayout.astro';
+const ref = Astro.url.searchParams.get('ref') ?? '';
+---
+<ApplyLayout title="Application received | MDGH">
+  <div class="wrap" style="text-align:center">
+    <div style="font-size:48px;margin-bottom:16px;color:#4caf50">✓</div>
+    <h1 style="font-size:28px;margin:0 0 8px">Application received</h1>
+    <p class="muted" style="margin:0 0 18px">We'll be in touch within 14 days. Keep this reference safe:</p>
+    <div class="card" style="font-family:monospace;font-size:18px;color:#F8B92F;text-align:center">{ref}</div>
+    <p class="muted" style="margin-top:18px">A confirmation has been sent to your email.</p>
+  </div>
+</ApplyLayout>
