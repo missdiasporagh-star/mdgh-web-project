@@ -68,8 +68,8 @@ try { socials = app.socials_json ? JSON.parse(app.socials_json) : {}; } catch {}
     <section class="card">
       <div class="label">Media</div>
       <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px">
-        {app.headshot_r2_key && <button class="btn-ghost" onclick={`previewMedia('${app.id}','headshot')`}>View headshot</button>}
-        {app.video_r2_key && <button class="btn-ghost" onclick={`previewMedia('${app.id}','video')`}>Play video</button>}
+        {app.headshot_r2_key && <button class="btn-ghost" data-media-preview="headshot">View headshot</button>}
+        {app.video_r2_key && <button class="btn-ghost" data-media-preview="video">Play video</button>}
       </div>
       <div id="media-host" style="margin-top:14px"></div>
     </section>
@@ -84,29 +84,6 @@ try { socials = app.socials_json ? JSON.parse(app.socials_json) : {}; } catch {}
     </section>
   </div>
 
-  <script type="module" define:vars={{ id: app.id }}>
-    document.getElementById('status-form').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const status = document.getElementById('status-select').value;
-      const adminNotes = document.getElementById('admin-notes').value;
-      const msg = document.getElementById('status-msg');
-      msg.style.display = 'block';
-      const res = await fetch(`/api/admin/applications/${id}/status`, {
-        method: 'PATCH', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status, adminNotes }),
-      });
-      if (res.ok) { msg.className = 'ok'; msg.textContent = 'Saved.'; }
-      else { msg.className = 'err'; msg.textContent = 'Could not save.'; }
-    });
-
-    window.previewMedia = async (id, which) => {
-      const host = document.getElementById('media-host');
-      host.innerHTML = '<p class="muted">Loading…</p>';
-      const res = await fetch(`/api/admin/applications/${id}/signed-url?which=${which}`);
-      const j = await res.json();
-      if (!j.ok) { host.innerHTML = `<p class="err">Could not load: ${j.error}</p>`; return; }
-      if (which === 'headshot') host.innerHTML = `<img src="${j.url}" style="max-width:100%;border-radius:8px" />`;
-      else host.innerHTML = `<video controls src="${j.url}" style="max-width:100%;border-radius:8px"></video>`;
-    };
-  </script>
+  <meta name="application-id" content={app.id} />
+  <script type="module" src="/scripts/admin-application-detail.js"></script>
 </ApplyLayout>
