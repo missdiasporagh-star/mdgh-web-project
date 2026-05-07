@@ -1,0 +1,112 @@
+---
+import ApplyLayout from '@/layouts/ApplyLayout.astro';
+import { checkAdminAuth } from '@/middleware/admin-auth';
+import { getApplicationById } from '@/lib/db/queries';
+
+const env = Astro.locals.runtime.env;
+const auth = await checkAdminAuth(Astro.request, env);
+if (!auth.ok) return Astro.redirect('/admin/login');
+
+const id = Astro.params.id;
+if (!id) return new Response('Not Found', { status: 404 });
+const app = await getApplicationById(env.DB, id);
+if (!app) return new Response('Not Found', { status: 404 });
+
+let socials: Record<string, string> = {};
+try { socials = app.socials_json ? JSON.parse(app.socials_json) : {}; } catch {}
+---
+<ApplyLayout title={`${app.full_name ?? app.email} | Admin | MDGH`}>
+  <div class="wrap" style="max-width:900px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+      <a href="/admin/applications" class="btn-ghost">← All applications</a>
+      <span class="muted" style="font-family:monospace;color:#F8B92F">{app.transaction_reference}</span>
+    </div>
+
+    <h1 style="margin:0;font-size:28px">{app.full_name ?? '(no name)'}</h1>
+    <p class="muted">{app.email} · {app.phone ?? '—'} · DOB {app.date_of_birth ?? '—'}</p>
+
+    <section class="card">
+      <div class="label">Status</div>
+      <form id="status-form" style="display:flex;gap:8px;align-items:end;margin-top:8px">
+        <select id="status-select" class="input" style="flex:0 0 200px">
+          {['new','reviewing','shortlisted','rejected'].map(s => (
+            <option value={s} selected={app.status === s}>{s}</option>
+          ))}
+        </select>
+        <button class="btn" type="submit" style="padding:10px 18px">Save</button>
+      </form>
+      <textarea id="admin-notes" class="input" rows={3} placeholder="Admin notes…" style="margin-top:8px;width:100%">{app.admin_notes ?? ''}</textarea>
+      <p id="status-msg" style="margin-top:8px;display:none"></p>
+    </section>
+
+    <section class="card">
+      <div class="label">Profile</div>
+      <p><strong>Country of residence:</strong> {app.country_of_residence ?? '—'}</p>
+      <p><strong>Current city:</strong> {app.current_city ?? '—'}</p>
+      <p><strong>Country of heritage:</strong> {app.country_of_heritage ?? '—'}</p>
+      <p style="margin-top:14px"><strong>Bio:</strong></p>
+      <p style="white-space:pre-wrap">{app.bio ?? '—'}</p>
+      <p style="margin-top:14px"><strong>Socials:</strong> {Object.entries(socials).map(([k, v]) => `${k}: ${v}`).join(' · ') || '—'}</p>
+    </section>
+
+    <section class="card">
+      <div class="label">Eligibility answers</div>
+      <p>Age band: {app.eligibility_age_band ?? '—'}</p>
+      <p>Identifies as woman: {app.eligibility_is_woman === 1 ? 'Yes' : 'No'}</p>
+      <p>African descent: {app.eligibility_african_descent === 1 ? 'Yes' : 'No'}</p>
+      <p>Resides outside Ghana: {app.eligibility_outside_ghana === 1 ? 'Yes' : 'No'}</p>
+      <p>Valid passport: {app.eligibility_valid_passport === 1 ? 'Yes' : 'No'}</p>
+    </section>
+
+    <section class="card">
+      <div class="label">Consent (recorded {app.consent_recorded_at})</div>
+      <p>Policy version: {app.consent_policy_version}</p>
+      <p>Media use consented: {app.consent_media_use === 1 ? 'Yes' : 'No'}</p>
+      <p>Marketing consented: {app.consent_marketing === 1 ? 'Yes' : 'No'}</p>
+    </section>
+
+    <section class="card">
+      <div class="label">Media</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px">
+        {app.headshot_r2_key && <button class="btn-ghost" onclick={`previewMedia('${app.id}','headshot')`}>View headshot</button>}
+        {app.video_r2_key && <button class="btn-ghost" onclick={`previewMedia('${app.id}','video')`}>Play video</button>}
+      </div>
+      <div id="media-host" style="margin-top:14px"></div>
+    </section>
+
+    <section class="card">
+      <div class="label">Payment</div>
+      <p>Status: <strong>{app.payment_status}</strong></p>
+      <p>Amount: {(app.payment_amount_cents / 100).toFixed(2)} {app.payment_currency}</p>
+      <p>Verified at: {app.payment_verified_at ?? '—'}</p>
+      <p>Payaza transaction id: <code>{app.payaza_transaction_id ?? '—'}</code></p>
+      {app.email_bounced_at && <p style="color:#FF6B6B"><strong>Email bounced</strong> at {app.email_bounced_at}</p>}
+    </section>
+  </div>
+
+  <script type="module" define:vars={{ id: app.id }}>
+    document.getElementById('status-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const status = document.getElementById('status-select').value;
+      const adminNotes = document.getElementById('admin-notes').value;
+      const msg = document.getElementById('status-msg');
+      msg.style.display = 'block';
+      const res = await fetch(`/api/admin/applications/${id}/status`, {
+        method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status, adminNotes }),
+      });
+      if (res.ok) { msg.className = 'ok'; msg.textContent = 'Saved.'; }
+      else { msg.className = 'err'; msg.textContent = 'Could not save.'; }
+    });
+
+    window.previewMedia = async (id, which) => {
+      const host = document.getElementById('media-host');
+      host.innerHTML = '<p class="muted">Loading…</p>';
+      const res = await fetch(`/api/admin/applications/${id}/signed-url?which=${which}`);
+      const j = await res.json();
+      if (!j.ok) { host.innerHTML = `<p class="err">Could not load: ${j.error}</p>`; return; }
+      if (which === 'headshot') host.innerHTML = `<img src="${j.url}" style="max-width:100%;border-radius:8px" />`;
+      else host.innerHTML = `<video controls src="${j.url}" style="max-width:100%;border-radius:8px"></video>`;
+    };
+  </script>
+</ApplyLayout>
