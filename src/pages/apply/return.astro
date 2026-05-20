@@ -1,22 +1,19 @@
 ---
 import ApplyLayout from '@/layouts/ApplyLayout.astro';
+import { runPaymentVerification } from '@/lib/payment/verify-flow';
 
 const reference = Astro.url.searchParams.get('reference');
 if (!reference) return Astro.redirect('/apply');
 
-const verifyUrl = new URL(`/api/checkout/verify?reference=${encodeURIComponent(reference)}`, Astro.url).toString();
-const res = await fetch(verifyUrl);
-const data = await res.json() as
-  | { ok: true; status: 'paid'; applicationId: string; token?: string; emailSent?: boolean; alreadyPaid?: boolean }
-  | { ok: true; status: 'pending' | 'failed'; applicationId: string }
-  | { ok: false; error: string };
+const env = Astro.locals.runtime.env;
+const data = await runPaymentVerification(env, reference, Astro.url.toString());
 
 let view: 'paid' | 'pending' | 'failed' | 'error' = 'error';
 let token: string | undefined;
-if ('ok' in data && data.ok && 'status' in data) {
+if (data.ok) {
   if (data.status === 'paid') {
     view = 'paid';
-    token = (data as { token?: string }).token;
+    token = data.token;
   } else if (data.status === 'pending') {
     view = 'pending';
   } else if (data.status === 'failed') {
@@ -38,11 +35,15 @@ if (view === 'paid' && token) {
       </div>
     )}
     {view === 'failed' && (
-      <div class="card" style="border-left:3px solid #FF6B6B">
+      <div class="card" style="border-left:3px solid #FF6B6B" data-retry-card data-reference={reference}>
         <div class="label" style="color:#FF6B6B">Payment didn't go through</div>
         <h2 style="margin:8px 0">No charge was made.</h2>
-        <p class="muted">You can try again — the cycle is still open.</p>
-        <a href="/apply" class="btn" style="margin-top:12px">Try again</a>
+        <p class="muted">Your details are saved — you can retry payment without filling the form again.</p>
+        <button type="button" id="retry-btn" class="btn" style="margin-top:12px;width:100%">Retry payment</button>
+        <p id="retry-err" class="err" style="display:none;margin-top:10px"></p>
+        <p class="muted" style="font-size:12px;margin-top:14px;text-align:center">
+          Or <a href="/apply" style="color:#F8B92F">start a new application</a>.
+        </p>
       </div>
     )}
     {view === 'error' && (
@@ -52,4 +53,9 @@ if (view === 'paid' && token) {
       </div>
     )}
   </div>
+
+  {view === 'failed' && (
+    <script src="https://checkout-v2.payaza.africa/js/v1/bundle.js" defer></script>
+    <script type="module" src="/scripts/apply-retry.js"></script>
+  )}
 </ApplyLayout>

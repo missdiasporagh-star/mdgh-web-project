@@ -20,6 +20,13 @@
     "enabled": true
   },
 
+  // Custom domain attachment for staging soft-launch. Visitors to
+  // apply.missdiasporagh.org hit this Worker. SSL cert + DNS record are
+  // auto-provisioned by Cloudflare on first `wrangler deploy`.
+  "routes": [
+    { "pattern": "apply.missdiasporagh.org", "custom_domain": true }
+  ],
+
   // D1 database — created on 2026-05-06
   "d1_databases": [
     {

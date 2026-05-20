@@ -144,8 +144,35 @@ function setupSubmit(state) {
       errEl.style.display = 'block';
       return;
     }
+    if (json.flow === 'sdk') {
+      openPayazaCheckout(json.sdkBootstrap, json.reference, errEl);
+      return;
+    }
     window.location.href = json.checkoutUrl;
   });
+}
+
+function openPayazaCheckout(boot, reference, errEl) {
+  if (!window.PayazaCheckout) {
+    errEl.textContent = 'Payment widget failed to load. Please refresh and try again.';
+    errEl.style.display = 'block';
+    return;
+  }
+  const returnUrl = `/apply/return?reference=${encodeURIComponent(reference)}`;
+  const checkout = window.PayazaCheckout.setup({
+    merchant_key: boot.publicKey,
+    connection_mode: boot.connectionMode,
+    checkout_amount: boot.amount,
+    currency_code: boot.currency,
+    email_address: boot.email,
+    first_name: boot.firstName,
+    last_name: boot.lastName,
+    phone_number: boot.phoneNumber || '',
+    transaction_reference: boot.reference,
+    callback: () => { window.location.href = returnUrl; },
+    onClose: () => {},
+  });
+  checkout.showPopup();
 }
 
 function showDisqualified(state) {

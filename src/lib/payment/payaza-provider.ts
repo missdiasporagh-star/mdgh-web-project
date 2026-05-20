@@ -5,82 +5,84 @@ import type {
 type PayazaEnv = {
   PAYAZA_PUBLIC_KEY: string;
   PAYAZA_SECRET_KEY: string;
-  PAYAZA_BASE_URL: string;
 };
+
+// Payaza's verification endpoint is the same URL for both test and live modes.
+// The connection_mode passed to the client SDK determines which environment the
+// payment actually executes in. Confirmed from Payaza's official WooCommerce
+// plugin (class-wc-gateway-payaza.php).
+const VERIFY_URL = 'https://api.payaza.africa/live/merchant-collection/transfer_notification_controller/merchant/transaction-query';
 
 export class PayazaProvider implements PaymentProvider {
   constructor(private readonly env: PayazaEnv) {}
 
   async init(input: PaymentInitInput): Promise<PaymentInitResult> {
-    try {
-      const res = await fetch(`${this.env.PAYAZA_BASE_URL}/checkout/initiate`, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${this.env.PAYAZA_SECRET_KEY}`,
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-        },
-        body: JSON.stringify({
-          reference: input.reference,
-          amount: input.amountCents / 100,
-          currency: input.currency,
-          email: input.customerEmail,
-          name: input.customerName,
-          callback_url: input.callbackUrl,
-          metadata: input.metadata ?? {},
-        }),
-      });
-      const json = await safeJson(res);
-      if (!res.ok || !isSuccessShape(json)) {
-        return {
-          ok: false,
-          errorCode: extractCode(json) ?? `HTTP_${res.status}`,
-          errorMessage: extractMessage(json) ?? 'Checkout init failed',
-        };
-      }
-      const data = (json as { data: { checkout_url: string; transaction_id: string } }).data;
-      return { ok: true, checkoutUrl: data.checkout_url, providerReference: data.transaction_id };
-    } catch (e) {
-      return {
-        ok: false,
-        errorCode: 'NETWORK_ERROR',
-        errorMessage: e instanceof Error ? e.message : String(e),
-      };
-    }
+    const connectionMode: 'Test' | 'Live' =
+      this.env.PAYAZA_PUBLIC_KEY.includes('PKTEST') ? 'Test' : 'Live';
+
+    const { firstName, lastName } = deriveNameFromEmail(input.customerEmail, input.customerName);
+
+    return {
+      ok: true,
+      flow: 'sdk',
+      providerReference: input.reference,
+      sdkBootstrap: {
+        publicKey: this.env.PAYAZA_PUBLIC_KEY,
+        connectionMode,
+        amount: input.amountCents / 100,
+        currency: input.currency,
+        reference: input.reference,
+        email: input.customerEmail,
+        firstName,
+        lastName,
+        phoneNumber: '',
+      },
+    };
   }
 
   async verify(reference: string): Promise<PaymentVerifyResult> {
     try {
-      const res = await fetch(
-        `${this.env.PAYAZA_BASE_URL}/transactions/verify/${encodeURIComponent(reference)}`,
-        {
-          headers: {
-            Authorization: `Bearer ${this.env.PAYAZA_SECRET_KEY}`,
-            Accept: 'application/json',
-          },
-        }
-      );
-      const json = await safeJson(res);
-      if (!res.ok || !isSuccessShape(json)) {
+      const url = `${VERIFY_URL}?merchant_reference=${encodeURIComponent(reference)}`;
+      const encodedKey = btoa(this.env.PAYAZA_PUBLIC_KEY);
+      const res = await fetch(url, {
+        method: 'GET',
+        headers: {
+          Authorization: `Payaza ${encodedKey}`,
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+      });
+      const rawText = await res.text();
+      let json: unknown;
+      try { json = JSON.parse(rawText); } catch { json = {}; }
+      if (!res.ok) {
         return {
           ok: false,
           errorCode: extractCode(json) ?? `HTTP_${res.status}`,
           errorMessage: extractMessage(json) ?? 'Verify failed',
         };
       }
-      const d = (json as { data: VerifyData }).data;
+      const data = extractTransactionData(json);
+      if (!data) {
+        return {
+          ok: false,
+          errorCode: 'INVALID_RESPONSE',
+          errorMessage: 'Payaza verify response missing transaction data',
+        };
+      }
+      const statusRaw = (data.transaction_status ?? data.status ?? '').toString().toLowerCase();
       const status: PaymentStatus =
-        d.status === 'success' || d.status === 'paid' ? 'paid'
-        : d.status === 'failed' || d.status === 'declined' ? 'failed'
+        statusRaw.includes('success') || statusRaw === 'paid' || statusRaw === 'completed' ? 'paid'
+        : statusRaw.includes('fail') || statusRaw === 'declined' || statusRaw === 'cancelled' ? 'failed'
         : 'pending';
       return {
         ok: true,
         status,
-        providerTransactionId: d.transaction_id ?? d.id ?? reference,
-        amountCents: Math.round(Number(d.amount) * 100),
-        currency: (d.currency ?? 'USD') as 'USD' | 'NGN' | 'GHS',
-        paidAt: d.paid_at,
-        paymentMethod: d.channel,
+        providerTransactionId: String(data.transaction_id ?? data.id ?? reference),
+        amountCents: Math.round(Number(data.amount ?? 0) * 100),
+        currency: ((data.currency ?? 'USD') as 'USD' | 'NGN' | 'GHS'),
+        paidAt: data.transaction_date ?? data.paid_at,
+        paymentMethod: data.payment_channel ?? data.channel,
         raw: json,
       };
     } catch (e) {
@@ -93,24 +95,34 @@ export class PayazaProvider implements PaymentProvider {
   }
 }
 
-type VerifyData = {
-  status: string;
-  transaction_id?: string;
-  id?: string;
-  amount: number | string;
+function deriveNameFromEmail(email: string, customerName?: string): { firstName: string; lastName: string } {
+  if (customerName) {
+    const parts = customerName.trim().split(/\s+/);
+    return { firstName: parts[0] || 'Applicant', lastName: parts.slice(1).join(' ') || 'Applicant' };
+  }
+  const local = (email.split('@')[0] || 'Applicant').replace(/[^A-Za-z0-9]/g, ' ').trim();
+  return { firstName: local || 'Applicant', lastName: 'Applicant' };
+}
+
+type TransactionData = {
+  transaction_id?: string | number;
+  id?: string | number;
+  transaction_status?: string;
+  status?: string;
+  amount?: number | string;
   currency?: string;
+  transaction_date?: string;
   paid_at?: string;
+  payment_channel?: string;
   channel?: string;
 };
 
-async function safeJson(res: Response): Promise<unknown> {
-  try { return await res.json(); } catch { return {}; }
-}
-
-function isSuccessShape(json: unknown): json is { status: 'success'; data: unknown } {
-  return typeof json === 'object' && json !== null
-    && (json as { status?: unknown }).status === 'success'
-    && typeof (json as { data?: unknown }).data === 'object';
+function extractTransactionData(json: unknown): TransactionData | null {
+  if (typeof json !== 'object' || json === null) return null;
+  const obj = json as Record<string, unknown>;
+  const candidate = (obj.data ?? obj.transaction ?? obj) as Record<string, unknown> | undefined;
+  if (!candidate || typeof candidate !== 'object') return null;
+  return candidate as TransactionData;
 }
 
 function extractCode(json: unknown): string | undefined {

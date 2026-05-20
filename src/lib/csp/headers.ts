@@ -1,12 +1,20 @@
 export function applySecurityHeaders(res: Response, opts: { isApply: boolean; isAdmin: boolean }): Response {
   const csp = [
     "default-src 'self'",
-    `script-src 'self' https://challenges.cloudflare.com${opts.isApply ? ' https://checkout.payaza.africa' : ''}`,
+    // 'unsafe-inline' on script-src allows the Turnstile widget's bootstrap
+    // inline script + the small inline modules Astro generates for islands.
+    `script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com${opts.isApply ? ' https://checkout.payaza.africa https://checkout-v2.payaza.africa' : ''}`,
+    // 'unsafe-inline' on style-src is needed for the layout's inline <style>
+    // block + Astro's scoped style hashes. fonts.googleapis.com is the
+    // Google Fonts CSS host (the actual font files come from fonts.gstatic.com,
+    // covered by font-src).
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+    "font-src 'self' https://fonts.gstatic.com data:",
     `connect-src 'self' https://api.payaza.africa https://*.r2.cloudflarestorage.com https://challenges.cloudflare.com`,
     `img-src 'self' data: https://*.r2.cloudflarestorage.com`,
     `media-src 'self' https://*.r2.cloudflarestorage.com`,
-    `frame-src https://challenges.cloudflare.com${opts.isApply ? ' https://checkout.payaza.africa' : ''}`,
-    `form-action 'self'${opts.isApply ? ' https://checkout.payaza.africa' : ''}`,
+    `frame-src https://challenges.cloudflare.com${opts.isApply ? ' https://checkout.payaza.africa https://checkout-v2.payaza.africa' : ''}`,
+    `form-action 'self'${opts.isApply ? ' https://checkout.payaza.africa https://checkout-v2.payaza.africa' : ''}`,
     "base-uri 'self'",
     "object-src 'none'",
   ].join('; ');

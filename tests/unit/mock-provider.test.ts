@@ -10,7 +10,7 @@ describe('MockProvider.init', () => {
       customerEmail: 'a@b.com', callbackUrl: 'https://x/return',
     });
     expect(r.ok).toBe(true);
-    if (r.ok) {
+    if (r.ok && r.flow === 'redirect') {
       expect(r.checkoutUrl).toContain('MDGH-2026-AAAAAAAA');
       expect(r.providerReference).toBe('mock-MDGH-2026-AAAAAAAA');
     }

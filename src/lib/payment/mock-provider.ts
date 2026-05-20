@@ -4,6 +4,7 @@ export class MockProvider implements PaymentProvider {
   async init(input: PaymentInitInput): Promise<PaymentInitResult> {
     return {
       ok: true,
+      flow: 'redirect',
       checkoutUrl: `/mock-checkout?reference=${encodeURIComponent(input.reference)}&callback=${encodeURIComponent(input.callbackUrl)}`,
       providerReference: `mock-${input.reference}`,
     };

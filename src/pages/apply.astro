@@ -19,11 +19,29 @@ const currency = cycle.application_currency;
 ---
 <ApplyLayout title="Begin Your Application | MDGH">
   <div class="wrap">
-    <div style="text-align:center;margin-bottom:28px">
-      <span class="pill">{cycle.display_name}</span>
-      <h1 style="font-size:34px;margin:8px 0 4px">Begin Your Application</h1>
-      <p class="muted">Five quick questions, then a one-time application fee of <strong>{currency} {fee}</strong> (non-refundable).</p>
-    </div>
+    <section class="hero">
+      <div class="fade-up">
+        <svg class="crown-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M12 2 L14.5 7 L20 5 L18 12 L22 11 L19 17 L12 16 L5 17 L2 11 L6 12 L4 5 L9.5 7 Z" stroke="currentColor" stroke-width="0.5" stroke-linejoin="round"/>
+          <circle cx="12" cy="20" r="1" fill="currentColor"/>
+          <path d="M5 19 L19 19" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="fade-up display" style="margin-bottom:18px">Miss Diaspora Ghana</div>
+      <h1 class="fade-up" style="margin-bottom:18px">
+        <span class="gold-text">Begin</span> Your <em class="italic-display" style="font-style:italic">Application</em>
+      </h1>
+      <p class="fade-up muted" style="max-width:520px;margin:0 auto;font-size:16px;line-height:1.6">
+        The crown begins with a story. Five questions to begin yours,<br />
+        then a one-time application of <strong style="color:#FFD700">{currency} {fee}</strong>.
+      </p>
+      <div class="fade-up ornament" aria-hidden="true">
+        <span class="ornament-diamond"></span>
+      </div>
+      <div class="fade-up">
+        <span class="pill">{cycle.display_name} &middot; Cycle Open</span>
+      </div>
+    </section>
 
     <form id="apply-form">
       <input type="text" name="honeypot" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px" aria-hidden="true" />
@@ -62,17 +80,27 @@ const currency = cycle.application_currency;
         </div>
       </section>
 
-      <div id="turnstile-host" style="display:flex;justify-content:center;margin:18px 0"></div>
+      <div id="turnstile-host" style="display:flex;justify-content:center;margin:24px 0"></div>
 
-      <button id="submit-btn" type="submit" class="btn" style="width:100%;padding:16px;font-size:16px" disabled>
+      <button id="submit-btn" type="submit" class="btn" style="width:100%;padding:18px;font-size:14px;margin-top:8px" disabled>
         Continue to payment — {currency} {fee} →
       </button>
-      <p class="muted" style="text-align:center;margin-top:10px;font-size:11px">Card payment secured by Payaza · one-time non-refundable fee</p>
+      <p class="muted" style="text-align:center;margin-top:14px;font-size:11px;letter-spacing:0.04em">
+        Card payment secured by Payaza &middot; one-time non-refundable fee
+      </p>
       <p id="form-err" class="err" style="text-align:center;display:none"></p>
     </form>
+
+    <div class="ornament" aria-hidden="true" style="margin-top:48px;opacity:0.5">
+      <span class="ornament-diamond"></span>
+    </div>
+    <p class="muted" style="text-align:center;font-size:12px;letter-spacing:0.06em;opacity:0.5;margin-top:16px">
+      Celebrating beauty, culture &amp; impact since 2019
+    </p>
   </div>
 
   <meta name="turnstile-site-key" content={turnstileSiteKey} />
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+  <script src="https://checkout-v2.payaza.africa/js/v1/bundle.js" defer></script>
   <script type="module" src="/scripts/apply-form-bootstrap.js"></script>
 </ApplyLayout>

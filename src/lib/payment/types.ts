@@ -10,8 +10,21 @@ export type PaymentInitInput = {
   metadata?: Record<string, string>;
 };
 
+export type PayazaSdkBootstrap = {
+  publicKey: string;
+  connectionMode: 'Test' | 'Live';
+  amount: number;
+  currency: Currency;
+  reference: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  phoneNumber: string;
+};
+
 export type PaymentInitResult =
-  | { ok: true; checkoutUrl: string; providerReference: string }
+  | { ok: true; flow: 'redirect'; checkoutUrl: string; providerReference: string }
+  | { ok: true; flow: 'sdk'; sdkBootstrap: PayazaSdkBootstrap; providerReference: string }
   | { ok: false; errorCode: string; errorMessage: string };
 
 export type PaymentStatus = 'paid' | 'pending' | 'failed';

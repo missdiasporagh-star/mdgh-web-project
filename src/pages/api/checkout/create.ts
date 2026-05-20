@@ -80,7 +80,10 @@ export const POST: APIRoute = async ({ request, locals, clientAddress }) => {
   if (!init.ok) {
     return json({ ok: false, error: 'payment_init_failed', code: init.errorCode, message: init.errorMessage }, 502);
   }
-  return json({ ok: true, checkoutUrl: init.checkoutUrl, reference });
+  if (init.flow === 'sdk') {
+    return json({ ok: true, flow: 'sdk', reference, sdkBootstrap: init.sdkBootstrap });
+  }
+  return json({ ok: true, flow: 'redirect', reference, checkoutUrl: init.checkoutUrl });
 };
 
 function json(body: unknown, status = 200): Response {

@@ -144,6 +144,22 @@ export async function markPaymentFailed(db: D1Database, id: string, reason: stri
     .bind(reason, now, id).run();
 }
 
+export async function resetApplicationForRetry(
+  db: D1Database, id: string, newReference: string, priorFailureNote: string
+): Promise<void> {
+  const now = new Date().toISOString();
+  await db.prepare(`
+    UPDATE applications
+    SET transaction_reference = ?,
+        payment_status = 'pending',
+        payaza_transaction_id = NULL,
+        payment_verified_at = NULL,
+        payment_failure_reason = ?,
+        updated_at = ?
+    WHERE id = ? AND payment_status != 'paid'`)
+    .bind(newReference, priorFailureNote, now, id).run();
+}
+
 export async function setApplyTokenIssued(db: D1Database, id: string, magicLinkSentAt: string): Promise<void> {
   const now = new Date().toISOString();
   await db.prepare(`
