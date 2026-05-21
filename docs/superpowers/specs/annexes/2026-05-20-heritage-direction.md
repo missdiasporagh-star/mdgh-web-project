@@ -52,4 +52,9 @@ Portfolio Grid adapted to **horizontal scroll-snap-x mandatory** (per spec §7.1
 **None — uses existing tokens.** The direction is fully expressible with the staging repo's current `tokens.css` (obsidian, deep-violet, royal-violet, saffron, rose, text-1/2/3/4). T5 of the plan becomes a no-op.
 
 ## Wireframe approved
-*(To be filled in after T2's wireframe approval gate.)*
+Desktop (≥1024px scroll-snap rail), mobile (<768px vertical stack), reduced-motion (designed variant — scroll-snap off, transforms off, opacity-only modal, focus rings preserved), and modal (scale+fade entry, side-by-side portrait + bio + achievements) all approved on 2026-05-21.
+
+## Plan deltas discovered during T0-T2
+- **T3 (queens schema)** is a no-op — schema already exists in `mdgh-staging/src/content/config.ts:181-202`. Field names differ from the plan: actual schema uses `heroImage` / `heroImageAlt` (not `photo` / `photoAlt`), `crownNumber: number` (not string Roman numeral), `eraTheme` (not `era`), `currentCity` / `currentRole` (not `city` / `role`), `social` (not `socials`). Downstream tasks adapt to existing field names rather than modify the schema.
+- **T5 (Heritage tokens)** is a no-op — direction A uses only existing tokens.
+- **T0 dev server step** skipped during controller execution to avoid blocking; subagents verify their work via `astro sync` + typecheck without keeping a long-running server.
