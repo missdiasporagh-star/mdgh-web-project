@@ -72,18 +72,27 @@ import { ArrowRight, ChevronDown } from 'lucide-astro';
         <div class="flex-1 h-px bg-gradient-to-r from-[#F8B92F]/40 via-[#F8B92F]/20 to-transparent max-w-[100px]"></div>
       </div>
 
-      <!-- Premium CTA Button -->
-      <div class="hero-cta opacity-0">
+      <!-- Premium CTA — Begin Application (primary conversion action) -->
+      <div class="hero-cta opacity-0 flex flex-col items-start gap-4">
+        <a
+          href="/apply"
+          class="hero-cta-primary group relative inline-flex items-center justify-center gap-3 px-9 sm:px-11 lg:px-12 py-4 sm:py-4.5 lg:py-5 text-black font-bold text-base sm:text-lg lg:text-xl rounded-full overflow-hidden transition-all duration-300"
+        >
+          <span class="relative z-10 flex items-center gap-3 tracking-wide">
+            Begin Your Application
+            <ArrowRight class="w-5 h-5 sm:w-6 sm:h-6 group-hover:translate-x-1.5 transition-transform duration-300" />
+          </span>
+          <!-- Animated sheen sweep on hover -->
+          <span class="hero-cta-sheen pointer-events-none absolute inset-0 -skew-x-12 translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000"></span>
+        </a>
+
+        <!-- Secondary: scroll to explore the pageant -->
         <a
           href="#about"
-          class="group magnetic relative inline-flex items-center justify-center gap-3 px-8 sm:px-10 lg:px-12 py-4 sm:py-4.5 lg:py-5 bg-gradient-to-r from-[#F8B92F] to-[#FFD700] text-black font-bold text-base sm:text-lg lg:text-xl overflow-hidden rounded-full hover:shadow-2xl hover:shadow-[#F8B92F]/50 transition-all duration-500 hover:scale-105"
+          class="hero-cta-secondary group inline-flex items-center gap-2 text-white/60 hover:text-[#F8B92F] text-xs sm:text-sm uppercase tracking-[0.2em] font-semibold transition-colors duration-300"
         >
-          <span class="relative z-10 flex items-center gap-3">
-            EXPLORE PAGEANT
-            <ArrowRight class="w-5 h-5 sm:w-6 sm:h-6 group-hover:translate-x-2 transition-transform duration-300" />
-          </span>
-          <!-- Animated shine effect -->
-          <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -skew-x-12 translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000"></div>
+          <span>Or explore the pageant</span>
+          <ChevronDown class="w-3.5 h-3.5 group-hover:translate-y-0.5 transition-transform duration-300" />
         </a>
       </div>
     </div>
@@ -232,6 +241,59 @@ import { ArrowRight, ChevronDown } from 'lucide-astro';
   @media (min-width: 1024px) {
     .magnetic:hover {
       transform: translateY(-2px);
+    }
+  }
+
+  /* Hero primary Apply CTA — staging-style gradient + dual-ring glow halo + lift hover */
+  .hero-cta-primary {
+    background: linear-gradient(135deg, #F8B92F 0%, #FFD700 50%, #ffaa3d 100%);
+    box-shadow:
+      0 4px 16px rgba(248, 185, 47, 0.35),
+      0 0 0 1px rgba(248, 185, 47, 0.4),
+      inset 0 1px 0 rgba(255, 255, 255, 0.25);
+    will-change: transform, box-shadow;
+  }
+
+  .hero-cta-primary:hover {
+    transform: translateY(-2px);
+    box-shadow:
+      0 12px 32px rgba(248, 185, 47, 0.55),
+      0 0 0 1px rgba(255, 215, 0, 0.7),
+      inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  }
+
+  .hero-cta-primary:active {
+    transform: translateY(0);
+    transition-duration: 100ms;
+  }
+
+  .hero-cta-primary:focus-visible {
+    outline: 2px solid #FFD700;
+    outline-offset: 4px;
+  }
+
+  /* Sheen sweep — wider, brighter, slower than original for a more luxurious feel */
+  .hero-cta-sheen {
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.45) 50%,
+      transparent 100%
+    );
+  }
+
+  /* Secondary scroll link — restraint matters; keep it small and quiet */
+  .hero-cta-secondary {
+    font-family: 'Inter', -apple-system, system-ui, sans-serif;
+  }
+
+  /* Respect motion preferences */
+  @media (prefers-reduced-motion: reduce) {
+    .hero-cta-primary,
+    .hero-cta-primary:hover,
+    .hero-cta-sheen {
+      transition: none !important;
+      transform: none !important;
     }
   }
 </style>
