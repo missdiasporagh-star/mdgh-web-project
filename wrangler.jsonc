@@ -4,7 +4,7 @@
   // assets binding model. All bindings declared here are used at deploy
   // time (`wrangler deploy`) and at local-dev (`wrangler dev`).
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "mdgh-app",
+  "name": "mdgh-web-project",
   "main": "./dist/_worker.js/index.js",
   "compatibility_date": "2025-11-12",
   "compatibility_flags": ["nodejs_compat"],
@@ -20,15 +20,17 @@
     "enabled": true
   },
 
-  // Keep the workers.dev URL active alongside the custom domain. Without
-  // this, adding a `routes` entry defaults workers_dev to false and
-  // mdgh-app.missdiasporagh.workers.dev returns 404.
+  // Keep the workers.dev URL active alongside the custom domains.
   "workers_dev": true,
 
-  // Custom domain attachment for staging soft-launch. Visitors to
-  // apply.missdiasporagh.org hit this Worker. SSL cert + DNS record are
-  // auto-provisioned by Cloudflare on first `wrangler deploy`.
+  // Custom domains — post-consolidation this Worker serves the apex
+  // brand site AND the application form (previously split between the
+  // mdgh-web-project Pages project and the mdgh-app Worker).
+  // SSL certs + DNS records auto-provisioned by Cloudflare on first
+  // wrangler deploy that claims each domain.
   "routes": [
+    { "pattern": "missdiasporagh.org", "custom_domain": true },
+    { "pattern": "www.missdiasporagh.org", "custom_domain": true },
     { "pattern": "apply.missdiasporagh.org", "custom_domain": true }
   ],
 
