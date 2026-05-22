@@ -57,8 +57,13 @@
     }
   ],
 
+  // PAYAZA_BASE_URL removed — Payaza uses the SAME base URL for both test
+  // and live modes (https://api.payaza.africa/live/... — the `/live/` path
+  // is literal, NOT a mode switch). The src/lib/payment/payaza-provider.ts
+  // hardcodes the full URL; sandbox vs live is signalled by the PKTEST vs
+  // PKLIVE key prefix on PAYAZA_PUBLIC_KEY and by the `connectionMode` field
+  // on the SDK bootstrap.
   "vars": {
-    "PAYAZA_BASE_URL": "https://sandbox-api.payaza.africa",
     "R2_ACCOUNT_ID": "233d917842862e30ed5207cf7b95bc33"
   },
 
@@ -86,7 +91,6 @@
         }
       ],
       "vars": {
-        "PAYAZA_BASE_URL": "https://api.payaza.africa",
         "R2_ACCOUNT_ID": "233d917842862e30ed5207cf7b95bc33"
       }
     }
