@@ -15,14 +15,15 @@ export default defineConfig({
   integrations: [
     react(),
     sitemap({
-      // /admin and /api never need to be in the sitemap. /apply/* (apart from
-      // the entry page) is also gated on tokens, so exclude its inner routes.
+      // Public-only routes. Excludes:
+      // - /admin and /api (sensitive, never indexable)
+      // - /apply/{return,form,recover,closed,done} (token-gated or status-only)
+      // - /mock-checkout (dev/sandbox only)
       filter: (page) =>
         !page.includes('/admin') &&
         !page.includes('/api/') &&
-        !page.includes('/apply/return') &&
-        !page.includes('/apply/form') &&
-        !page.includes('/apply/recover'),
+        !page.match(/\/apply\/(return|form|recover|closed|done)/) &&
+        !page.includes('/mock-checkout'),
     }),
   ],
   vite: {

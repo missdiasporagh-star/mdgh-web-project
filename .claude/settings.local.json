@@ -196,7 +196,11 @@
       "Bash(command -v ffmpeg)",
       "Bash(command -v cwebp)",
       "Bash(command -v magick)",
-      "Bash(awk '/<form id=\"contactForm\"/,/<\\\\/form>/' src/pages/index.astro)"
+      "Bash(awk '/<form id=\"contactForm\"/,/<\\\\/form>/' src/pages/index.astro)",
+      "Bash(CHROME_PATH=\"/c/Program Files/Google/Chrome/Application/chrome.exe\" npx lighthouse \"https://missdiasporagh.org/\" --form-factor=mobile --output=json --output-path=./lh-post.json --chrome-flags=\"--headless --no-sandbox --disable-dev-shm-usage\" --only-categories=performance --quiet)",
+      "Bash(python3 -c \"import json; d=json.load\\(open\\('lh-post.json'\\)\\); a=d['audits']; print\\('Perf score:', round\\(d['categories']['performance']['score']*100\\), '/100'\\); print\\('LCP:', round\\(a['largest-contentful-paint']['numericValue']\\),'ms'\\); print\\('FCP:', round\\(a['first-contentful-paint']['numericValue']\\),'ms'\\); print\\('CLS:', round\\(a['cumulative-layout-shift']['numericValue'],3\\)\\); print\\('TBT:', round\\(a['total-blocking-time']['numericValue']\\),'ms'\\)\")",
+      "Bash(CHROME_PATH=\"/c/Program Files/Google/Chrome/Application/chrome.exe\" npx lighthouse \"https://missdiasporagh.org/apply\" --form-factor=mobile --output=json --output-path=./lh-apply-post.json --chrome-flags=\"--headless --no-sandbox --disable-dev-shm-usage\" --only-categories=performance --quiet)",
+      "Bash(python3 -c \"import json; d=json.load\\(open\\('lh-apply-post.json'\\)\\); a=d['audits']; print\\('Perf score:', round\\(d['categories']['performance']['score']*100\\), '/100'\\); print\\('LCP:', round\\(a['largest-contentful-paint']['numericValue']\\),'ms'\\); print\\('FCP:', round\\(a['first-contentful-paint']['numericValue']\\),'ms'\\); print\\('CLS:', round\\(a['cumulative-layout-shift']['numericValue'],3\\)\\); print\\('TBT:', round\\(a['total-blocking-time']['numericValue']\\),'ms'\\)\")"
     ],
     "deny": [],
     "ask": []
