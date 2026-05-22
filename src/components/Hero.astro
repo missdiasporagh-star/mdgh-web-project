@@ -56,8 +56,8 @@ import { ArrowRight, ChevronDown } from 'lucide-astro';
         </div>
       </div>
 
-      <!-- Tagline with Luxury Typography -->
-      <div class="hero-desc overflow-hidden relative opacity-0">
+      <!-- Tagline with Luxury Typography (visible by default; GSAP enhances) -->
+      <div class="hero-desc overflow-hidden relative">
         <div class="flex flex-wrap gap-x-2 sm:gap-x-3 gap-y-1 sm:gap-y-2 text-lg sm:text-xl md:text-2xl lg:text-xl xl:text-2xl text-heading text-white/90 lg:text-white/80 font-light leading-relaxed">
           <span class="hero-word inline-block">Celebrating</span>
           <span class="hero-word inline-block text-[#F8B92F] font-semibold">Beauty</span>
@@ -70,15 +70,18 @@ import { ArrowRight, ChevronDown } from 'lucide-astro';
         <div class="absolute inset-0 bg-[#F8B92F]/5 blur-3xl -z-10"></div>
       </div>
 
-      <!-- Scroll Indicator - Inline -->
-      <div class="hero-scroll-indicator flex items-center gap-3 opacity-0 pt-2">
+      <!-- Scroll Indicator - Inline (visible by default; GSAP enhances) -->
+      <div class="hero-scroll-indicator flex items-center gap-3 pt-2">
         <ChevronDown class="w-4 h-4 text-[#F8B92F] animate-bounce" />
         <span class="text-white/60 text-xs sm:text-sm uppercase tracking-[0.2em] font-semibold">Scroll to explore</span>
         <div class="flex-1 h-px bg-gradient-to-r from-[#F8B92F]/40 via-[#F8B92F]/20 to-transparent max-w-[100px]"></div>
       </div>
 
-      <!-- Premium CTA — Begin Application (primary conversion action) -->
-      <div class="hero-cta opacity-0 flex flex-col items-start gap-4">
+      <!-- Premium CTA — Begin Application (primary conversion action).
+           Visible by default (no opacity:0) so LCP element renders without
+           waiting for GSAP — fixes the 4.3s render delay flagged by
+           Lighthouse on /. GSAP enhances *if* motion is allowed. -->
+      <div class="hero-cta flex flex-col items-start gap-4">
         <a
           href="/apply"
           class="hero-cta-primary group relative inline-flex items-center justify-center gap-3 px-9 sm:px-11 lg:px-12 py-4 sm:py-4.5 lg:py-5 text-black font-bold text-base sm:text-lg lg:text-xl rounded-full overflow-hidden transition-all duration-300"
@@ -107,90 +110,49 @@ import { ArrowRight, ChevronDown } from 'lucide-astro';
 <script>
   import { gsap } from 'gsap';
 
-  // Premium entrance animation timeline
-  const tl = gsap.timeline({ defaults: { ease: 'power4.out' } });
+  // Respect prefers-reduced-motion: if the user has asked for less motion,
+  // skip all animation entirely. The hero content is now visible by default
+  // (no opacity:0 on the elements above), so LCP fires immediately regardless.
+  const prefersReducedMotion =
+    typeof window !== 'undefined' &&
+    window.matchMedia &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  // Title lines with dramatic entrance
-  tl.to('.hero-line-1', {
-    y: 0,
-    opacity: 1,
-    rotateX: 0,
-    duration: 1.2,
-    delay: 0.3,
-  })
-  .to('.hero-line-2', {
-    y: 0,
-    opacity: 1,
-    rotateX: 0,
-    duration: 1.2,
-  }, '-=0.9')
-  .to('.hero-line-3', {
-    y: 0,
-    opacity: 1,
-    rotateX: 0,
-    duration: 1.2,
-  }, '-=0.9')
+  if (!prefersReducedMotion) {
+    // Set initial states ONLY for animated entrance (the elements above are
+    // visible without these — GSAP overrides for the animated reveal).
+    gsap.set('.hero-line-1, .hero-line-2, .hero-line-3', {
+      y: 150,
+      opacity: 0,
+      rotateX: 90,
+    });
 
-  // Description with staggered words
-  .to('.hero-desc', {
-    opacity: 1,
-    duration: 0.8,
-  }, '-=0.5')
-  .from('.hero-word', {
-    y: 30,
-    opacity: 0,
-    stagger: 0.04,
-    duration: 0.6,
-  }, '-=0.5')
+    // Premium entrance animation timeline (only when motion allowed)
+    const tl = gsap.timeline({ defaults: { ease: 'power4.out' } });
+    tl.to('.hero-line-1', { y: 0, opacity: 1, rotateX: 0, duration: 1.2, delay: 0.3 })
+      .to('.hero-line-2', { y: 0, opacity: 1, rotateX: 0, duration: 1.2 }, '-=0.9')
+      .to('.hero-line-3', { y: 0, opacity: 1, rotateX: 0, duration: 1.2 }, '-=0.9')
+      .from('.hero-word', { y: 30, opacity: 0, stagger: 0.04, duration: 0.6 }, '-=0.5');
 
-  // Scroll indicator - appears right after description
-  .to('.hero-scroll-indicator', {
-    opacity: 1,
-    x: 0,
-    duration: 0.8,
-  }, '-=0.2')
+    // Continuous title float — gated on reduced-motion because animating
+    // forever costs compositor budget on every frame.
+    gsap.to('.hero-title', {
+      y: -8,
+      duration: 3,
+      ease: 'power1.inOut',
+      yoyo: true,
+      repeat: -1,
+    });
 
-  // CTAs
-  .to('.hero-cta', {
-    opacity: 1,
-    y: 0,
-    duration: 1,
-  }, '-=0.4');
-
-  // Set initial states for animated elements
-  gsap.set('.hero-line-1, .hero-line-2, .hero-line-3', {
-    y: 150,
-    opacity: 0,
-    rotateX: 90,
-  });
-
-  gsap.set('.hero-cta', {
-    opacity: 0,
-    y: 30,
-  });
-
-  gsap.set('.hero-scroll-indicator', {
-    opacity: 0,
-    x: -20,
-  });
-
-  // Continuous subtle float animation for title
-  gsap.to('.hero-title', {
-    y: -8,
-    duration: 3,
-    ease: 'power1.inOut',
-    yoyo: true,
-    repeat: -1,
-  });
-
-  // Floating animation for logo
-  gsap.to('.hero-logo', {
-    y: -20,
-    duration: 4,
-    ease: 'power1.inOut',
-    yoyo: true,
-    repeat: -1,
-  });
+    // Decorative floating background logo
+    gsap.to('.hero-logo', {
+      y: -20,
+      duration: 4,
+      ease: 'power1.inOut',
+      yoyo: true,
+      repeat: -1,
+    });
+  }
 </script>
 
 <style>
