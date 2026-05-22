@@ -53,55 +53,122 @@ function isValidPhone(s) {
   return /^\+[1-9][0-9]{6,14}$/.test(cleaned);
 }
 
+// Render a semantic radiogroup of buttons that supports arrow-key navigation,
+// roving tabindex, and screen-reader-friendly state via aria-checked.
+function buildRadioGroup({ legendText, options, onSelect }) {
+  const group = document.createElement('div');
+  group.setAttribute('role', 'radiogroup');
+  const legendId = `rg-${Math.random().toString(36).slice(2, 8)}`;
+  const legend = document.createElement('p');
+  legend.id = legendId;
+  legend.style.cssText = 'font-size:13px;margin:0 0 6px';
+  legend.textContent = legendText;
+  group.setAttribute('aria-labelledby', legendId);
+  group.appendChild(legend);
+
+  const buttons = document.createElement('div');
+  buttons.style.cssText = 'display:flex;gap:6px;flex-wrap:wrap';
+  const btnEls = [];
+  options.forEach(({ label, value }, idx) => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'btn-ghost';
+    b.setAttribute('role', 'radio');
+    b.setAttribute('aria-checked', 'false');
+    b.tabIndex = idx === 0 ? 0 : -1; // roving tabindex
+    b.style.flex = '1 0 0';
+    b.textContent = label;
+    b.addEventListener('click', () => selectIndex(idx));
+    b.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+        e.preventDefault();
+        selectIndex((idx + 1) % btnEls.length, { focus: true });
+      } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+        e.preventDefault();
+        selectIndex((idx - 1 + btnEls.length) % btnEls.length, { focus: true });
+      } else if (e.key === ' ' || e.key === 'Enter') {
+        e.preventDefault();
+        selectIndex(idx);
+      }
+    });
+    btnEls.push(b);
+    buttons.appendChild(b);
+  });
+  group.appendChild(buttons);
+
+  function selectIndex(i, opts) {
+    btnEls.forEach((el, j) => {
+      const isSelected = j === i;
+      el.classList.toggle('selected', isSelected);
+      el.setAttribute('aria-checked', String(isSelected));
+      el.tabIndex = isSelected ? 0 : -1;
+    });
+    if (opts && opts.focus) btnEls[i].focus();
+    onSelect(options[i].value);
+  }
+
+  return group;
+}
+
 function renderQuiz(state, validate) {
   const host = document.getElementById('eligibility-quiz');
-  const ageRow = document.createElement('div');
-  ageRow.innerHTML = `<p style="font-size:13px;margin:0 0 6px">1. What is your age at the start of this cycle?</p>`;
-  const ageBtns = document.createElement('div');
-  ageBtns.style.cssText = 'display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px';
-  AGE_OPTIONS.forEach(band => {
-    const b = document.createElement('button');
-    b.type = 'button'; b.className = 'btn-ghost'; b.style.flex = '1 0 0'; b.textContent = band;
-    b.addEventListener('click', () => {
-      ageBtns.querySelectorAll('.btn-ghost').forEach(x => x.classList.remove('selected'));
-      b.classList.add('selected'); state.ageBand = band; validate();
-    });
-    ageBtns.appendChild(b);
-  });
-  ageRow.appendChild(ageBtns);
-  host.appendChild(ageRow);
+  host.appendChild(buildRadioGroup({
+    legendText: '1. What is your age at the start of this cycle?',
+    options: AGE_OPTIONS.map(band => ({ label: band, value: band })),
+    onSelect: (val) => { state.ageBand = val; validate(); },
+  }));
 
   QUESTIONS.forEach((q, i) => {
-    const row = document.createElement('div');
-    row.style.marginBottom = '14px';
-    row.innerHTML = `<p style="font-size:13px;margin:0 0 6px">${i + 2}. ${q.text}</p>`;
-    const btns = document.createElement('div'); btns.style.cssText = 'display:flex;gap:6px';
-    [['Yes', true], ['No', false]].forEach(([label, val]) => {
-      const b = document.createElement('button');
-      b.type = 'button'; b.className = 'btn-ghost'; b.style.flex = '1'; b.textContent = label;
-      b.addEventListener('click', () => {
-        btns.querySelectorAll('.btn-ghost').forEach(x => x.classList.remove('selected'));
-        b.classList.add('selected'); state[q.name] = val; validate();
-      });
-      btns.appendChild(b);
-    });
-    row.appendChild(btns); host.appendChild(row);
+    host.appendChild(buildRadioGroup({
+      legendText: `${i + 2}. ${q.text}`,
+      options: [{ label: 'Yes', value: true }, { label: 'No', value: false }],
+      onSelect: (val) => { state[q.name] = val; validate(); },
+    }));
   });
 }
 
 function setupBinaryToggles(state, validate) {
+  // Existing binary-toggle markup is in the HTML — upgrade in place to
+  // proper radiogroup semantics + keyboard nav.
   document.querySelectorAll('.binary-toggle').forEach(group => {
     const name = group.dataset.name;
-    group.style.cssText = 'display:flex;gap:8px';
-    group.querySelectorAll('button').forEach(b => {
-      b.style.flex = '1';
-      b.addEventListener('click', () => {
-        group.querySelectorAll('button').forEach(x => x.classList.remove('selected'));
-        b.classList.add('selected');
-        state[name] = b.dataset.value === 'true';
-        validate();
+    group.setAttribute('role', 'radiogroup');
+    // Find the prompt <p> immediately preceding the group and label by it.
+    const promptEl = group.previousElementSibling;
+    if (promptEl && promptEl.tagName === 'P') {
+      if (!promptEl.id) promptEl.id = `bt-prompt-${name}`;
+      group.setAttribute('aria-labelledby', promptEl.id);
+    }
+    const btns = Array.from(group.querySelectorAll('button'));
+    btns.forEach((b, idx) => {
+      b.setAttribute('role', 'radio');
+      b.setAttribute('aria-checked', 'false');
+      b.tabIndex = idx === 0 ? 0 : -1;
+      b.addEventListener('click', () => selectBinary(idx));
+      b.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+          e.preventDefault();
+          selectBinary((idx + 1) % btns.length, { focus: true });
+        } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+          e.preventDefault();
+          selectBinary((idx - 1 + btns.length) % btns.length, { focus: true });
+        } else if (e.key === ' ' || e.key === 'Enter') {
+          e.preventDefault();
+          selectBinary(idx);
+        }
       });
     });
+    function selectBinary(i, opts) {
+      btns.forEach((el, j) => {
+        const isSelected = j === i;
+        el.classList.toggle('selected', isSelected);
+        el.setAttribute('aria-checked', String(isSelected));
+        el.tabIndex = isSelected ? 0 : -1;
+      });
+      if (opts && opts.focus) btns[i].focus();
+      state[name] = btns[i].dataset.value === 'true';
+      validate();
+    }
   });
 }
 

@@ -54,7 +54,39 @@ const { title, description = "Miss Diaspora Ghana - Celebrating Beauty, Culture 
 		</style>
 	</head>
 	<body class="antialiased">
-		<slot />
+		<!-- Skip-to-content link: first focusable element. Visually hidden until
+		     a keyboard user focuses it, then becomes a visible "Skip to content"
+		     pill. WCAG 2.4.1 Bypass Blocks. -->
+		<a href="#main-content" class="skip-link">Skip to content</a>
+
+		<main id="main-content" tabindex="-1">
+			<slot />
+		</main>
+
+		<style is:global>
+			.skip-link {
+				position: absolute;
+				top: 0;
+				left: 0;
+				transform: translateY(-200%);
+				padding: 12px 18px;
+				background: #F8B92F;
+				color: #000;
+				font-weight: 700;
+				font-size: 14px;
+				text-decoration: none;
+				z-index: 1000;
+				transition: transform 0.2s ease;
+			}
+			.skip-link:focus {
+				transform: translateY(0);
+				outline: 3px solid #fff;
+				outline-offset: 2px;
+			}
+			main:focus {
+				outline: none;
+			}
+		</style>
 
 		<script>
 			import { gsap } from 'gsap';

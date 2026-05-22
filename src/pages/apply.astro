@@ -56,9 +56,11 @@ const currency = cycle.application_currency;
 
       <section class="card">
         <div class="label" style="margin-bottom:14px">Step 2 — Your contact</div>
-        <input class="input" type="email" name="email" placeholder="email@example.com" required maxlength="254" style="margin-bottom:10px" />
-        <input class="input" type="tel" name="phone" placeholder="+233 24 000 0000" required maxlength="20" pattern="^\+[1-9][0-9 \-]{6,18}$" />
-        <p class="muted" style="font-size:11px;margin:8px 0 0;letter-spacing:0.03em">Include country code (e.g. <code>+233</code> for Ghana). Used for payment + cycle updates.</p>
+        <label for="apply-email" class="muted" style="font-size:12px;display:block;margin-bottom:4px">Email address</label>
+        <input id="apply-email" class="input" type="email" name="email" placeholder="email@example.com" required maxlength="254" autocomplete="email" style="margin-bottom:10px" />
+        <label for="apply-phone" class="muted" style="font-size:12px;display:block;margin-bottom:4px">Phone number (with country code)</label>
+        <input id="apply-phone" class="input" type="tel" name="phone" placeholder="+233 24 000 0000" required maxlength="20" pattern="^\+[1-9][0-9 \-()]{6,20}$" autocomplete="tel" aria-describedby="phone-help" />
+        <p id="phone-help" class="muted" style="font-size:11px;margin:8px 0 0;letter-spacing:0.03em">Include country code (e.g. <code>+233</code> for Ghana). Used for payment + cycle updates.</p>
       </section>
 
       <section class="card">
@@ -93,7 +95,7 @@ const currency = cycle.application_currency;
       <p class="muted" style="text-align:center;margin-top:14px;font-size:11px;letter-spacing:0.04em">
         Card payment secured by Payaza &middot; one-time non-refundable fee
       </p>
-      <p id="form-err" class="err" style="text-align:center;display:none"></p>
+      <p id="form-err" class="err" role="alert" aria-live="polite" style="text-align:center;display:none"></p>
     </form>
 
     <div class="ornament" aria-hidden="true" style="margin-top:48px;opacity:0.5">

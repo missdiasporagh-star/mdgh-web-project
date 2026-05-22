@@ -463,9 +463,34 @@ const { title, description = 'Miss Diaspora Ghana — Application' } = Astro.pro
     @media (max-width: 480px) {
       .back-to-main { top: 12px; left: 12px; font-size: 11px; padding: 6px 12px; }
     }
+    /* Skip-to-content link (WCAG 2.4.1 Bypass Blocks) */
+    .skip-link {
+      position: absolute;
+      top: 0;
+      left: 0;
+      transform: translateY(-200%);
+      padding: 12px 18px;
+      background: #F8B92F;
+      color: #000;
+      font-weight: 700;
+      font-size: 14px;
+      text-decoration: none;
+      z-index: 1000;
+      transition: transform 0.2s ease;
+    }
+    .skip-link:focus {
+      transform: translateY(0);
+      outline: 3px solid #fff;
+      outline-offset: 2px;
+    }
+    main:focus {
+      outline: none;
+    }
   </style>
 </head>
 <body>
+  <!-- Skip-to-content link: first focusable element. WCAG 2.4.1. -->
+  <a href="#main-content" class="skip-link">Skip to content</a>
   <div class="bg-stage" aria-hidden="true">
     <div class="spotlight"></div>
     <div class="blob blob-1"></div>
@@ -490,6 +515,8 @@ const { title, description = 'Miss Diaspora Ghana — Application' } = Astro.pro
     </svg>
     <span>Main site</span>
   </a>
-  <slot />
+  <main id="main-content" tabindex="-1">
+    <slot />
+  </main>
 </body>
 </html>
