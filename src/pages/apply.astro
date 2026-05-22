@@ -48,7 +48,10 @@ const currency = cycle.application_currency;
 
       <section class="card">
         <div class="label" style="margin-bottom:14px">Step 1 — Eligibility</div>
-        <div id="eligibility-quiz"></div>
+        <!-- Reserve space for the JS-injected quiz (5 yes/no rows + age band)
+             so the surrounding form doesn't shift when apply-form.js mounts
+             content here. Was causing CLS 0.122 on /apply. -->
+        <div id="eligibility-quiz" style="min-height:340px"></div>
       </section>
 
       <section class="card">
