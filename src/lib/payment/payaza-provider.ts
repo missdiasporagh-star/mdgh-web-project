@@ -55,8 +55,6 @@ export class PayazaProvider implements PaymentProvider {
     try {
       const url = `${VERIFY_URL}?merchant_reference=${encodeURIComponent(reference)}`;
       const encodedKey = btoa(this.env.PAYAZA_PUBLIC_KEY);
-      const isTest = this.env.PAYAZA_PUBLIC_KEY.includes('PKTEST');
-      console.log(`[payaza.verify] ref=${reference} mode=${isTest ? 'Test' : 'Live'} key=${this.env.PAYAZA_PUBLIC_KEY.slice(0, 16)}...`);
       const res = await fetch(url, {
         method: 'GET',
         headers: {
@@ -66,7 +64,6 @@ export class PayazaProvider implements PaymentProvider {
         },
       });
       const rawText = await res.text();
-      console.log(`[payaza.verify] HTTP ${res.status} body=${rawText.slice(0, 2000)}`);
       let json: unknown;
       try { json = JSON.parse(rawText); } catch { json = {}; }
       if (!res.ok) {

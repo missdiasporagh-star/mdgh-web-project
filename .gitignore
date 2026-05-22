@@ -36,3 +36,6 @@ playwright-report/
 
 # Legacy archive (untracked snapshot — never commit)
 mdgh-web-project-main_OLD_archive/
+
+# Lighthouse audit JSON outputs
+lh-*.json

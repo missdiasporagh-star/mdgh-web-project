@@ -7,10 +7,9 @@ type CloudflareEnv = {
   MEDIA: R2Bucket;
   KV: KVNamespace;
 
-  // Secrets / vars (typed loosely; populated by Cloudflare Pages env)
+  // Secrets / vars (set via wrangler secret put + wrangler.jsonc vars)
   PAYAZA_PUBLIC_KEY: string;
   PAYAZA_SECRET_KEY: string;
-  PAYAZA_BASE_URL: string;
   APPLY_TOKEN_SECRET: string;
   ADMIN_PASSWORD_HASH: string;
   ADMIN_SESSION_SECRET: string;

@@ -32,8 +32,8 @@ import '../styles/global.css';
 
 // Turnstile site key for the contact form. Falls back to Cloudflare's
 // always-pass test key in dev environments without env access.
-const env = (Astro.locals as any)?.runtime?.env ?? {};
-const turnstileSiteKey: string = env.TURNSTILE_SITE_KEY ?? '1x00000000000000000000AA';
+const turnstileSiteKey: string =
+  Astro.locals.runtime?.env?.TURNSTILE_SITE_KEY ?? '1x00000000000000000000AA';
 ---
 
 <Layout title="Miss Diaspora Ghana | Celebrating Beauty, Culture & Impact">
