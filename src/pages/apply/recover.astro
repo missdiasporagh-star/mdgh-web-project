@@ -1,0 +1,19 @@
+---
+import ApplyLayout from '@/layouts/ApplyLayout.astro';
+---
+<ApplyLayout title="Recover application link | MDGH">
+  <div class="wrap" style="max-width:520px">
+    <h1 style="font-size:26px;text-align:center;margin:0 0 6px">Resend my application link</h1>
+    <p class="muted" style="text-align:center;margin:0 0 22px">Already paid but lost the email or closed the browser? Enter your details below.</p>
+    <form id="recover-form" class="card">
+      <input type="text" name="honeypot" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px" aria-hidden="true" />
+      <label class="muted" style="font-size:11px">Email used at payment</label>
+      <input class="input" type="email" name="email" required style="margin-bottom:14px" />
+      <label class="muted" style="font-size:11px">Reference (from your Payaza receipt)</label>
+      <input class="input" type="text" name="reference" placeholder="MDGH-2026-XXXXXXXX" pattern="^MDGH-[A-Z0-9-]+$" required style="margin-bottom:18px" />
+      <button type="submit" class="btn" style="width:100%;padding:14px;font-weight:700">Resend my link</button>
+      <p id="recover-msg" style="margin-top:10px;display:none"></p>
+    </form>
+  </div>
+  <script type="module" src="/scripts/apply-recover.js"></script>
+</ApplyLayout>

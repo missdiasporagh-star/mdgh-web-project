@@ -1,0 +1,17 @@
+---
+import ApplyLayout from '@/layouts/ApplyLayout.astro';
+---
+<ApplyLayout title="Admin login | MDGH">
+  <div class="wrap" style="max-width:420px">
+    <h1 style="text-align:center;font-size:24px;margin:0 0 18px">Admin sign in</h1>
+    <form id="login" class="card">
+      <label class="muted" style="font-size:11px">Email</label>
+      <input class="input" name="email" type="email" required style="margin-bottom:14px" />
+      <label class="muted" style="font-size:11px">Password</label>
+      <input class="input" name="password" type="password" required style="margin-bottom:18px" />
+      <button type="submit" class="btn" style="width:100%;padding:14px">Sign in</button>
+      <p id="login-err" class="err" style="text-align:center;display:none;margin-top:10px"></p>
+    </form>
+  </div>
+  <script type="module" src="/scripts/admin-login.js"></script>
+</ApplyLayout>

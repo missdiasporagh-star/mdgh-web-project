@@ -1,0 +1,43 @@
+---
+import ApplyLayout from '@/layouts/ApplyLayout.astro';
+
+const md = await import('../data/privacy.md?raw');
+const html = renderSimpleMarkdown(md.default);
+
+function renderSimpleMarkdown(src: string): string {
+  // Strip frontmatter
+  const body = src.replace(/^---[\s\S]*?---\n/, '');
+  // Minimal markdown: headers, bold, italic, paragraphs, bullets, links
+  const lines = body.split('\n');
+  const out: string[] = [];
+  let inList = false;
+  for (const raw of lines) {
+    const line = raw.trimEnd();
+    if (line.startsWith('# ')) { closeList(); out.push(`<h1>${escapeHtml(line.slice(2))}</h1>`); continue; }
+    if (line.startsWith('## ')) { closeList(); out.push(`<h2>${escapeHtml(line.slice(3))}</h2>`); continue; }
+    if (line.startsWith('### ')) { closeList(); out.push(`<h3>${escapeHtml(line.slice(4))}</h3>`); continue; }
+    if (line.startsWith('- ')) { if (!inList) { out.push('<ul>'); inList = true; } out.push(`<li>${inline(line.slice(2))}</li>`); continue; }
+    if (line === '') { closeList(); out.push(''); continue; }
+    closeList(); out.push(`<p>${inline(line)}</p>`);
+  }
+  closeList();
+  return out.join('\n');
+
+  function closeList() { if (inList) { out.push('</ul>'); inList = false; } }
+  function inline(s: string): string {
+    return escapeHtml(s)
+      .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*([^*]+)\*/g, '<em>$1</em>')
+      .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>')
+      .replace(/`([^`]+)`/g, '<code>$1</code>');
+  }
+  function escapeHtml(s: string): string {
+    return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+}
+---
+<ApplyLayout title="Privacy Policy | MDGH">
+  <div class="wrap" style="max-width:760px">
+    <article set:html={html}></article>
+  </div>
+</ApplyLayout>

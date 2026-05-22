@@ -1,0 +1,95 @@
+{
+  // Workers (with Assets) deploy — replaces the broken Pages CI bundler.
+  // See https://developers.cloudflare.com/workers/static-assets/ for the
+  // assets binding model. All bindings declared here are used at deploy
+  // time (`wrangler deploy`) and at local-dev (`wrangler dev`).
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "mdgh-app",
+  "main": "./dist/_worker.js/index.js",
+  "compatibility_date": "2025-11-12",
+  "compatibility_flags": ["nodejs_compat"],
+
+  // Static assets: serve everything in dist/ that's not _worker.js
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+    "not_found_handling": "single-page-application"
+  },
+
+  "observability": {
+    "enabled": true
+  },
+
+  // Keep the workers.dev URL active alongside the custom domain. Without
+  // this, adding a `routes` entry defaults workers_dev to false and
+  // mdgh-app.missdiasporagh.workers.dev returns 404.
+  "workers_dev": true,
+
+  // Custom domain attachment for staging soft-launch. Visitors to
+  // apply.missdiasporagh.org hit this Worker. SSL cert + DNS record are
+  // auto-provisioned by Cloudflare on first `wrangler deploy`.
+  "routes": [
+    { "pattern": "apply.missdiasporagh.org", "custom_domain": true }
+  ],
+
+  // D1 database — created on 2026-05-06
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "mdgh-applications-db",
+      "database_id": "0ab44066-071a-4232-acb8-83bb48a32cb3"
+    }
+  ],
+
+  // R2 bucket — defaults to staging; production overrides in [env.production]
+  "r2_buckets": [
+    {
+      "binding": "MEDIA",
+      "bucket_name": "mdgh-applications-staging"
+    }
+  ],
+
+  // KV namespace — name kept as KV (NOT "SESSION") to dodge Astro 5's
+  // auto-session middleware overlay
+  "kv_namespaces": [
+    {
+      "binding": "KV",
+      "id": "e617b51f080c451abe6aade5373fcf6d"
+    }
+  ],
+
+  "vars": {
+    "PAYAZA_BASE_URL": "https://sandbox-api.payaza.africa",
+    "R2_ACCOUNT_ID": "233d917842862e30ed5207cf7b95bc33"
+  },
+
+  // Production environment: same bindings except the production R2 bucket
+  "env": {
+    "production": {
+      "name": "mdgh-app-production",
+      "r2_buckets": [
+        {
+          "binding": "MEDIA",
+          "bucket_name": "mdgh-applications"
+        }
+      ],
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "mdgh-applications-db",
+          "database_id": "0ab44066-071a-4232-acb8-83bb48a32cb3"
+        }
+      ],
+      "kv_namespaces": [
+        {
+          "binding": "KV",
+          "id": "e617b51f080c451abe6aade5373fcf6d"
+        }
+      ],
+      "vars": {
+        "PAYAZA_BASE_URL": "https://api.payaza.africa",
+        "R2_ACCOUNT_ID": "233d917842862e30ed5207cf7b95bc33"
+      }
+    }
+  }
+}

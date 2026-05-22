@@ -1,0 +1,61 @@
+---
+import ApplyLayout from '@/layouts/ApplyLayout.astro';
+import { runPaymentVerification } from '@/lib/payment/verify-flow';
+
+const reference = Astro.url.searchParams.get('reference');
+if (!reference) return Astro.redirect('/apply');
+
+const env = Astro.locals.runtime.env;
+const data = await runPaymentVerification(env, reference, Astro.url.toString());
+
+let view: 'paid' | 'pending' | 'failed' | 'error' = 'error';
+let token: string | undefined;
+if (data.ok) {
+  if (data.status === 'paid') {
+    view = 'paid';
+    token = data.token;
+  } else if (data.status === 'pending') {
+    view = 'pending';
+  } else if (data.status === 'failed') {
+    view = 'failed';
+  }
+}
+
+if (view === 'paid' && token) {
+  return Astro.redirect(`/apply/form?token=${encodeURIComponent(token)}`);
+}
+---
+<ApplyLayout title="Verifying payment | MDGH">
+  <div class="wrap">
+    {view === 'pending' && (
+      <div class="card" style="border-left:3px solid #FFD166">
+        <div class="label" style="color:#FFD166">Still confirming</div>
+        <h2 style="margin:8px 0">Your payment is processing.</h2>
+        <p class="muted">This can take up to 5 minutes. We'll email you the moment it confirms. If you don't hear back, use the <a href="/apply/recover">recover form</a> with your reference: <code style="color:#F8B92F">{reference}</code></p>
+      </div>
+    )}
+    {view === 'failed' && (
+      <div class="card" style="border-left:3px solid #FF6B6B" data-retry-card data-reference={reference}>
+        <div class="label" style="color:#FF6B6B">Payment didn't go through</div>
+        <h2 style="margin:8px 0">No charge was made.</h2>
+        <p class="muted">Your details are saved — you can retry payment without filling the form again.</p>
+        <button type="button" id="retry-btn" class="btn" style="margin-top:12px;width:100%">Retry payment</button>
+        <p id="retry-err" class="err" style="display:none;margin-top:10px"></p>
+        <p class="muted" style="font-size:12px;margin-top:14px;text-align:center">
+          Or <a href="/apply" style="color:#F8B92F">start a new application</a>.
+        </p>
+      </div>
+    )}
+    {view === 'error' && (
+      <div class="card" style="border-left:3px solid #FF6B6B">
+        <div class="label" style="color:#FF6B6B">We couldn't confirm your payment</div>
+        <p class="muted">Give us a minute and use the <a href="/apply/recover">recover form</a> with your reference: <code style="color:#F8B92F">{reference}</code></p>
+      </div>
+    )}
+  </div>
+
+  {view === 'failed' && (
+    <script src="https://checkout-v2.payaza.africa/js/v1/bundle.js" defer></script>
+    <script type="module" src="/scripts/apply-retry.js"></script>
+  )}
+</ApplyLayout>

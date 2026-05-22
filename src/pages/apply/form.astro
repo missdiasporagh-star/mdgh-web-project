@@ -1,0 +1,43 @@
+---
+import ApplyLayout from '@/layouts/ApplyLayout.astro';
+import ApplyForm from '@/components/apply/ApplyForm';
+import { validateApplyToken } from '@/lib/tokens/validate-apply-token';
+import { getApplicationById, getCycle } from '@/lib/db/queries';
+
+const env = Astro.locals.runtime.env;
+const token = Astro.url.searchParams.get('token');
+if (!token) return Astro.redirect('/apply');
+
+const v = await validateApplyToken(token, env.APPLY_TOKEN_SECRET, env.DB);
+if (!v.ok) {
+  if (v.reason === 'already_submitted') return Astro.redirect('/apply/done');
+  if (v.reason === 'cycle_closed') return Astro.redirect('/apply/closed');
+  return Astro.redirect('/apply/recover');
+}
+
+const app = await getApplicationById(env.DB, v.applicationId);
+const cycle = app ? await getCycle(env.DB, app.cycle_id) : null;
+if (!app || !cycle) return Astro.redirect('/apply');
+
+const cycleClose = cycle.applications_close_at.slice(0, 10);
+---
+<ApplyLayout title="Your Application | MDGH">
+  <div class="wrap">
+    <div class="card" style="background:rgba(76,175,80,0.08);border-left:3px solid #4caf50">
+      <strong style="color:#4caf50">&#10003; Payment confirmed.</strong>
+      A backup link to this form has been emailed to you. You can return any time before <strong>{cycleClose}</strong>.
+    </div>
+    <div style="text-align:center;margin:18px 0">
+      <h1 style="margin:0 0 4px;font-size:28px">Your Application</h1>
+      <p class="muted">Reference <code style="color:#F8B92F">{app.transaction_reference}</code></p>
+    </div>
+    <ApplyForm
+      client:load
+      token={token}
+      reference={app.transaction_reference}
+      cycleClose={cycleClose}
+      initialHeadshotKey={app.headshot_r2_key ?? undefined}
+      initialVideoKey={app.video_r2_key ?? undefined}
+    />
+  </div>
+</ApplyLayout>
