@@ -4,7 +4,7 @@
   // assets binding model. All bindings declared here are used at deploy
   // time (`wrangler deploy`) and at local-dev (`wrangler dev`).
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "mdgh-web-project",
+  "name": "mdgh-app",
   "main": "./dist/_worker.js/index.js",
   "compatibility_date": "2025-11-12",
   "compatibility_flags": ["nodejs_compat"],
@@ -20,17 +20,14 @@
     "enabled": true
   },
 
-  // Keep the workers.dev URL active alongside the custom domains.
+  // Keep the workers.dev URL active alongside the custom domain.
   "workers_dev": true,
 
-  // Custom domains — post-consolidation this Worker serves the apex
-  // brand site AND the application form (previously split between the
-  // mdgh-web-project Pages project and the mdgh-app Worker).
-  // SSL certs + DNS records auto-provisioned by Cloudflare on first
-  // wrangler deploy that claims each domain.
+  // Custom domain — serves apply.missdiasporagh.org (the application
+  // form + Payaza checkout). The apex (missdiasporagh.org) remains on
+  // the mdgh-web-project Pages project — full consolidation requires
+  // a dashboard domain-detach window not done in this session.
   "routes": [
-    { "pattern": "missdiasporagh.org", "custom_domain": true },
-    { "pattern": "www.missdiasporagh.org", "custom_domain": true },
     { "pattern": "apply.missdiasporagh.org", "custom_domain": true }
   ],
 
