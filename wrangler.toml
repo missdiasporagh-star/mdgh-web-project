@@ -1,0 +1,10 @@
+# Cloudflare Pages CI config — tells the Pages auto-build where the build
+# output lives so it can pick up `_worker.js/` for server routes + `_routes.json`
+# for which paths to send through it.
+#
+# The separate `wrangler.jsonc` in this repo is for `wrangler deploy` (Workers
+# target — currently used to maintain the legacy mdgh-app Worker at
+# apply.missdiasporagh.org until the apex consolidation completes).
+name = "mdgh-web-project"
+compatibility_date = "2025-11-12"
+pages_build_output_dir = "./dist"
