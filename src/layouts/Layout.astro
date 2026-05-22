@@ -116,6 +116,12 @@ const orgSchema = {
 		</main>
 
 		<style is:global>
+			/* Anchor nav: account for the ~96px fixed top nav when scrolling
+			   to an in-page section, so the section heading isn't hidden
+			   behind the navbar. */
+			html { scroll-behavior: smooth; }
+			:where(section[id], main[id]) { scroll-margin-top: 96px; }
+
 			.skip-link {
 				position: absolute;
 				top: 0;

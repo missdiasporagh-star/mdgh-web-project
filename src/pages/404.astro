@@ -1,0 +1,82 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Navigation from '../components/Navigation.astro';
+import { Home, ArrowRight } from 'lucide-astro';
+---
+
+<Layout
+  title="Page not found — Miss Diaspora Ghana"
+  description="The page you were looking for took the wrong runway. Find your way back to the homepage or start your application."
+>
+  <Navigation />
+
+  <section class="not-found-section relative min-h-screen flex items-center justify-center px-6 sm:px-8 lg:px-12 overflow-hidden">
+    <!-- Subtle gold glow backdrop -->
+    <div class="absolute inset-0 pointer-events-none" aria-hidden="true">
+      <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-radial from-[#F8B92F]/15 to-transparent rounded-full blur-3xl"></div>
+    </div>
+
+    <div class="relative z-10 max-w-2xl mx-auto text-center">
+      <!-- Big stylized 404 -->
+      <p class="text-display text-7xl sm:text-8xl lg:text-9xl font-black bg-gradient-to-r from-[#F8B92F] via-[#FFD700] to-[#F8B92F] bg-clip-text text-transparent leading-none mb-4">
+        404
+      </p>
+
+      <!-- Headline -->
+      <h1 class="text-heading text-3xl sm:text-4xl lg:text-5xl font-bold text-white leading-tight mb-5">
+        This page took the wrong runway.
+      </h1>
+
+      <!-- Body copy -->
+      <p class="text-base sm:text-lg text-white/75 leading-relaxed mb-10 max-w-lg mx-auto">
+        We couldn't find what you were looking for. Either the page moved, or this link was never quite a thing. Let's get you back to where the spotlight is.
+      </p>
+
+      <!-- Dual CTAs -->
+      <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+        <a
+          href="/"
+          class="group magnetic relative inline-flex items-center justify-center gap-3 px-8 py-4 rounded-full bg-gradient-to-r from-[#F8B92F] via-[#FFD700] to-[#ffaa3d] text-black font-bold text-base sm:text-lg shadow-lg shadow-[#F8B92F]/30 hover:shadow-[#F8B92F]/60 hover:-translate-y-0.5 transition-all duration-300"
+        >
+          <Home class="w-5 h-5" aria-hidden="true" />
+          <span>Back to home</span>
+        </a>
+        <a
+          href="/apply"
+          class="group inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full border border-[#F8B92F]/50 text-white font-semibold text-base hover:bg-[#F8B92F]/10 hover:border-[#F8B92F] transition-all duration-300"
+        >
+          <span>Begin Your Application</span>
+          <ArrowRight class="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" aria-hidden="true" />
+        </a>
+      </div>
+
+      <!-- Subtle help -->
+      <p class="text-white/40 text-xs uppercase tracking-[0.2em] mt-12">
+        Or contact us at
+        <a href="mailto:info@missdiasporagh.org" class="text-[#FFD700] hover:underline">info@missdiasporagh.org</a>
+      </p>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .not-found-section {
+    background: linear-gradient(135deg, #0a0a0a 0%, #1a1410 50%, #0a0a0a 100%);
+    color: #fff;
+    font-family: 'Inter', sans-serif;
+  }
+  .not-found-section h1 {
+    font-family: 'Cormorant Garamond', serif;
+  }
+  .text-display {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: -0.03em;
+  }
+  .text-heading {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+</style>
