@@ -24,13 +24,18 @@ import { ArrowRight, ChevronDown } from 'lucide-astro';
       <div class="relative">
         <!-- Glow Effect -->
         <div class="absolute inset-0 bg-[#F8B92F] opacity-20 blur-[100px] rounded-full"></div>
-        <img
-          src="/assets/images/logos/mdgh main logo mini.png"
-          alt="MDGH"
-          loading="lazy"
-          decoding="async"
-          class="relative w-32 h-32 lg:w-56 lg:h-56 opacity-15 animate-pulse"
-        />
+        <picture>
+          <source srcset="/assets/images/logos/mdgh main logo mini.webp" type="image/webp" />
+          <img
+            src="/assets/images/logos/mdgh main logo mini.png"
+            alt=""
+            loading="lazy"
+            decoding="async"
+            width="224"
+            height="196"
+            class="relative w-32 h-32 lg:w-56 lg:h-56 opacity-15 animate-pulse"
+          />
+        </picture>
       </div>
     </div>
   </div>
