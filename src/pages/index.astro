@@ -36,7 +36,10 @@ const turnstileSiteKey: string =
   Astro.locals.runtime?.env?.TURNSTILE_SITE_KEY ?? '1x00000000000000000000AA';
 ---
 
-<Layout title="Miss Diaspora Ghana | Celebrating Beauty, Culture & Impact">
+<Layout
+	title="Miss Diaspora Ghana — The Global Pageant Celebrating Heritage & Impact"
+	description="Miss Diaspora Ghana is the premier pageant for young women of African descent in the diaspora — celebrating Ghanaian heritage, culture, and impact. Apply for the 2026 cycle now."
+>
   <Fragment slot="head">
     <meta name="turnstile-site-key" content={turnstileSiteKey} />
   </Fragment>

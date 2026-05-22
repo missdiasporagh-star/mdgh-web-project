@@ -1,6 +1,18 @@
 ---
-interface Props { title: string; description?: string; }
-const { title, description = 'Miss Diaspora Ghana — Application' } = Astro.props;
+interface Props {
+  title: string;
+  description?: string;
+  ogImage?: string;
+}
+const {
+  title,
+  description = 'Apply for Miss Diaspora Ghana — the global pageant celebrating Ghanaian heritage. Open casting for young women of African descent worldwide.',
+  ogImage = '/assets/images/logos/mdgh main logo mini.webp',
+} = Astro.props;
+
+const SITE_URL = 'https://missdiasporagh.org';
+const canonical = new URL(Astro.url.pathname, SITE_URL).toString();
+const absoluteOgImage = new URL(ogImage, SITE_URL).toString();
 ---
 <!doctype html>
 <html lang="en">
@@ -8,6 +20,23 @@ const { title, description = 'Miss Diaspora Ghana — Application' } = Astro.pro
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content={description} />
+  <link rel="canonical" href={canonical} />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Miss Diaspora Ghana" />
+  <meta property="og:title" content={title} />
+  <meta property="og:description" content={description} />
+  <meta property="og:url" content={canonical} />
+  <meta property="og:image" content={absoluteOgImage} />
+  <meta property="og:locale" content="en_GH" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content={title} />
+  <meta name="twitter:description" content={description} />
+  <meta name="twitter:image" content={absoluteOgImage} />
+
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <link rel="alternate icon" type="image/png" href="/assets/images/logos/md fav.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
