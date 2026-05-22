@@ -1,10 +1,16 @@
 ---
+// Bare #anchor links break when clicked from sub-pages (e.g. clicking
+// "About" from /apply would land on /apply#about — 404 fragment). Use
+// absolute root-anchor paths so they always resolve to the homepage section.
+const isHome = Astro.url.pathname === '/';
+const anchor = (slug: string) => (isHome ? `#${slug}` : `/#${slug}`);
+
 const navLinks = [
-  { name: 'About', href: '#about' },
-  { name: 'Objectives', href: '#objectives' },
-  { name: 'Programs', href: '#programs' },
-  { name: 'Partnership', href: '#sponsorship' },
-  { name: 'Contact', href: '#contact' },
+  { name: 'About', href: anchor('about') },
+  { name: 'Objectives', href: anchor('objectives') },
+  { name: 'Programs', href: anchor('programs') },
+  { name: 'Partnership', href: anchor('sponsorship') },
+  { name: 'Contact', href: anchor('contact') },
 ];
 ---
 
@@ -12,7 +18,7 @@ const navLinks = [
   <div class="container mx-auto px-4 sm:px-6 lg:px-8">
     <div class="flex items-center justify-between py-4 md:py-6">
       <!-- Logo with Crown -->
-      <a href="#home" class="flex items-center group magnetic">
+      <a href={isHome ? '#home' : '/'} class="flex items-center group magnetic" aria-label="Miss Diaspora Ghana — home">
         <div class="relative">
           <picture>
             <source srcset="/assets/images/logos/mdgh main logo mini.webp" type="image/webp" />

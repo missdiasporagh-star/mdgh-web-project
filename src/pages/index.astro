@@ -64,7 +64,7 @@ const turnstileSiteKey: string =
 				<h2 class="text-heading text-6xl lg:text-7xl text-white mb-6 max-w-4xl mx-auto">
 					The Foundation of <span class="gradient-text">Excellence</span>
 				</h2>
-				<p class="text-body-premium text-xl text-white/60 max-w-2xl mx-auto">
+				<p class="text-body-premium text-xl text-white/75 max-w-2xl mx-auto">
 					Three core principles guide our mission to empower women across the diaspora
 				</p>
 			</div>
@@ -241,7 +241,7 @@ const turnstileSiteKey: string =
 				<h2 class="text-heading text-6xl lg:text-7xl text-white mb-6">
 					Driving <span class="gradient-text">Change</span>
 				</h2>
-				<p class="text-body-premium text-xl text-white/60 max-w-3xl mx-auto">
+				<p class="text-body-premium text-xl text-white/75 max-w-3xl mx-auto">
 					Miss Diaspora Ghana highlights the invaluable role that Africans abroad play in national development
 				</p>
 			</div>
@@ -308,7 +308,7 @@ const turnstileSiteKey: string =
 				<h2 class="text-heading text-6xl lg:text-7xl text-white mb-6">
 					Our <span class="gradient-text">Journey</span>
 				</h2>
-				<p class="text-body-premium text-xl text-white/60 max-w-3xl mx-auto">
+				<p class="text-body-premium text-xl text-white/75 max-w-3xl mx-auto">
 					Discover the impactful programs designed to uplift and empower women across the diaspora
 				</p>
 			</div>
@@ -378,7 +378,7 @@ const turnstileSiteKey: string =
 				<h2 class="text-heading text-6xl lg:text-7xl text-white mb-6">
 					Partnership <span class="gradient-text">Levels</span>
 				</h2>
-				<p class="text-body-premium text-xl text-white/60 max-w-3xl mx-auto">
+				<p class="text-body-premium text-xl text-white/75 max-w-3xl mx-auto">
 					Join us in empowering young women and connecting the diaspora with Ghana through strategic partnerships. Let's discuss how we can collaborate.
 				</p>
 			</div>
@@ -597,7 +597,7 @@ const turnstileSiteKey: string =
 				<h2 class="text-heading text-6xl lg:text-7xl text-white mb-6">
 					Let's <span class="gradient-text">Connect</span>
 				</h2>
-				<p class="text-body-premium text-xl text-white/60 max-w-3xl mx-auto">
+				<p class="text-body-premium text-xl text-white/75 max-w-3xl mx-auto">
 					We'd love to hear from you. Reach out about the pageant, partnership opportunities, or how to get involved
 				</p>
 			</div>
@@ -614,7 +614,7 @@ const turnstileSiteKey: string =
 								</div>
 							</div>
 							<div class="flex-1">
-								<h4 class="text-white font-bold text-xl mb-2">Yvonne Kofigah</h4>
+								<h3 class="text-white font-bold text-xl mb-2">Yvonne Kofigah</h3>
 								<p class="text-white/90 font-medium mb-2">General Manager</p>
 								<p class="text-white/50 text-sm">Leading MDGH with vision and dedication</p>
 							</div>
@@ -623,7 +623,7 @@ const turnstileSiteKey: string =
 
 					<!-- Phone & WhatsApp Combined Card -->
 					<div class="glass-dark p-8 rounded-2xl border border-[#F8B92F]/20 hover:border-[#F8B92F]/50 transition-all duration-300">
-						<h4 class="text-white font-bold text-xl mb-6">Contact Numbers</h4>
+						<h3 class="text-white font-bold text-xl mb-6">Contact Numbers</h3>
 						<div class="space-y-4">
 							<!-- WhatsApp -->
 							<a href="https://wa.me/233591942227" target="_blank" rel="noopener noreferrer" class="flex items-center gap-4 p-4 rounded-xl bg-white/5 hover:bg-white/10 transition-all duration-300 group">
@@ -670,7 +670,7 @@ const turnstileSiteKey: string =
 								</div>
 								<!-- Content -->
 								<div class="flex-1">
-									<h4 class="text-white font-bold text-xl mb-2">{contact.title}</h4>
+									<h3 class="text-white font-bold text-xl mb-2">{contact.title}</h3>
 									<p class="text-white/90 font-medium whitespace-pre-line mb-2">{contact.subtitle}</p>
 									<p class="text-white/50 text-sm">{contact.description}</p>
 								</div>
@@ -802,7 +802,7 @@ const turnstileSiteKey: string =
 					].map((link) => (
 						<a
 							href={link.href}
-							class="text-white/60 hover:text-[#F8B92F] transition-colors duration-300 font-medium text-sm uppercase tracking-wider"
+							class="text-white/75 hover:text-[#F8B92F] transition-colors duration-300 font-medium text-sm uppercase tracking-wider"
 						>
 							{link.label}
 						</a>
@@ -829,8 +829,8 @@ const turnstileSiteKey: string =
 				<MessageCircle class="w-8 h-8 text-white" stroke-width="2" />
 			</div>
 
-			<!-- Notification Badge -->
-			<div class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center animate-pulse">
+			<!-- Decorative attention badge (not an actual unread count) -->
+			<div class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center animate-pulse" aria-hidden="true">
 				<span class="text-white text-xs font-bold">1</span>
 			</div>
 
