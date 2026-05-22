@@ -1,20 +1,26 @@
 export function applySecurityHeaders(res: Response, opts: { isApply: boolean; isAdmin: boolean }): Response {
+  // Payment origins are only allow-listed on /apply* (where the Payaza SDK
+  // popup + form-action target run). The brand site doesn't need them in CSP.
+  const payazaOrigins = opts.isApply ? ' https://checkout.payaza.africa https://checkout-v2.payaza.africa' : '';
+
   const csp = [
     "default-src 'self'",
-    // 'unsafe-inline' on script-src allows the Turnstile widget's bootstrap
-    // inline script + the small inline modules Astro generates for islands.
-    `script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com${opts.isApply ? ' https://checkout.payaza.africa https://checkout-v2.payaza.africa' : ''}`,
-    // 'unsafe-inline' on style-src is needed for the layout's inline <style>
-    // block + Astro's scoped style hashes. fonts.googleapis.com is the
-    // Google Fonts CSS host (the actual font files come from fonts.gstatic.com,
-    // covered by font-src).
+    // 'unsafe-inline' on script-src is needed for Astro's per-island inline
+    // bootstrap scripts + Turnstile's widget bootstrap. Future hardening:
+    // switch to nonce-based CSP (Astro 5 experimental.csp).
+    `script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com${payazaOrigins}`,
+    // 'unsafe-inline' on style-src covers Astro's scoped <style> blocks +
+    // inline element styles.
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     "font-src 'self' https://fonts.gstatic.com data:",
     `connect-src 'self' https://api.payaza.africa https://*.r2.cloudflarestorage.com https://challenges.cloudflare.com`,
     `img-src 'self' data: https://*.r2.cloudflarestorage.com`,
     `media-src 'self' https://*.r2.cloudflarestorage.com`,
-    `frame-src https://challenges.cloudflare.com${opts.isApply ? ' https://checkout.payaza.africa https://checkout-v2.payaza.africa' : ''}`,
-    `form-action 'self'${opts.isApply ? ' https://checkout.payaza.africa https://checkout-v2.payaza.africa' : ''}`,
+    `frame-src https://challenges.cloudflare.com${payazaOrigins}`,
+    // Block all framing of OUR pages — parity with X-Frame-Options: DENY,
+    // but frame-ancestors is the modern equivalent that browsers prefer.
+    "frame-ancestors 'none'",
+    `form-action 'self'${payazaOrigins}`,
     "base-uri 'self'",
     "object-src 'none'",
   ].join('; ');
