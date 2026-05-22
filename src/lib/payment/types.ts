@@ -6,6 +6,13 @@ export type PaymentInitInput = {
   reference: string;
   customerEmail: string;
   customerName?: string;
+  /**
+   * E.164-formatted phone number (e.g. "+233244000000"). Optional at the
+   * TypeScript level, but Payaza's server-side verify REJECTS transactions
+   * where the SDK sent an empty phone — falls back to a Ghana-country-code
+   * placeholder inside the provider if not supplied here.
+   */
+  customerPhone?: string;
   callbackUrl: string;
   metadata?: Record<string, string>;
 };

@@ -52,8 +52,10 @@ const currency = cycle.application_currency;
       </section>
 
       <section class="card">
-        <div class="label" style="margin-bottom:14px">Step 2 — Your email</div>
-        <input class="input" type="email" name="email" placeholder="email@example.com" required maxlength="254" />
+        <div class="label" style="margin-bottom:14px">Step 2 — Your contact</div>
+        <input class="input" type="email" name="email" placeholder="email@example.com" required maxlength="254" style="margin-bottom:10px" />
+        <input class="input" type="tel" name="phone" placeholder="+233 24 000 0000" required maxlength="20" pattern="^\+[1-9][0-9 \-]{6,18}$" />
+        <p class="muted" style="font-size:11px;margin:8px 0 0;letter-spacing:0.03em">Include country code (e.g. <code>+233</code> for Ghana). Used for payment + cycle updates.</p>
       </section>
 
       <section class="card">

@@ -3,6 +3,10 @@ import { AGE_BANDS } from '@/lib/eligibility/rules';
 
 export const checkoutCreateSchema = z.object({
   email: z.string().email().max(254),
+  // Phone in E.164 format ("+" + country-code digit 1-9 + 6-14 more digits).
+  // Required so Payaza's server-side verify doesn't reject the transaction
+  // with status_reason="Length is 0 digits but must be at least 1 country code digit".
+  phone: z.string().regex(/^\+[1-9][0-9]{6,14}$/, 'phone must include country code (e.g. +233244000000)'),
   ageBand: z.enum(AGE_BANDS as readonly [string, ...string[]]),
   isWoman: z.boolean(),
   africanDescent: z.boolean(),

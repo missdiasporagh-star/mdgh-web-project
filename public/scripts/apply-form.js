@@ -10,13 +10,14 @@ export function init({ turnstileSiteKey }) {
   const state = {
     ageBand: null, isWoman: null, africanDescent: null, outsideGhana: null,
     validPassport: null, consentMediaUse: null, consentMarketing: null,
-    consentPolicy: false, email: '', turnstileToken: null,
+    consentPolicy: false, email: '', phone: '', turnstileToken: null,
   };
 
   renderQuiz(state, validate);
   setupBinaryToggles(state, validate);
   setupCheckbox(state, validate);
   setupEmail(state, validate);
+  setupPhone(state, validate);
   setupTurnstile(turnstileSiteKey, (token) => { state.turnstileToken = token; validate(); });
   setupSubmit(state);
 
@@ -32,7 +33,7 @@ export function init({ turnstileSiteKey }) {
       state.isWoman !== null && state.africanDescent !== null &&
       state.outsideGhana !== null && state.validPassport !== null &&
       state.consentPolicy && state.consentMediaUse !== null && state.consentMarketing !== null &&
-      isValidEmail(state.email) && !!state.turnstileToken;
+      isValidEmail(state.email) && isValidPhone(state.phone) && !!state.turnstileToken;
 
     document.getElementById('submit-btn').disabled = !(eligible && allAnswered);
 
@@ -45,6 +46,12 @@ export function init({ turnstileSiteKey }) {
 }
 
 function isValidEmail(s) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s); }
+function isValidPhone(s) {
+  // E.164-ish: '+' followed by country code + digits. Strip spaces/hyphens
+  // before checking. Must start with + then 1-9 then 6-14 more digits.
+  const cleaned = (s || '').replace(/[\s\-()]/g, '');
+  return /^\+[1-9][0-9]{6,14}$/.test(cleaned);
+}
 
 function renderQuiz(state, validate) {
   const host = document.getElementById('eligibility-quiz');
@@ -108,6 +115,15 @@ function setupEmail(state, validate) {
   input.addEventListener('input', () => { state.email = input.value.trim(); validate(); });
 }
 
+function setupPhone(state, validate) {
+  const input = document.querySelector('input[name="phone"]');
+  if (!input) return;
+  input.addEventListener('input', () => {
+    state.phone = input.value.trim().replace(/[\s\-()]/g, '');
+    validate();
+  });
+}
+
 function setupTurnstile(siteKey, onToken) {
   const host = document.getElementById('turnstile-host');
   const interval = setInterval(() => {
@@ -130,7 +146,7 @@ function setupSubmit(state) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        email: state.email, ageBand: state.ageBand,
+        email: state.email, phone: state.phone, ageBand: state.ageBand,
         isWoman: state.isWoman, africanDescent: state.africanDescent,
         outsideGhana: state.outsideGhana, validPassport: state.validPassport,
         consentPolicy: state.consentPolicy,

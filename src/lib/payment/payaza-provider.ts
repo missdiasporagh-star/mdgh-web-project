@@ -35,7 +35,18 @@ export class PayazaProvider implements PaymentProvider {
         email: input.customerEmail,
         firstName,
         lastName,
-        phoneNumber: '',
+        // Phone isn't collected in the prequalification step (only after
+        // payment, in the long-form application). The Payaza SDK client-
+        // side validator accepts an empty string, but the SERVER-side
+        // verify endpoint rejects with status_reason="Value '' is invalid.
+        // Length is 0 digits but must be at least 1 country code digit"
+        // when the transaction is processed.
+        //
+        // Use a Ghana country-code placeholder ('+233' + 9 zeros to form
+        // a complete-length number) until phone is collected upfront.
+        // Followup: surface phone in the prequalification form so this
+        // can be the real number.
+        phoneNumber: input.customerPhone ?? '+233000000000',
       },
     };
   }
@@ -44,6 +55,8 @@ export class PayazaProvider implements PaymentProvider {
     try {
       const url = `${VERIFY_URL}?merchant_reference=${encodeURIComponent(reference)}`;
       const encodedKey = btoa(this.env.PAYAZA_PUBLIC_KEY);
+      const isTest = this.env.PAYAZA_PUBLIC_KEY.includes('PKTEST');
+      console.log(`[payaza.verify] ref=${reference} mode=${isTest ? 'Test' : 'Live'} key=${this.env.PAYAZA_PUBLIC_KEY.slice(0, 16)}...`);
       const res = await fetch(url, {
         method: 'GET',
         headers: {
@@ -53,6 +66,7 @@ export class PayazaProvider implements PaymentProvider {
         },
       });
       const rawText = await res.text();
+      console.log(`[payaza.verify] HTTP ${res.status} body=${rawText.slice(0, 2000)}`);
       let json: unknown;
       try { json = JSON.parse(rawText); } catch { json = {}; }
       if (!res.ok) {

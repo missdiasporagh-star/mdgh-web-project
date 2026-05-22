@@ -74,6 +74,7 @@ export const POST: APIRoute = async ({ request, locals, clientAddress }) => {
     currency: cycle.application_currency as 'USD' | 'NGN' | 'GHS',
     reference,
     customerEmail: input.email,
+    customerPhone: input.phone,
     callbackUrl,
     metadata: { cycle_id: cycle.id, application_id: id },
   });
