@@ -1,0 +1,65 @@
+# Auto-deploy the mdgh-web-project Worker on push to main.
+#
+# Restores the push-triggered deploy that Pages CI used to do, but for the
+# Workers-with-Assets setup. After the 2026-05-22 cutover, the production
+# Cloudflare resource is a Worker (not a Pages project) so Pages CI no longer
+# auto-builds; this action fills the gap.
+#
+# Requires these secrets in GitHub repo settings (Settings → Secrets and
+# variables → Actions):
+#   - CLOUDFLARE_API_TOKEN — Cloudflare API token with these permissions:
+#       • Account · Workers Scripts · Edit
+#       • Account · Workers Routes · Edit
+#       • Account · Workers KV Storage · Edit
+#       • Account · D1 · Edit
+#       • Account · R2 · Edit
+#       • Account · Account Settings · Read
+#       • Zone · Zone · Read
+#       • Zone · SSL and Certificates · Edit  (needed for custom domain SSL)
+#     The "Edit Cloudflare Workers" template in the dashboard's API Tokens UI
+#     covers most of these; add the SSL Certificates scope explicitly.
+#
+# CLOUDFLARE_ACCOUNT_ID is hardcoded below since it's not sensitive (it's
+# already in wrangler.jsonc R2_ACCOUNT_ID var).
+
+name: Deploy Worker
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:    # Allows manual triggering from the Actions tab
+
+# Cancel any in-progress deploy if a newer commit is pushed
+concurrency:
+  group: deploy-mdgh-web-project
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    name: wrangler deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build Astro Worker bundle
+        run: npm run build
+
+      - name: Deploy to Cloudflare Workers
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: '233d917842862e30ed5207cf7b95bc33'
+          # Defaults to running `wrangler deploy` with the wrangler.jsonc at
+          # the repo root, which is what we want.
