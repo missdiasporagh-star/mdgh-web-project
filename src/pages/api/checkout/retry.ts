@@ -22,9 +22,18 @@ export const POST: APIRoute = async ({ request, locals, clientAddress }) => {
   if (!parsed.success) return j({ ok: false, error: 'invalid_input' }, 400);
   const { reference } = parsed.data;
 
+  // Sandbox/test mode is signalled by the PKTEST prefix on the Payaza public key
+  // (Payaza's explicit non-production marker). In test mode we skip both retry
+  // caps so the team can repeatedly exercise the failure → retry flow without
+  // hitting the rate limit. The bookkeeping write still happens so we can see
+  // how many retries occurred per app in KV.
+  const isTestMode = (env.PAYAZA_PUBLIC_KEY ?? '').includes('PKTEST');
+
   const ipHash = await hashIp(clientAddress ?? 'unknown', env.IP_HASH_SALT);
-  const ipRl = await checkRateLimit(env.KV, `rl:checkout-retry:${ipHash}`, 20, 3600);
-  if (!ipRl.allowed) return j({ ok: false, error: 'rate_limited', retryAfter: ipRl.retryAfterSeconds }, 429);
+  if (!isTestMode) {
+    const ipRl = await checkRateLimit(env.KV, `rl:checkout-retry:${ipHash}`, 20, 3600);
+    if (!ipRl.allowed) return j({ ok: false, error: 'rate_limited', retryAfter: ipRl.retryAfterSeconds }, 429);
+  }
 
   const app = await getApplicationByReference(env.DB, reference);
   if (!app) return j({ ok: false, error: 'unknown_reference' }, 404);
@@ -33,7 +42,7 @@ export const POST: APIRoute = async ({ request, locals, clientAddress }) => {
 
   const retryKey = `retry-count:${app.id}`;
   const used = Number((await env.KV.get(retryKey)) ?? '0');
-  if (used >= RETRY_CAP) return j({ ok: false, error: 'retry_cap_reached', cap: RETRY_CAP }, 429);
+  if (!isTestMode && used >= RETRY_CAP) return j({ ok: false, error: 'retry_cap_reached', cap: RETRY_CAP }, 429);
   await env.KV.put(retryKey, String(used + 1), { expirationTtl: RETRY_TTL_SECONDS });
 
   const cycle = await getActiveCycle(env.DB);
