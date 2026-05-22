@@ -29,9 +29,17 @@ import {
 	MessageCircle
 } from 'lucide-astro';
 import '../styles/global.css';
+
+// Turnstile site key for the contact form. Falls back to Cloudflare's
+// always-pass test key in dev environments without env access.
+const env = (Astro.locals as any)?.runtime?.env ?? {};
+const turnstileSiteKey: string = env.TURNSTILE_SITE_KEY ?? '1x00000000000000000000AA';
 ---
 
 <Layout title="Miss Diaspora Ghana | Celebrating Beauty, Culture & Impact">
+  <Fragment slot="head">
+    <meta name="turnstile-site-key" content={turnstileSiteKey} />
+  </Fragment>
 	<Navigation />
 	<Hero />
 
@@ -687,16 +695,19 @@ import '../styles/global.css';
 
 					<!-- Error Message -->
 					<div id="errorMessage" class="hidden mb-6 p-4 bg-red-500/20 border border-red-500/50 rounded-xl">
-						<p class="text-red-400 font-semibold">✗ Failed to send message. Please try again or contact us via WhatsApp.</p>
+						<p id="errorText" class="text-red-400 font-semibold">✗ Failed to send message. Please try again or contact us via WhatsApp.</p>
 					</div>
 
 					<form id="contactForm" class="space-y-6">
+						<!-- Honeypot: bots will fill this; humans never see it. -->
+						<input type="text" name="honeypot" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px" />
 						<div>
 							<label class="block text-white/70 text-sm font-medium mb-2">Full Name *</label>
 							<input
 								type="text"
-								name="from_name"
+								name="name"
 								required
+								maxlength="100"
 								placeholder="Enter your full name"
 								class="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/40 focus:outline-none focus:border-[#F8B92F] focus:bg-white/10 transition-all duration-300"
 							/>
@@ -705,8 +716,9 @@ import '../styles/global.css';
 							<label class="block text-white/70 text-sm font-medium mb-2">Email Address *</label>
 							<input
 								type="email"
-								name="from_email"
+								name="email"
 								required
+								maxlength="254"
 								placeholder="your.email@example.com"
 								class="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/40 focus:outline-none focus:border-[#F8B92F] focus:bg-white/10 transition-all duration-300"
 							/>
@@ -727,10 +739,14 @@ import '../styles/global.css';
 								name="message"
 								required
 								rows="5"
+								minlength="10"
+								maxlength="5000"
 								placeholder="Tell us more about your inquiry..."
 								class="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/40 focus:outline-none focus:border-[#F8B92F] focus:bg-white/10 transition-all duration-300 resize-none"
 							></textarea>
 						</div>
+						<!-- Turnstile widget: server-verified bot protection -->
+						<div id="contact-turnstile-host" style="display:flex;justify-content:center"></div>
 						<button
 							type="submit"
 							id="submitBtn"
@@ -1049,86 +1065,8 @@ import '../styles/global.css';
 		});
 	}
 
-	// EmailJS Contact Form Integration
-	(function() {
-		// Initialize EmailJS with your public key
-		emailjs.init("HipXYBBNK8hTfKEO1");
-
-		const contactForm = document.getElementById('contactForm');
-		const submitBtn = document.getElementById('submitBtn');
-		const btnText = document.getElementById('btnText');
-		const btnLoading = document.getElementById('btnLoading');
-		const successMessage = document.getElementById('successMessage');
-		const errorMessage = document.getElementById('errorMessage');
-
-		if (contactForm) {
-			contactForm.addEventListener('submit', async function(e) {
-				e.preventDefault();
-
-				// Hide previous messages
-				successMessage.classList.add('hidden');
-				errorMessage.classList.add('hidden');
-
-				// Show loading state
-				submitBtn.disabled = true;
-				btnText.classList.add('hidden');
-				btnLoading.classList.remove('hidden');
-
-				try {
-					// Prepare template parameters
-					const templateParams = {
-						from_name: contactForm.querySelector('[name="from_name"]').value,
-						from_email: contactForm.querySelector('[name="from_email"]').value,
-						subject: contactForm.querySelector('[name="subject"]').value,
-						message: contactForm.querySelector('[name="message"]').value,
-						to_email: 'info@missdiasporagh.org',
-						reply_to: contactForm.querySelector('[name="from_email"]').value
-					};
-
-					// Send email via EmailJS
-					const response = await emailjs.send(
-						'service_tj0jwc5',      // Your Service ID
-						'template_w9i6tzh',     // Your Template ID
-						templateParams
-					);
-
-					console.log('SUCCESS!', response.status, response.text);
-
-					// Show success message
-					successMessage.classList.remove('hidden');
-
-					// Clear form
-					contactForm.reset();
-
-					// Scroll to success message
-					successMessage.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-
-					// Hide success message after 5 seconds
-					setTimeout(() => {
-						successMessage.classList.add('hidden');
-					}, 5000);
-
-				} catch (error) {
-					console.error('FAILED...', error);
-
-					// Show error message
-					errorMessage.classList.remove('hidden');
-
-					// Scroll to error message
-					errorMessage.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-
-					// Hide error message after 5 seconds
-					setTimeout(() => {
-						errorMessage.classList.add('hidden');
-					}, 5000);
-
-				} finally {
-					// Reset button state
-					submitBtn.disabled = false;
-					btnText.classList.remove('hidden');
-					btnLoading.classList.add('hidden');
-				}
-			});
-		}
-	})();
+	// Contact form handler is loaded as an external module — see
+	// /scripts/contact-form.js. Replaces the prior inline EmailJS integration.
 </script>
+
+<script src="/scripts/contact-form.js" defer is:inline></script>

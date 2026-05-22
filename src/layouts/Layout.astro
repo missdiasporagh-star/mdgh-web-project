@@ -24,8 +24,13 @@ const { title, description = "Miss Diaspora Ghana - Celebrating Beauty, Culture 
 			<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600&family=Inter:wght@400;700&family=Montserrat:wght@800;900&display=swap" rel="stylesheet">
 		</noscript>
 
-		<!-- EmailJS -->
-		<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+		<!-- Cloudflare Turnstile (bot protection) — replaces the prior EmailJS
+		     integration; the homepage contact form now uses Turnstile + our own
+		     Resend-backed /api/contact endpoint instead. -->
+		<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+
+		<!-- Per-page head additions (e.g., turnstile-site-key meta tag) -->
+		<slot name="head" />
 
 		<title>{title}</title>
 
