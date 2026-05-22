@@ -4,7 +4,7 @@
   // assets binding model. All bindings declared here are used at deploy
   // time (`wrangler deploy`) and at local-dev (`wrangler dev`).
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "mdgh-app",
+  "name": "mdgh-web-project",
   "main": "./dist/_worker.js/index.js",
   "compatibility_date": "2025-11-12",
   "compatibility_flags": ["nodejs_compat"],
@@ -20,14 +20,18 @@
     "enabled": true
   },
 
-  // Keep the workers.dev URL active alongside the custom domain.
+  // Keep the workers.dev URL active alongside the custom domains.
   "workers_dev": true,
 
-  // Custom domain — serves apply.missdiasporagh.org (the application
-  // form + Payaza checkout). The apex (missdiasporagh.org) remains on
-  // the mdgh-web-project Pages project — full consolidation requires
-  // a dashboard domain-detach window not done in this session.
+  // Unified Worker — serves the apex brand site AND the application
+  // form. Previous architecture split these between the mdgh-web-project
+  // Pages project (apex) and the mdgh-app Worker (apply.) — consolidated
+  // into one Worker on 2026-05-22 (the Pages project was deleted; the
+  // old mdgh-app Worker is retained as a safety rollback target until
+  // the new Worker is verified, then deleted).
   "routes": [
+    { "pattern": "missdiasporagh.org", "custom_domain": true },
+    { "pattern": "www.missdiasporagh.org", "custom_domain": true },
     { "pattern": "apply.missdiasporagh.org", "custom_domain": true }
   ],
 
@@ -64,7 +68,10 @@
   // PKLIVE key prefix on PAYAZA_PUBLIC_KEY and by the `connectionMode` field
   // on the SDK bootstrap.
   "vars": {
-    "R2_ACCOUNT_ID": "233d917842862e30ed5207cf7b95bc33"
+    "R2_ACCOUNT_ID": "233d917842862e30ed5207cf7b95bc33",
+    "MOCK_PAYMENTS": "false",
+    "MOCK_EMAIL": "true",
+    "TURNSTILE_SITE_KEY": "1x00000000000000000000AA"
   },
 
   // Production environment: same bindings except the production R2 bucket
