@@ -57,28 +57,39 @@ const { title, description = "Miss Diaspora Ghana - Celebrating Beauty, Culture 
 		<slot />
 
 		<script>
-			import Lenis from 'lenis';
 			import { gsap } from 'gsap';
 			import { ScrollTrigger } from 'gsap/ScrollTrigger';
-
 			gsap.registerPlugin(ScrollTrigger);
 
-			// Smooth scrolling
-			const lenis = new Lenis({
-				duration: 1.2,
-				easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-				smoothWheel: true,
-			});
+			// Defer Lenis (smooth-scroll) initialisation until the browser is
+			// idle. Lenis is a 28KB bundle and adds a perpetual rAF loop +
+			// ~200ms input lag on mobile; Lighthouse flagged it as the top
+			// main-thread cost. Skip entirely on mobile (native scroll is
+			// already smooth) and when prefers-reduced-motion is set.
+			const initLenis = async () => {
+				const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+				const isMobile = innerWidth < 1024;
+				if (reduced || isMobile) return;
 
-			function raf(time: number) {
-				lenis.raf(time);
+				const { default: Lenis } = await import('lenis');
+				const lenis = new Lenis({
+					duration: 1.2,
+					easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+					smoothWheel: true,
+				});
+				const raf = (time: number) => {
+					lenis.raf(time);
+					requestAnimationFrame(raf);
+				};
 				requestAnimationFrame(raf);
+				lenis.on('scroll', ScrollTrigger.update);
+			};
+
+			if ('requestIdleCallback' in window) {
+				(window as Window & typeof globalThis).requestIdleCallback(() => initLenis());
+			} else {
+				addEventListener('load', () => setTimeout(initLenis, 200));
 			}
-
-			requestAnimationFrame(raf);
-
-			// Update ScrollTrigger on Lenis scroll
-			lenis.on('scroll', ScrollTrigger.update);
 		</script>
 	</body>
 </html>
