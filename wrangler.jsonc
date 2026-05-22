@@ -71,7 +71,7 @@
     "R2_ACCOUNT_ID": "233d917842862e30ed5207cf7b95bc33",
     "MOCK_PAYMENTS": "false",
     "MOCK_EMAIL": "false",
-    "TURNSTILE_SITE_KEY": "1x00000000000000000000AA"
+    "TURNSTILE_SITE_KEY": "0x4AAAAAADKzeLyePNDZDTKJ"
   },
 
   // Production environment: same bindings except the production R2 bucket
