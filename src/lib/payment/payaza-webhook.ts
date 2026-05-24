@@ -7,7 +7,7 @@
 export function extractMerchantReference(body: unknown): string | null {
   if (typeof body !== 'object' || body === null) return null;
   const b = body as Record<string, unknown>;
-  const data = (b.data && typeof b.data === 'object' ? (b.data as Record<string, unknown>) : {}) ?? {};
+  const data = b.data && typeof b.data === 'object' ? (b.data as Record<string, unknown>) : {};
   const candidates = [
     b.merchant_transaction_reference,
     b.merchant_reference,

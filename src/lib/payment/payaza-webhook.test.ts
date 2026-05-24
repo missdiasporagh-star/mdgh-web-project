@@ -16,6 +16,10 @@ describe('extractMerchantReference', () => {
     expect(extractMerchantReference(null)).toBeNull();
     expect(extractMerchantReference('nope')).toBeNull();
   });
+  it('returns null for array bodies (defensive)', () => {
+    expect(extractMerchantReference([])).toBeNull();
+    expect(extractMerchantReference([{ merchant_transaction_reference: 'MDGH-2026-DDD' }])).toBeNull();
+  });
 });
 
 describe('verifyWebhookToken', () => {
