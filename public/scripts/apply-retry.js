@@ -48,7 +48,17 @@ if (card) {
       last_name: boot.lastName,
       phone_number: boot.phoneNumber || '',
       transaction_reference: boot.reference,
-      callback: () => { window.location.href = returnUrl; },
+      callback: (response) => {
+        // Log Payaza's full result so a decline can be diagnosed from DevTools.
+        try { console.log('[payaza] callback response:', JSON.stringify(response)); }
+        catch (_) { console.log('[payaza] callback response:', response); }
+        // Stay on Payaza's result/error screen long enough to read it before we
+        // navigate to the return page. A clear success redirects immediately.
+        let blob = '';
+        try { blob = JSON.stringify(response ?? '').toLowerCase(); } catch (_) {}
+        const looksSuccessful = /success|completed|"paid"/.test(blob);
+        setTimeout(() => { window.location.href = returnUrl; }, looksSuccessful ? 0 : 8000);
+      },
       onClose: () => {
         btn.disabled = false;
         btn.textContent = 'Retry payment';
