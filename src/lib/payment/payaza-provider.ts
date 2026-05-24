@@ -134,10 +134,12 @@ export function classifyPayazaVerifyResult(
   return {
     ok: true,
     status,
-    providerTransactionId: String(data.transaction_id ?? data.id ?? reference),
-    amountCents: Math.round(Number(data.amount ?? 0) * 100),
+    providerTransactionId: String(
+      data.transaction_reference ?? data.transaction_id ?? data.id ?? reference,
+    ),
+    amountCents: Math.round(Number(data.amount_received ?? data.amount ?? 0) * 100),
     currency: ((data.currency ?? 'USD') as 'USD' | 'NGN' | 'GHS'),
-    paidAt: data.transaction_date ?? data.paid_at,
+    paidAt: data.current_status_date ?? data.transaction_date ?? data.paid_at ?? data.initiated_date,
     paymentMethod: data.payment_channel ?? data.channel,
     raw: json,
   };
@@ -164,12 +166,18 @@ function deriveNameFromEmail(email: string, customerName?: string): { firstName:
 type TransactionData = {
   transaction_id?: string | number;
   id?: string | number;
+  transaction_reference?: string;
+  merchant_transaction_reference?: string;
   transaction_status?: string;
   status?: string;
   amount?: number | string;
+  amount_received?: number | string;
   currency?: string;
   transaction_date?: string;
   paid_at?: string;
+  initiated_date?: string;
+  current_status_date?: string;
+  status_reason?: string;
   payment_channel?: string;
   channel?: string;
 };
