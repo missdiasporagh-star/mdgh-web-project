@@ -29,7 +29,9 @@ if (card) {
       if (json.ok && json.status === 'failed') return 'stop';
       return 'pending';
     } catch (e) {
-      return 'stop';
+      // Transient network error — treat as not-yet-resolved so the loop keeps
+      // retrying up to MAX_ATTEMPTS instead of abandoning on a single hiccup.
+      return 'pending';
     }
   }
 
