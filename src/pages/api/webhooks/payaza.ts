@@ -6,6 +6,13 @@ import { checkRateLimit } from '@/lib/ratelimit/kv-limiter';
 
 export const prerender = false;
 
+// Magic-link emails must use the canonical apply origin — NOT whatever origin
+// Payaza happened to POST to (this Worker also answers on *.workers.dev and the
+// apex). So we pass an explicit origin rather than inferring it from the
+// inbound request. (Follow-up: promote to an APP_ORIGIN env var shared with
+// verify-flow.)
+const APP_ORIGIN = 'https://apply.missdiasporagh.org';
+
 // Payaza posts collection notifications here. We do NOT trust the payload:
 // after extracting our merchant reference we re-query Payaza authoritatively via
 // runPaymentVerification(), which marks paid/failed and sends the magic-link
@@ -21,8 +28,12 @@ export const POST: APIRoute = async ({ request, locals, clientAddress }) => {
     return new Response('Unauthorized', { status: 401 });
   }
 
+  // Defense-in-depth behind the URL token (the real gate). Keyed by IP so a
+  // leaked-token abuser from another IP can't throttle Payaza's own deliveries;
+  // the cap is generous because legitimate events can arrive in bursts
+  // (multiple status transitions + retries per transaction).
   const ipHash = await hashIp(clientAddress ?? 'unknown', env.IP_HASH_SALT);
-  const rl = await checkRateLimit(env.KV, `rl:payaza-webhook:${ipHash}`, 120, 3600);
+  const rl = await checkRateLimit(env.KV, `rl:payaza-webhook:${ipHash}`, 300, 3600);
   if (!rl.allowed) return j({ ok: true, throttled: true });
 
   let body: unknown;
@@ -32,7 +43,7 @@ export const POST: APIRoute = async ({ request, locals, clientAddress }) => {
   if (!reference) return j({ ok: true, ignored: 'no_reference' });
 
   try {
-    const outcome = await runPaymentVerification(env, reference, url.origin);
+    const outcome = await runPaymentVerification(env, reference, APP_ORIGIN);
     return j({ ok: true, status: outcome.ok ? outcome.status : 'error' });
   } catch (e) {
     console.error('[payaza.webhook] verification error:', e instanceof Error ? e.message : String(e));
