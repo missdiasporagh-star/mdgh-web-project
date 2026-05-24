@@ -28,10 +28,20 @@ if (view === 'paid' && token) {
 <ApplyLayout title="Verifying payment | MDGH">
   <div class="wrap">
     {view === 'pending' && (
-      <div class="card" style="border-left:3px solid #FFD166">
-        <div class="label" style="color:#FFD166">Still confirming</div>
-        <h2 style="margin:8px 0">Your payment is processing.</h2>
-        <p class="muted">This can take up to 5 minutes. We'll email you the moment it confirms. If you don't hear back, use the <a href="/apply/recover">recover form</a> with your reference: <code style="color:#F8B92F">{reference}</code></p>
+      <div class="card" style="border-left:3px solid #FFD166" data-pending-card data-reference={reference}>
+        <div class="label" style="color:#FFD166">Confirming your payment…</div>
+        <h2 style="margin:8px 0" id="pending-heading">We're checking with the payment provider.</h2>
+        <p class="muted" id="pending-msg">This only takes a few seconds — please keep this page open.</p>
+
+        <!-- Revealed by apply-pending.js once auto-checks are exhausted without
+             resolving. Reuses apply-retry.js via the data-retry-card hook. -->
+        <div id="pending-actions" data-retry-card data-reference={reference} style="display:none;margin-top:16px">
+          <p class="muted" style="margin-bottom:12px">We haven't received confirmation of your payment yet. If it didn't go through, you can try again — you won't be charged twice.</p>
+          <button type="button" id="retry-btn" class="btn" style="width:100%">Retry payment</button>
+          <button type="button" id="recheck-btn" class="btn-ghost" style="width:100%;margin-top:10px">Check again</button>
+          <p id="retry-err" class="err" style="display:none;margin-top:10px"></p>
+          <p class="muted" style="font-size:12px;margin-top:14px;text-align:center">Already paid? Use the <a href="/apply/recover" style="color:#F8B92F">recover form</a> with reference <code style="color:#F8B92F">{reference}</code>.</p>
+        </div>
       </div>
     )}
     {view === 'failed' && (
@@ -54,8 +64,11 @@ if (view === 'paid' && token) {
     )}
   </div>
 
-  {view === 'failed' && (
+  {(view === 'failed' || view === 'pending') && (
     <script src="https://checkout-v2.payaza.africa/js/v1/bundle.js" defer></script>
     <script type="module" src="/scripts/apply-retry.js"></script>
+  )}
+  {view === 'pending' && (
+    <script type="module" src="/scripts/apply-pending.js"></script>
   )}
 </ApplyLayout>
