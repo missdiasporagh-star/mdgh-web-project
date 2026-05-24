@@ -66,36 +66,7 @@ export class PayazaProvider implements PaymentProvider {
       const rawText = await res.text();
       let json: unknown;
       try { json = JSON.parse(rawText); } catch { json = {}; }
-      if (!res.ok) {
-        return {
-          ok: false,
-          errorCode: extractCode(json) ?? `HTTP_${res.status}`,
-          errorMessage: extractMessage(json) ?? 'Verify failed',
-        };
-      }
-      const data = extractTransactionData(json);
-      if (!data) {
-        return {
-          ok: false,
-          errorCode: 'INVALID_RESPONSE',
-          errorMessage: 'Payaza verify response missing transaction data',
-        };
-      }
-      const statusRaw = (data.transaction_status ?? data.status ?? '').toString().toLowerCase();
-      const status: PaymentStatus =
-        statusRaw.includes('success') || statusRaw === 'paid' || statusRaw === 'completed' ? 'paid'
-        : statusRaw.includes('fail') || statusRaw === 'declined' || statusRaw === 'cancelled' ? 'failed'
-        : 'pending';
-      return {
-        ok: true,
-        status,
-        providerTransactionId: String(data.transaction_id ?? data.id ?? reference),
-        amountCents: Math.round(Number(data.amount ?? 0) * 100),
-        currency: ((data.currency ?? 'USD') as 'USD' | 'NGN' | 'GHS'),
-        paidAt: data.transaction_date ?? data.paid_at,
-        paymentMethod: data.payment_channel ?? data.channel,
-        raw: json,
-      };
+      return classifyPayazaVerifyResult(res.ok, res.status, json, reference);
     } catch (e) {
       return {
         ok: false,
@@ -104,6 +75,81 @@ export class PayazaProvider implements PaymentProvider {
       };
     }
   }
+}
+
+/**
+ * Pure mapping from Payaza's transaction-query response to a PaymentVerifyResult.
+ * Exported for unit testing.
+ *
+ * Correctness rule this encodes: a 200 OK that carries NO transaction record
+ * means the payment never completed (e.g. the card was declined before Payaza
+ * created a transaction). That MUST resolve to 'failed' — not 'pending' — so the
+ * applicant sees the retry path instead of a perpetual "Still confirming" screen.
+ *
+ * The previous implementation fell back to the whole response body whenever
+ * `data` was absent (`?? obj`), which produced an empty status string that
+ * defaulted to 'pending' and stranded failed payments forever.
+ */
+export function classifyPayazaVerifyResult(
+  httpOk: boolean,
+  httpStatus: number,
+  json: unknown,
+  reference: string,
+): PaymentVerifyResult {
+  if (!httpOk) {
+    return {
+      ok: false,
+      errorCode: extractCode(json) ?? `HTTP_${httpStatus}`,
+      errorMessage: extractMessage(json) ?? 'Verify failed',
+    };
+  }
+
+  const data = extractTransactionData(json);
+  if (!data) {
+    // 200 OK but Payaza has no transaction for this reference → no charge
+    // occurred. Resolve to failed so the applicant gets the retry path.
+    return {
+      ok: true,
+      status: 'failed',
+      providerTransactionId: reference,
+      amountCents: 0,
+      currency: 'USD',
+      raw: json,
+    };
+  }
+
+  const statusRaw = (data.transaction_status ?? data.status ?? '').toString().toLowerCase().trim();
+  let status: PaymentStatus;
+  if (isSuccessStatus(statusRaw)) {
+    status = 'paid';
+  } else if (statusRaw === '' || isFailureStatus(statusRaw)) {
+    // A transaction object with no status, or an explicit failure status, is
+    // terminal — never leave these on 'pending'.
+    status = 'failed';
+  } else {
+    // A recognized in-flight status (e.g. "Processing", "Pending", "Initiated").
+    status = 'pending';
+  }
+
+  return {
+    ok: true,
+    status,
+    providerTransactionId: String(data.transaction_id ?? data.id ?? reference),
+    amountCents: Math.round(Number(data.amount ?? 0) * 100),
+    currency: ((data.currency ?? 'USD') as 'USD' | 'NGN' | 'GHS'),
+    paidAt: data.transaction_date ?? data.paid_at,
+    paymentMethod: data.payment_channel ?? data.channel,
+    raw: json,
+  };
+}
+
+function isSuccessStatus(s: string): boolean {
+  return s.includes('success') || s === 'paid' || s === 'completed';
+}
+
+function isFailureStatus(s: string): boolean {
+  return ['fail', 'declin', 'cancel', 'revers', 'insufficient', 'expire', 'abandon', 'unsuccess', 'void', 'error']
+    .some((k) => s.includes(k));
 }
 
 function deriveNameFromEmail(email: string, customerName?: string): { firstName: string; lastName: string } {
@@ -131,9 +177,14 @@ type TransactionData = {
 function extractTransactionData(json: unknown): TransactionData | null {
   if (typeof json !== 'object' || json === null) return null;
   const obj = json as Record<string, unknown>;
-  const candidate = (obj.data ?? obj.transaction ?? obj) as Record<string, unknown> | undefined;
-  if (!candidate || typeof candidate !== 'object') return null;
-  return candidate as TransactionData;
+  // Payaza wraps a found transaction as { message, data: {...} }. Prefer that.
+  const nested = obj.data ?? obj.transaction;
+  if (nested && typeof nested === 'object') return nested as TransactionData;
+  // Only fall back to the top-level object when it actually carries a status
+  // field — NEVER blindly. A "transaction not found" body has no status, so
+  // returning it here would default to 'pending' and strand failed payments.
+  if ('transaction_status' in obj || 'status' in obj) return obj as TransactionData;
+  return null;
 }
 
 function extractCode(json: unknown): string | undefined {
