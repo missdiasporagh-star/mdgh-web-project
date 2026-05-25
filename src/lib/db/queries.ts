@@ -281,3 +281,19 @@ export async function insertAdminAudit(
     VALUES (?, ?, ?, ?, ?, ?, ?)`)
     .bind(args.id, args.adminEmail, args.action, args.targetApplicationId, args.detailsJson, args.ipHash, now).run();
 }
+
+export type AdminRow = {
+  email: string;
+  password_hash: string;
+  display_name: string | null;
+  created_at: string;
+  disabled: number;
+};
+
+export async function getAdminByEmail(db: D1Database, email: string): Promise<AdminRow | null> {
+  const r = await db
+    .prepare(`SELECT * FROM admins WHERE email = ?`)
+    .bind(email.toLowerCase())
+    .first<AdminRow>();
+  return r ?? null;
+}
