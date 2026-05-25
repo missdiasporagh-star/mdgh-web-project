@@ -1,6 +1,13 @@
 // src/lib/crypto/pbkdf2.ts
 const enc = new TextEncoder();
-const ITERATIONS = 200_000;
+// Cloudflare Workers' Web Crypto rejects PBKDF2 iteration counts ABOVE 100,000
+// ("Pbkdf2 failed: iteration counts above 100000 are not supported"). This code
+// runs in the Worker for verification, so the work factor is capped at the
+// runtime ceiling. Do NOT raise above 100_000 — hashes generated higher (e.g.
+// in Node) will throw at verify time in production. verifyPassword reads the
+// iteration count from the stored hash, so it still validates older hashes that
+// used a supported count.
+const ITERATIONS = 100_000;
 
 function b64urlEncode(bytes: Uint8Array): string {
   return btoa(String.fromCharCode(...bytes))
