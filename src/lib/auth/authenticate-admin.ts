@@ -10,7 +10,7 @@ import type { AdminRow } from '@/lib/db/queries';
  * can't be used to enumerate which emails are admins.
  */
 export async function authenticateAdmin(row: AdminRow | null, password: string): Promise<AdminRow | null> {
-  if (!row || row.disabled === 1) return null;
+  if (!row || row.disabled !== 0) return null;
   const ok = await verifyPassword(password, row.password_hash);
   return ok ? row : null;
 }

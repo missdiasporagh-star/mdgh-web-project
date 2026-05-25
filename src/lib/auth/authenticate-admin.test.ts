@@ -24,6 +24,11 @@ describe('authenticateAdmin', () => {
     expect(await authenticateAdmin(makeRow({ password_hash, disabled: 1 }), 'correct-horse-battery')).toBeNull();
   });
 
+  it('treats any non-zero disabled value as disabled (fail-closed)', async () => {
+    const password_hash = await hashPassword('correct-horse-battery');
+    expect(await authenticateAdmin(makeRow({ password_hash, disabled: 2 }), 'correct-horse-battery')).toBeNull();
+  });
+
   it('returns null for a wrong password', async () => {
     const password_hash = await hashPassword('correct-horse-battery');
     expect(await authenticateAdmin(makeRow({ password_hash }), 'wrong-password')).toBeNull();
