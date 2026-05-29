@@ -55,8 +55,16 @@ export default function FileUploader(props: Props) {
         sizeBytes: file.size,
       }),
     });
-    const presignJson = await presignRes.json() as { ok: boolean; uploadUrl?: string; r2Key?: string; error?: string };
-    if (!presignJson.ok || !presignJson.uploadUrl || !presignJson.r2Key) {
+    // A failed presign can return a non-JSON / empty body (e.g. a 500/503). Parse
+    // defensively so the applicant always sees a message instead of a silent
+    // unhandled rejection.
+    let presignJson: { ok?: boolean; uploadUrl?: string; r2Key?: string; error?: string } = {};
+    try { presignJson = await presignRes.json(); } catch { /* non-JSON body */ }
+    if (presignJson.error === 'upload_unavailable' || presignRes.status >= 500) {
+      setError('Uploads are temporarily unavailable. Please try again in a few minutes.');
+      return;
+    }
+    if (!presignRes.ok || !presignJson.ok || !presignJson.uploadUrl || !presignJson.r2Key) {
       setError(presignJson.error ?? 'Could not start upload.');
       return;
     }
@@ -140,7 +148,10 @@ export default function FileUploader(props: Props) {
     <label style={{ ...dropZone, cursor: 'pointer', display: 'block' }}>
       <input
         type="file" accept={props.accept} hidden
-        onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFile(f); }}
+        onChange={(e) => {
+          const f = e.target.files?.[0];
+          if (f) handleFile(f).catch(() => { setError('Something went wrong starting the upload. Please try again.'); setProgress(null); });
+        }}
       />
       <div style={{ fontSize: 13, opacity: 0.85 }}>Drag a file here or <span style={{ color: '#F8B92F', textDecoration: 'underline' }}>browse</span></div>
       <div style={{ fontSize: 11, opacity: 0.5, marginTop: 6 }}>
