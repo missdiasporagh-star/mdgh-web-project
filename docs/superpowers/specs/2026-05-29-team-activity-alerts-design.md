@@ -1,7 +1,7 @@
-# Team Activity Alerts — Design
+# Team Activity Alerts + Email Taxonomy — Design
 
 **Date:** 2026-05-29
-**Status:** Approved (pending spec review)
+**Status:** Approved (updated 2026-05-29 to add email labeling/tagging)
 
 ## Goal
 
@@ -90,6 +90,71 @@ guard beyond the existing submission flow.
 update the Resend provider to pass the value through as-is (Resend accepts a
 `to` array). The mock provider records all recipients.
 
+## Email taxonomy (labeling + tagging)
+
+Every outbound email is classified by a single `EmailCategory`, giving the team
+a consistent way to differentiate mail. Two layers:
+
+1. **Machine-readable — on EVERY email** (team- and applicant-facing alike):
+   - Custom header `X-MDGH-Category: <category>`
+   - Resend tag `tags: [{ name: 'category', value: '<category>' }]`
+   This powers Resend-dashboard analytics and lets the team build Gmail filters
+   that auto-label/route, without affecting how the email reads.
+
+2. **Visible subject tag — TEAM-facing emails only:**
+   A prefix like `[MDGH 💰 Payment] …`. Applicant-facing emails (magic link,
+   confirmation, recovery) keep clean, professional subjects (no bracket tag) —
+   the team never receives those anyway, and bracket tags can hurt deliverability.
+
+### Category map
+
+| Category | Audience | Subject tag prefix |
+|---|---|---|
+| `payment_paid` | team | `[MDGH 💰 Payment]` |
+| `application_submitted` | team | `[MDGH 📝 Application]` |
+| `contact_message` | team | `[MDGH ✉️ Contact]` |
+| `magic_link` | applicant | _(none)_ |
+| `applicant_confirmation` | applicant | _(none)_ |
+| `application_recovery` | applicant | _(none)_ |
+
+### Single source of truth: `src/lib/email/taxonomy.ts`
+
+```ts
+export type EmailCategory =
+  | 'payment_paid' | 'application_submitted' | 'contact_message'
+  | 'magic_link' | 'applicant_confirmation' | 'application_recovery';
+
+type CategoryMeta = { teamFacing: boolean; subjectTag: string | null };
+
+export const CATEGORY_META: Record<EmailCategory, CategoryMeta> = {
+  payment_paid:           { teamFacing: true,  subjectTag: '[MDGH 💰 Payment]' },
+  application_submitted:  { teamFacing: true,  subjectTag: '[MDGH 📝 Application]' },
+  contact_message:        { teamFacing: true,  subjectTag: '[MDGH ✉️ Contact]' },
+  magic_link:             { teamFacing: false, subjectTag: null },
+  applicant_confirmation: { teamFacing: false, subjectTag: null },
+  application_recovery:   { teamFacing: false, subjectTag: null },
+};
+
+// Prefix team-facing subjects; leave applicant subjects untouched.
+export function applySubjectTag(category: EmailCategory, subject: string): string {
+  const tag = CATEGORY_META[category].subjectTag;
+  return tag ? `${tag} ${subject}` : subject;
+}
+```
+
+### How it threads through
+
+- `EmailMessage` gains a required `category: EmailCategory` field (plus the
+  `to: string | string[]` widening already noted above).
+- Each `render*` template returns its `category`, and applies its own subject
+  tag via `applySubjectTag` (so the tagged subject is what ships).
+- The **Resend provider** reads `msg.category` and sets `headers` + `tags`
+  generically — one place, every email covered.
+- The **mock provider** records `category` and `to[]` for assertions.
+
+This way "add a new email type" = add one entry to `CATEGORY_META` and set the
+category on the message; tagging is automatic.
+
 ## Templates
 
 Two short internal-facing templates (plain, dashboard-linked):
@@ -101,10 +166,14 @@ Two short internal-facing templates (plain, dashboard-linked):
 
 ## Testing
 
-- `notifyTeam` unit test: correct recipient list, correct template per `kind`.
+- `applySubjectTag` unit test: team categories get prefixed; applicant
+  categories returned unchanged.
+- `notifyTeam` unit test: correct recipient list, correct category + tagged
+  subject per `kind`.
 - Idempotency unit test: second `payment_paid` call for the same `app.id` sends
   nothing (KV guard set).
-- Provider test: `to: string[]` is passed through to Resend / recorded by mock.
+- Provider test: `to: string[]` passed through; `X-MDGH-Category` header and
+  `tags` set from `category` (Resend) / recorded (mock).
 
 ## Non-goals
 
