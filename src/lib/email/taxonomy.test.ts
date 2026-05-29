@@ -7,6 +7,8 @@ describe('applySubjectTag', () => {
       .toBe('[MDGH 💰 Payment] New paid application — REF1');
     expect(applySubjectTag('contact_message', 'Hello'))
       .toBe('[MDGH ✉️ Contact] Hello');
+    expect(applySubjectTag('application_submitted', 'New application: Ama (REF2)'))
+      .toBe('[MDGH 📝 Application] New application: Ama (REF2)');
   });
 
   it('leaves applicant-facing categories untouched', () => {
