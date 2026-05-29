@@ -2,7 +2,8 @@ import type { APIRoute } from 'astro';
 import { submitSchema } from '@/lib/schemas/form';
 import { validateApplyToken } from '@/lib/tokens/validate-apply-token';
 import { submitApplication, getApplicationById } from '@/lib/db/queries';
-import { getEmailProvider, renderApplicantConfirmation, renderAdminNotification } from '@/lib/email';
+import { getEmailProvider, renderApplicantConfirmation } from '@/lib/email';
+import { notifyTeam } from '@/lib/email/notify-team';
 
 export const prerender = false;
 
@@ -36,7 +37,12 @@ export const POST: APIRoute = async ({ request, locals }) => {
   const dashboardUrl = new URL(`/admin/applications/${app.id}`, request.url).toString();
   await Promise.all([
     email.send({ to: app.email, ...renderApplicantConfirmation({ fullName: parsed.data.fullName, reference: app.transaction_reference }) }).catch(() => null),
-    email.send({ to: 'applications@missdiasporagh.org', ...renderAdminNotification({ fullName: parsed.data.fullName, reference: app.transaction_reference, dashboardUrl }) }).catch(() => null),
+    notifyTeam(env, {
+      kind: 'application_submitted',
+      fullName: parsed.data.fullName,
+      reference: app.transaction_reference,
+      dashboardUrl,
+    }).catch(() => null),
   ]);
 
   return j({ ok: true, reference: app.transaction_reference });
