@@ -13,3 +13,4 @@ export type { EmailProvider, EmailMessage, EmailSendResult } from './types';
 export { MockEmailProvider } from './mock-provider';
 export { ResendProvider } from './resend-provider';
 export * from './templates';
+export * from './taxonomy';

@@ -13,10 +13,12 @@ export class ResendProvider implements EmailProvider {
         },
         body: JSON.stringify({
           from: msg.from ?? FROM_ADDRESS,
-          to: [msg.to],
+          to: Array.isArray(msg.to) ? msg.to : [msg.to],
           subject: msg.subject,
           html: msg.html,
           text: msg.text,
+          headers: { 'X-MDGH-Category': msg.category },
+          tags: [{ name: 'category', value: msg.category }],
         }),
       });
       if (!res.ok) {
