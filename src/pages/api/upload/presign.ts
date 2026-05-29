@@ -38,16 +38,30 @@ export const POST: APIRoute = async ({ request, locals }) => {
   const ext = extensionFor(input.contentType);
   const r2Key = `cycles/MDGH-2026/${validation.applicationId}/${input.fileType === 'headshot' ? 'headshot' : 'intro-video'}.${ext}`;
 
+  // Fail loudly (in logs) but cleanly (to the client) if R2 S3 credentials
+  // aren't configured — otherwise getSignedUrl throws and the route returns a
+  // bare 500 the client can't parse, so uploads fail with no message.
+  if (!env.R2_ACCOUNT_ID || !env.R2_ACCESS_KEY_ID || !env.R2_SECRET_ACCESS_KEY) {
+    console.error('[upload.presign] R2 credentials missing: set R2_ACCESS_KEY_ID and R2_SECRET_ACCESS_KEY (and R2_ACCOUNT_ID) on the Worker');
+    return j({ ok: false, error: 'upload_unavailable' }, 503);
+  }
+
   const bucket = BUCKET_NAME_FROM_ENV(env);
-  const uploadUrl = await presignR2Put({
-    accountId: env.R2_ACCOUNT_ID,
-    accessKeyId: env.R2_ACCESS_KEY_ID,
-    secretAccessKey: env.R2_SECRET_ACCESS_KEY,
-    bucket,
-    key: r2Key,
-    contentType: input.contentType,
-    expiresInSeconds: 900, // 15 min
-  });
+  let uploadUrl: string;
+  try {
+    uploadUrl = await presignR2Put({
+      accountId: env.R2_ACCOUNT_ID,
+      accessKeyId: env.R2_ACCESS_KEY_ID,
+      secretAccessKey: env.R2_SECRET_ACCESS_KEY,
+      bucket,
+      key: r2Key,
+      contentType: input.contentType,
+      expiresInSeconds: 900, // 15 min
+    });
+  } catch (e) {
+    console.error('[upload.presign] presign failed:', e instanceof Error ? e.message : String(e));
+    return j({ ok: false, error: 'upload_unavailable' }, 502);
+  }
 
   // Track active presign in KV (one per (token, fileType))
   await env.KV.put(
