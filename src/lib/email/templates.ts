@@ -1,3 +1,5 @@
+import { applySubjectTag } from './taxonomy';
+
 const FROM_DEFAULT = 'Miss Diaspora Ghana <applications@missdiasporagh.org>';
 
 function escapeHtml(s: string): string {
@@ -8,7 +10,8 @@ function escapeHtml(s: string): string {
 export function renderMagicLinkEmail(args: { reference: string; magicLink: string; cycleClose: string }) {
   const { reference, magicLink, cycleClose } = args;
   return {
-    subject: 'Your MDGH application link',
+    category: 'magic_link' as const,
+    subject: applySubjectTag('magic_link', 'Your MDGH application link'),
     text: [
       `Welcome — your MDGH application slot is reserved.`,
       ``,
@@ -34,7 +37,8 @@ export function renderMagicLinkEmail(args: { reference: string; magicLink: strin
 export function renderApplicantConfirmation(args: { fullName: string; reference: string }) {
   const { fullName, reference } = args;
   return {
-    subject: "We've received your MDGH application",
+    category: 'applicant_confirmation' as const,
+    subject: applySubjectTag('applicant_confirmation', "We've received your MDGH application"),
     text: [
       `Hi ${fullName},`,
       ``,
@@ -57,7 +61,8 @@ export function renderApplicantConfirmation(args: { fullName: string; reference:
 export function renderAdminNotification(args: { fullName: string; reference: string; dashboardUrl: string }) {
   const { fullName, reference, dashboardUrl } = args;
   return {
-    subject: `[MDGH] New application: ${fullName} (${reference})`,
+    category: 'application_submitted' as const,
+    subject: applySubjectTag('application_submitted', `New application: ${fullName} (${reference})`),
     text: [
       `New MDGH application submitted.`,
       ``,
@@ -76,7 +81,36 @@ export function renderAdminNotification(args: { fullName: string; reference: str
 
 export function renderRecoveryEmail(args: { reference: string; magicLink: string; cycleClose: string }) {
   const out = renderMagicLinkEmail(args);
-  return { ...out, subject: 'Your MDGH application link (resent)' };
+  return {
+    ...out,
+    category: 'application_recovery' as const,
+    subject: applySubjectTag('application_recovery', 'Your MDGH application link (resent)'),
+  };
+}
+
+export function renderPaymentPaidAlert(args: {
+  reference: string; email: string; amountLabel: string; dashboardUrl: string;
+}) {
+  const { reference, email, amountLabel, dashboardUrl } = args;
+  return {
+    category: 'payment_paid' as const,
+    subject: applySubjectTag('payment_paid', `New paid application — ${reference}`),
+    text: [
+      `A new application fee was paid.`,
+      ``,
+      `Reference: ${reference}`,
+      `Applicant email: ${email}`,
+      `Amount: ${amountLabel}`,
+      ``,
+      `Review: ${dashboardUrl}`,
+    ].join('\n'),
+    html: `<!doctype html><html><body style="font-family:Inter,Arial,sans-serif">
+<h2>💰 New paid application</h2>
+<p><strong>${escapeHtml(reference)}</strong></p>
+<p>Applicant: ${escapeHtml(email)}<br>Amount: ${escapeHtml(amountLabel)}</p>
+<p><a href="${escapeHtml(dashboardUrl)}">Open in admin dashboard</a></p>
+</body></html>`,
+  };
 }
 
 export const FROM_ADDRESS = FROM_DEFAULT;

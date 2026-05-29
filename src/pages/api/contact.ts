@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { hashIp } from '@/lib/crypto/hash';
 import { verifyTurnstile } from '@/lib/turnstile/verify';
 import { checkRateLimit } from '@/lib/ratelimit/kv-limiter';
-import { getEmailProvider } from '@/lib/email';
+import { getEmailProvider, applySubjectTag } from '@/lib/email';
 
 export const prerender = false;
 
@@ -49,9 +49,10 @@ export const POST: APIRoute = async ({ request, locals, clientAddress }) => {
   const sendResult = await email.send({
     to: 'info@missdiasporagh.org',
     from: 'MDGH Contact Form <applications@missdiasporagh.org>',
-    subject: `[Contact] ${subjectSafe} — from ${input.name}`,
+    subject: applySubjectTag('contact_message', `${subjectSafe} — from ${input.name}`),
     html: contactHtml(input),
     text: contactText(input),
+    category: 'contact_message',
   });
 
   if (!sendResult.ok) {

@@ -1,9 +1,12 @@
+import type { EmailCategory } from './taxonomy';
+
 export type EmailMessage = {
-  to: string;
+  to: string | string[];
   from?: string;
   subject: string;
   html: string;
   text: string;
+  category: EmailCategory;
 };
 
 export type EmailSendResult =

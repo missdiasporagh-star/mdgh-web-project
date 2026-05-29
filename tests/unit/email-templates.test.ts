@@ -34,7 +34,7 @@ describe('email templates', () => {
       reference: 'MDGH-2026-AAAA1111',
       dashboardUrl: 'https://missdiasporagh.org/admin/applications/abc',
     });
-    expect(e.subject).toBe('[MDGH] New application: Ama K. (MDGH-2026-AAAA1111)');
+    expect(e.subject).toBe('[MDGH 📝 Application] New application: Ama K. (MDGH-2026-AAAA1111)');
     expect(e.html).toContain('https://missdiasporagh.org/admin/applications/abc');
   });
 
