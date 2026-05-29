@@ -75,8 +75,12 @@ export async function runPaymentVerification(
   }
   await setApplyTokenIssued(env.DB, app.id, new Date().toISOString());
 
-  // Team activity alert — fire-and-forget, never block the applicant's result.
-  // KV-guarded inside notifyTeam so poller + webhook yield exactly one alert.
+  // Team activity alert. Awaited like the magic-link send above: on Workers a
+  // floating promise is cancelled once the response returns, and this branch is
+  // only reached on the first paid resolution (repeat calls early-return as
+  // already-paid), so dropping it would lose the alert permanently. The .catch
+  // keeps a send failure from breaking the applicant's paid result; the KV guard
+  // inside notifyTeam makes poller + webhook yield exactly one alert.
   await notifyTeam(env, {
     kind: 'payment_paid',
     appId: app.id,
