@@ -44,11 +44,16 @@
     }
   ],
 
-  // R2 bucket — defaults to staging; production overrides in [env.production]
+  // R2 bucket — this top-level config is what the GitHub Action actually
+  // deploys (`wrangler deploy`, no --env), so it must hold the PRODUCTION
+  // bucket. The presign endpoint signs uploads for `mdgh-applications` when
+  // MOCK_PAYMENTS=false, so the MEDIA binding (used by /api/applications/draft
+  // head() checks + admin viewing) must point at the same bucket or those
+  // checks 404. (The vestigial [env.production] block is not used by CI.)
   "r2_buckets": [
     {
       "binding": "MEDIA",
-      "bucket_name": "mdgh-applications-staging"
+      "bucket_name": "mdgh-applications"
     }
   ],
 
