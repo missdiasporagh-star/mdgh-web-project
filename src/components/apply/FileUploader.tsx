@@ -24,15 +24,20 @@ export default function FileUploader(props: Props) {
       return;
     }
     if (props.maxDurationSeconds && file.type.startsWith('video/')) {
+      // Best-effort duration check. Some browsers (notably Safari/iOS WebKit)
+      // refuse to read metadata for perfectly valid, playable files — e.g. an
+      // mp4 carrying an embedded thumbnail track — and `duration` is sometimes
+      // Infinity/NaN. In those cases we must NOT block the upload; we only
+      // enforce the limit when we can read a finite duration. The size cap is
+      // the hard backstop.
       try {
         const dur = await videoDuration(file);
-        if (dur > props.maxDurationSeconds) {
+        if (Number.isFinite(dur) && dur > props.maxDurationSeconds) {
           setError(`Video is ${Math.round(dur)}s (max ${props.maxDurationSeconds}s).`);
           return;
         }
       } catch {
-        setError('Could not read video metadata. Try a different file.');
-        return;
+        // Metadata unreadable in this browser — allow the upload to proceed.
       }
     }
 
@@ -150,9 +155,13 @@ export default function FileUploader(props: Props) {
 function videoDuration(file: File): Promise<number> {
   return new Promise((resolve, reject) => {
     const v = document.createElement('video');
+    const url = URL.createObjectURL(file);
+    const cleanup = () => URL.revokeObjectURL(url);
+    // Guard against metadata events never firing on some containers/browsers.
+    const timer = setTimeout(() => { cleanup(); reject(new Error('metadata timeout')); }, 8000);
     v.preload = 'metadata';
-    v.onloadedmetadata = () => { URL.revokeObjectURL(v.src); resolve(v.duration); };
-    v.onerror = () => reject(new Error('Could not read video metadata'));
-    v.src = URL.createObjectURL(file);
+    v.onloadedmetadata = () => { clearTimeout(timer); cleanup(); resolve(v.duration); };
+    v.onerror = () => { clearTimeout(timer); cleanup(); reject(new Error('Could not read video metadata')); };
+    v.src = url;
   });
 }
