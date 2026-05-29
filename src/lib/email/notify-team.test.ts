@@ -7,7 +7,7 @@ function fakeKV() {
   return {
     store,
     get: async (k: string) => store.get(k) ?? null,
-    put: async (k: string, v: string) => { store.set(k, v); },
+    put: async (k: string, v: string, _opts?: unknown) => { store.set(k, v); },
   };
 }
 

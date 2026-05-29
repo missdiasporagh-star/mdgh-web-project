@@ -9,6 +9,11 @@ export const TEAM_NOTIFY = ['missdiasporagh@gmail.com', 'info@missdiasporagh.org
 /** App-submitted also notifies the existing applications@ inbox. */
 const APP_SUBMITTED_RECIPIENTS = ['applications@missdiasporagh.org', ...TEAM_NOTIFY];
 
+/** How long the payment-paid alert dedupe guard lives. 30 days comfortably
+ *  covers the post-cycle review window — well past when poller/webhook retries
+ *  for a given transaction could still arrive. */
+const PAID_ALERT_GUARD_TTL_SECONDS = 60 * 60 * 24 * 30;
+
 export type TeamAlertEvent =
   | {
       kind: 'payment_paid';
@@ -48,10 +53,12 @@ export async function notifyTeam(
       dashboardUrl: event.dashboardUrl,
     });
     const res = await provider.send({ to: TEAM_NOTIFY, ...msg });
-    if (res.ok) await env.KV.put(guardKey, '1', { expirationTtl: 60 * 60 * 24 * 30 });
+    if (res.ok) await env.KV.put(guardKey, '1', { expirationTtl: PAID_ALERT_GUARD_TTL_SECONDS });
     return;
   }
 
+  // application_submitted fires once per submission (no poller), so no guard.
+  // A send failure here is non-fatal — callers wrap this in .catch().
   const msg = renderAdminNotification({
     fullName: event.fullName,
     reference: event.reference,
