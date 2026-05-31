@@ -13,6 +13,11 @@ export const checkoutCreateSchema = z.object({
   outsideGhana: z.boolean(),
   validPassport: z.boolean(),
   consentPolicy: z.literal(true),
+  // Explicit, dedicated acknowledgment that the fee is non-refundable. Required
+  // (must be true) — server-enforced so an applicant cannot reach payment
+  // without ticking it. Chargeback/dispute defense for the paid flow; the Terms
+  // (also accepted via consentPolicy) state the same, this makes it unmissable.
+  consentRefund: z.literal(true),
   consentMediaUse: z.boolean(),
   consentMarketing: z.boolean(),
   honeypot: z.string().max(0, 'Bot detected'),
