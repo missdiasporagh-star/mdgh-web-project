@@ -10,7 +10,7 @@ export function init({ turnstileSiteKey }) {
   const state = {
     ageBand: null, isWoman: null, africanDescent: null, outsideGhana: null,
     validPassport: null, consentMediaUse: null, consentMarketing: null,
-    consentPolicy: false, email: '', phone: '', turnstileToken: null,
+    consentPolicy: false, consentRefund: false, email: '', phone: '', turnstileToken: null,
   };
 
   renderQuiz(state, validate);
@@ -32,7 +32,7 @@ export function init({ turnstileSiteKey }) {
       state.ageBand !== null &&
       state.isWoman !== null && state.africanDescent !== null &&
       state.outsideGhana !== null && state.validPassport !== null &&
-      state.consentPolicy && state.consentMediaUse !== null && state.consentMarketing !== null &&
+      state.consentPolicy && state.consentRefund && state.consentMediaUse !== null && state.consentMarketing !== null &&
       isValidEmail(state.email) && isValidPhone(state.phone) && !!state.turnstileToken;
 
     document.getElementById('submit-btn').disabled = !(eligible && allAnswered);
@@ -173,8 +173,10 @@ function setupBinaryToggles(state, validate) {
 }
 
 function setupCheckbox(state, validate) {
-  const cb = document.querySelector('input[name="consentPolicy"]');
-  cb.addEventListener('change', () => { state.consentPolicy = cb.checked; validate(); });
+  const policy = document.querySelector('input[name="consentPolicy"]');
+  policy.addEventListener('change', () => { state.consentPolicy = policy.checked; validate(); });
+  const refund = document.querySelector('input[name="consentRefund"]');
+  if (refund) refund.addEventListener('change', () => { state.consentRefund = refund.checked; validate(); });
 }
 
 function setupEmail(state, validate) {
@@ -216,7 +218,7 @@ function setupSubmit(state) {
         email: state.email, phone: state.phone, ageBand: state.ageBand,
         isWoman: state.isWoman, africanDescent: state.africanDescent,
         outsideGhana: state.outsideGhana, validPassport: state.validPassport,
-        consentPolicy: state.consentPolicy,
+        consentPolicy: state.consentPolicy, consentRefund: state.consentRefund,
         consentMediaUse: state.consentMediaUse, consentMarketing: state.consentMarketing,
         honeypot, turnstileToken: state.turnstileToken,
       }),

@@ -64,9 +64,13 @@ const currency = cycle.application_currency;
 
       <section class="card">
         <div class="label" style="margin-bottom:14px">Step 3 — Privacy &amp; consent</div>
-        <label style="display:flex;gap:10px;align-items:flex-start;margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid #2a2a2a">
+        <label style="display:flex;gap:10px;align-items:flex-start;margin-bottom:14px">
           <input type="checkbox" name="consentPolicy" required style="margin-top:4px" />
           <span style="font-size:13px;line-height:1.5">I have read and agree to the <a href="/privacy" target="_blank" rel="noopener">Privacy Policy</a> and <a href="/terms" target="_blank" rel="noopener">Terms</a>. <span class="muted">(required)</span></span>
+        </label>
+        <label style="display:flex;gap:10px;align-items:flex-start;margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid #2a2a2a">
+          <input type="checkbox" name="consentRefund" required style="margin-top:4px" />
+          <span style="font-size:13px;line-height:1.5">I understand the <strong style="color:#FFD700">{currency} {fee}</strong> application fee is <strong>non-refundable</strong>. <span class="muted">(required)</span></span>
         </label>
 
         <div style="margin-bottom:14px">
