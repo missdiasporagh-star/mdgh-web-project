@@ -27,7 +27,13 @@ export const POST: APIRoute = async ({ request, locals }) => {
     const provider = getPaymentProvider(env);
     const v = await provider.verify(parsed.data.reference);
     if (!v.ok || v.status !== 'paid') return j({ ok: false, error: 'not_paid' }, 400);
-    await markPaymentPaid(env.DB, app.id, v.providerTransactionId, v.paidAt ?? new Date().toISOString());
+    const paid = await markPaymentPaid(env.DB, app.id, v.providerTransactionId, v.paidAt ?? new Date().toISOString());
+    if (!paid.ok) {
+      // Another application for this email is already the paid one for the cycle;
+      // the one-paid-per-cycle backstop parked this duplicate. The magic link for
+      // the genuine paid application was already emailed at first payment.
+      return j({ ok: false, error: 'duplicate_email_paid' }, 409);
+    }
   }
 
   if (app.submitted_at) return j({ ok: false, error: 'already_submitted' }, 409);

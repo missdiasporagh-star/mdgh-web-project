@@ -8,7 +8,7 @@ if (!reference) return Astro.redirect('/apply');
 const env = Astro.locals.runtime.env;
 const data = await runPaymentVerification(env, reference, Astro.url.toString());
 
-let view: 'paid' | 'pending' | 'failed' | 'error' = 'error';
+let view: 'paid' | 'pending' | 'failed' | 'error' | 'duplicate' = 'error';
 let token: string | undefined;
 if (data.ok) {
   if (data.status === 'paid') {
@@ -19,6 +19,11 @@ if (data.ok) {
   } else if (data.status === 'failed') {
     view = 'failed';
   }
+} else if (data.error === 'duplicate_email_paid') {
+  // The one-paid-per-cycle backstop fired: this email already has a paid
+  // application, so a second charge slipped through. Tell the truth (don't
+  // offer retry) and point at recovery for the genuine application.
+  view = 'duplicate';
 }
 
 if (view === 'paid' && token) {
@@ -54,6 +59,13 @@ if (view === 'paid' && token) {
         <p class="muted" style="font-size:12px;margin-top:14px;text-align:center">
           Or <a href="/apply" style="color:#F8B92F">start a new application</a>.
         </p>
+      </div>
+    )}
+    {view === 'duplicate' && (
+      <div class="card" style="border-left:3px solid #FFD166">
+        <div class="label" style="color:#FFD166">You've already paid for this cycle</div>
+        <h2 style="margin:8px 0">No second application is needed.</h2>
+        <p class="muted">It looks like a duplicate payment may have been made. Your original application link was emailed to you — use the <a href="/apply/recover" style="color:#F8B92F">recover form</a> to get it again. If you were charged twice, reply to that email or contact us and we'll refund the duplicate.</p>
       </div>
     )}
     {view === 'error' && (

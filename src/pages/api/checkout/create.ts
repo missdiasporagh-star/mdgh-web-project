@@ -1,7 +1,7 @@
 import type { APIRoute } from 'astro';
 import { checkoutCreateSchema } from '@/lib/schemas/apply';
 import { evaluateEligibility } from '@/lib/eligibility/rules';
-import { getActiveCycle, insertPendingApplication } from '@/lib/db/queries';
+import { getActiveCycle, getPaidApplicationByEmail, insertPendingApplication } from '@/lib/db/queries';
 import { newUlid } from '@/lib/ids/ulid';
 import { newTransactionReference } from '@/lib/ids/reference';
 import { hashIp } from '@/lib/crypto/hash';
@@ -44,6 +44,20 @@ export const POST: APIRoute = async ({ request, locals, clientAddress }) => {
   const cycle = await getActiveCycle(env.DB);
   if (!cycle || cycle.is_active !== 1) return json({ ok: false, error: 'cycle_not_active' }, 400);
   if (new Date() > new Date(cycle.applications_close_at)) return json({ ok: false, error: 'cycle_closed' }, 400);
+
+  // Front-line guard against a second charge: if this email already paid for this
+  // cycle, never open a new payment session. Steer them to recover their existing
+  // application's magic link instead. The partial unique index (migration 0007)
+  // is the race-proof backstop behind this check.
+  const existingPaid = await getPaidApplicationByEmail(env.DB, cycle.id, input.email);
+  if (existingPaid) {
+    return json({
+      ok: false,
+      error: 'already_paid_for_cycle',
+      message: 'You have already paid for this cycle. Check your email for your application link, or recover it below.',
+      recoverUrl: '/apply/recover',
+    }, 409);
+  }
 
   const id = newUlid();
   const reference = newTransactionReference(cycle.id);

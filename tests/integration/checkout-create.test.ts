@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { POST } from '@/pages/api/checkout/create';
 
-function fakeEnv() {
+function fakeEnv(opts: { paidEmails?: string[] } = {}) {
   const cycles = [{
     id: 'MDGH-2026', display_name: 'Miss Diaspora Ghana 2026',
     application_fee_cents: 2599, application_currency: 'USD',
@@ -9,6 +9,7 @@ function fakeEnv() {
     applications_open_at: '2026-01-01T00:00:00Z',
     applications_close_at: '2099-01-01T00:00:00Z', is_active: 1,
   }];
+  const paidEmails = (opts.paidEmails ?? []).map((e) => e.toLowerCase());
   const applications: Record<string, unknown>[] = [];
   const DB = {
     prepare(sql: string) {
@@ -18,6 +19,13 @@ function fakeEnv() {
         async first<T>() {
           if (sql.includes('FROM cycles WHERE is_active = 1')) return cycles[0] as unknown as T;
           if (sql.includes('FROM cycles WHERE id =')) return cycles[0] as unknown as T;
+          // getPaidApplicationByEmail: SELECT ... WHERE cycle_id=? AND lower(email)=lower(?) AND payment_status='paid'
+          if (sql.includes("payment_status = 'paid'") && sql.includes('lower(email)')) {
+            const email = String(params[1] ?? '').toLowerCase();
+            return paidEmails.includes(email)
+              ? ({ id: 'existing', email, payment_status: 'paid' } as unknown as T)
+              : null;
+          }
           return null;
         },
         async run() {
@@ -38,7 +46,7 @@ function fakeEnv() {
     delete: async (k: string) => { kvStore.delete(k); },
   } as unknown as KVNamespace;
   return {
-    DB, MEDIA: {} as R2Bucket, SESSION,
+    DB, MEDIA: {} as R2Bucket, SESSION, KV: SESSION,
     PAYAZA_BASE_URL: 'https://x', PAYAZA_PUBLIC_KEY: 'pk', PAYAZA_SECRET_KEY: 'sk',
     APPLY_TOKEN_SECRET: 'a'.repeat(64), ADMIN_PASSWORD_HASH: '', ADMIN_SESSION_SECRET: 'b'.repeat(64),
     IP_HASH_SALT: 'salt', RESEND_API_KEY: '',
@@ -83,9 +91,9 @@ function makeContext(env: ReturnType<typeof fakeEnv>, body: unknown, ip = '1.2.3
 }
 
 const VALID_INPUT = {
-  email: 'a@b.com', ageBand: '18-25', isWoman: true, africanDescent: true,
+  email: 'a@b.com', phone: '+233244000000', ageBand: '18-25', isWoman: true, africanDescent: true,
   outsideGhana: true, validPassport: true,
-  consentPolicy: true, consentMediaUse: true, consentMarketing: false,
+  consentPolicy: true, consentRefund: true, consentMediaUse: true, consentMarketing: false,
   honeypot: '', turnstileToken: 'tok',
 };
 
@@ -129,5 +137,25 @@ describe('POST /api/checkout/create', () => {
     const env = fakeEnv();
     const res = await POST(makeContext(env, { ...VALID_INPUT, email: 'not-an-email' }));
     expect(res.status).toBe(400);
+  });
+
+  it('blocks a second payment session when the email already paid this cycle', async () => {
+    const env = fakeEnv({ paidEmails: ['a@b.com'] });
+    const res = await POST(makeContext(env, VALID_INPUT));
+    expect(res.status).toBe(409);
+    const j = await res.json() as { ok: boolean; error: string; recoverUrl: string };
+    expect(j.ok).toBe(false);
+    expect(j.error).toBe('already_paid_for_cycle');
+    expect(j.recoverUrl).toBe('/apply/recover');
+    // No new pending row should have been written.
+    expect(env._applications.length).toBe(0);
+  });
+
+  it('matches the paid email case-insensitively', async () => {
+    const env = fakeEnv({ paidEmails: ['a@b.com'] });
+    const res = await POST(makeContext(env, { ...VALID_INPUT, email: 'A@B.com' }));
+    expect(res.status).toBe(409);
+    const j = await res.json() as { error: string };
+    expect(j.error).toBe('already_paid_for_cycle');
   });
 });
