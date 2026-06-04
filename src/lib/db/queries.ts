@@ -71,6 +71,23 @@ export async function getApplicationByReference(db: D1Database, ref: string): Pr
   return r ?? null;
 }
 
+/**
+ * The already-paid application for this (cycle, email), if any. Front-line guard
+ * for /api/checkout/create so the same applicant can't open a second payment
+ * session for a cycle they already paid for. Case-insensitive to match the
+ * partial unique index idx_app_one_paid_per_cycle (migration 0007).
+ */
+export async function getPaidApplicationByEmail(
+  db: D1Database, cycleId: string, email: string
+): Promise<ApplicationRow | null> {
+  const r = await db.prepare(
+    `SELECT * FROM applications
+     WHERE cycle_id = ? AND lower(email) = lower(?) AND payment_status = 'paid'
+     LIMIT 1`
+  ).bind(cycleId, email).first<ApplicationRow>();
+  return r ?? null;
+}
+
 export type InsertPendingApplication = {
   id: string;
   cycle_id: string;
@@ -119,18 +136,47 @@ export async function insertPendingApplication(db: D1Database, a: InsertPendingA
     .run();
 }
 
+export type MarkPaidResult = { ok: true } | { ok: false; conflict: true };
+
+/**
+ * Mark an application paid. Returns { ok: false, conflict: true } when the
+ * partial unique index idx_app_one_paid_per_cycle (migration 0007) rejects the
+ * write because a DIFFERENT application for the same (cycle, email) is already
+ * paid — i.e. a true duplicate charge that slipped past the create-time guard.
+ * In that case we park this row as 'expired' with a clear reason so it surfaces
+ * in admin for a refund and is NOT marked paid (which would unlock a second
+ * application form). 'expired' (not 'failed') keeps the retry button off it, so
+ * the applicant can't loop into charging themselves again.
+ */
 export async function markPaymentPaid(
   db: D1Database, id: string, payazaTransactionId: string, paidAt: string
-): Promise<void> {
+): Promise<MarkPaidResult> {
   const now = new Date().toISOString();
-  await db.prepare(`
-    UPDATE applications
-    SET payment_status = 'paid',
-        payaza_transaction_id = ?,
-        payment_verified_at = ?,
-        updated_at = ?
-    WHERE id = ? AND payment_status != 'paid'`)
-    .bind(payazaTransactionId, paidAt, now, id).run();
+  try {
+    await db.prepare(`
+      UPDATE applications
+      SET payment_status = 'paid',
+          payaza_transaction_id = ?,
+          payment_verified_at = ?,
+          updated_at = ?
+      WHERE id = ? AND payment_status != 'paid'`)
+      .bind(payazaTransactionId, paidAt, now, id).run();
+    return { ok: true };
+  } catch (e) {
+    if (e instanceof Error && /UNIQUE/i.test(e.message)) {
+      await db.prepare(`
+        UPDATE applications
+        SET payment_status = 'expired',
+            payment_failure_reason = ?,
+            payaza_transaction_id = ?,
+            updated_at = ?
+        WHERE id = ? AND payment_status != 'paid'`)
+        .bind(`duplicate_paid_same_email_blocked:${payazaTransactionId}`, payazaTransactionId, now, id)
+        .run();
+      return { ok: false, conflict: true };
+    }
+    throw e;
+  }
 }
 
 export async function markPaymentFailed(db: D1Database, id: string, reason: string): Promise<void> {

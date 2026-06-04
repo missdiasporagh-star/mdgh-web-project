@@ -22,6 +22,11 @@ function fakeEnv(rows: Record<string, unknown>) {
       put: async (k: string, v: string) => { kv.set(k, v); },
       delete: async (k: string) => { kv.delete(k); },
     } as unknown as KVNamespace,
+    KV: {
+      get: async (k: string) => kv.get(k) ?? null,
+      put: async (k: string, v: string) => { kv.set(k, v); },
+      delete: async (k: string) => { kv.delete(k); },
+    } as unknown as KVNamespace,
     APPLY_TOKEN_SECRET: SECRET,
     R2_ACCOUNT_ID: 'acc', R2_ACCESS_KEY_ID: 'k', R2_SECRET_ACCESS_KEY: 's',
     MOCK_PAYMENTS: 'true',

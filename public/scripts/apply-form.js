@@ -225,7 +225,20 @@ function setupSubmit(state) {
     });
     const json = await res.json();
     if (!res.ok || !json.ok) {
-      errEl.textContent = json.error ?? 'Something went wrong. Please try again.';
+      if (json.error === 'already_paid_for_cycle') {
+        errEl.innerHTML = '';
+        errEl.appendChild(document.createTextNode(
+          json.message || 'You have already paid for this cycle.'
+        ));
+        errEl.appendChild(document.createTextNode(' '));
+        const link = document.createElement('a');
+        link.href = json.recoverUrl || '/apply/recover';
+        link.textContent = 'Recover your application link';
+        errEl.appendChild(link);
+        errEl.style.display = 'block';
+        return;
+      }
+      errEl.textContent = json.message ?? json.error ?? 'Something went wrong. Please try again.';
       errEl.style.display = 'block';
       return;
     }

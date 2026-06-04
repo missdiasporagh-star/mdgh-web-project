@@ -11,6 +11,10 @@ export type VerifyOutcome =
   | { ok: true; status: 'pending' | 'failed'; applicationId: string }
   | { ok: false; error: string; code?: string; message?: string; httpStatus: number };
 
+// Recorded as the failure reason on a parked duplicate row; also returned as the
+// error code when a verify hits the one-paid-per-cycle backstop.
+const DUPLICATE_EMAIL_PAID = 'duplicate_email_paid';
+
 type Env = App.Locals['runtime']['env'];
 
 export async function runPaymentVerification(
@@ -46,7 +50,15 @@ export async function runPaymentVerification(
     return { ok: true, status: 'pending', applicationId: app.id };
   }
 
-  await markPaymentPaid(env.DB, app.id, verify.providerTransactionId, verify.paidAt ?? new Date().toISOString());
+  const paid = await markPaymentPaid(env.DB, app.id, verify.providerTransactionId, verify.paidAt ?? new Date().toISOString());
+  if (!paid.ok) {
+    // The applicant already has a paid application for this cycle under the same
+    // email — this is a genuine duplicate charge (a second payment session that
+    // raced past the create-time guard). The row has been parked as 'expired';
+    // do NOT mint a token or send a magic link for it. Surface so the team can
+    // refund. The error is intentionally distinct from a provider failure.
+    return { ok: false, error: DUPLICATE_EMAIL_PAID, httpStatus: 409, message: 'A paid application already exists for this email.' };
+  }
 
   const cycle = await getCycle(env.DB, app.cycle_id);
   if (!cycle) return { ok: false, error: 'cycle_missing', httpStatus: 500 };
