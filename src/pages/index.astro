@@ -525,7 +525,8 @@ const turnstileSiteKey: string =
 						{ src: '/assets/images/partners/diaspora_logo.png', name: 'Diaspora Affairs' },
 						{ src: '/assets/images/partners/exim_logo.png', name: 'EXIM Bank' },
 						{ src: '/assets/images/partners/kes-logo.jpg', name: 'KES' },
-						{ src: '/assets/images/partners/gtdc_logo.jpg', name: 'GTDC' }
+						{ src: '/assets/images/partners/gtdc_logo.jpg', name: 'GTDC' },
+						{ src: '/assets/images/partners/payaza_logo.png', name: 'Payaza', tag: 'Payment Partner' }
 					].map((partner) => (
 						<div
 							class="partner-card group relative flex-shrink-0 p-8 lg:p-10 rounded-2xl border border-[#F8B92F]/20 hover:border-[#F8B92F]/60 transition-all duration-500 hover:scale-105 w-64 lg:w-80"
@@ -544,6 +545,15 @@ const turnstileSiteKey: string =
 								/>
 							</div>
 
+							{partner.tag && (
+								<div class="relative mt-4 flex justify-center">
+									<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#1a1a1a]/5 border border-[#F8B92F]/40 text-[#1a1410] text-[0.65rem] font-semibold uppercase tracking-[0.18em]">
+										<span class="w-1.5 h-1.5 rounded-full bg-[#F8B92F]"></span>
+										{partner.tag}
+									</span>
+								</div>
+							)}
+
 							<!-- Decorative Border Bottom -->
 							<div class="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-0 h-1 bg-gradient-to-r from-[#F8B92F] to-[#FFD700] group-hover:w-3/4 transition-all duration-500 rounded-full"></div>
 						</div>
@@ -554,7 +564,8 @@ const turnstileSiteKey: string =
 						{ src: '/assets/images/partners/diaspora_logo.png', name: 'Diaspora Affairs' },
 						{ src: '/assets/images/partners/exim_logo.png', name: 'EXIM Bank' },
 						{ src: '/assets/images/partners/kes-logo.jpg', name: 'KES' },
-						{ src: '/assets/images/partners/gtdc_logo.jpg', name: 'GTDC' }
+						{ src: '/assets/images/partners/gtdc_logo.jpg', name: 'GTDC' },
+						{ src: '/assets/images/partners/payaza_logo.png', name: 'Payaza', tag: 'Payment Partner' }
 					].map((partner) => (
 						<div
 							class="partner-card group relative flex-shrink-0 p-8 lg:p-10 rounded-2xl border border-[#F8B92F]/20 hover:border-[#F8B92F]/60 transition-all duration-500 hover:scale-105 w-64 lg:w-80"
@@ -573,6 +584,15 @@ const turnstileSiteKey: string =
 									class="max-w-full max-h-full w-auto h-auto object-contain filter drop-shadow-md group-hover:drop-shadow-xl transition-all duration-500 group-hover:scale-110"
 								/>
 							</div>
+
+							{partner.tag && (
+								<div class="relative mt-4 flex justify-center">
+									<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#1a1a1a]/5 border border-[#F8B92F]/40 text-[#1a1410] text-[0.65rem] font-semibold uppercase tracking-[0.18em]">
+										<span class="w-1.5 h-1.5 rounded-full bg-[#F8B92F]"></span>
+										{partner.tag}
+									</span>
+								</div>
+							)}
 
 							<!-- Decorative Border Bottom -->
 							<div class="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-0 h-1 bg-gradient-to-r from-[#F8B92F] to-[#FFD700] group-hover:w-3/4 transition-all duration-500 rounded-full"></div>
