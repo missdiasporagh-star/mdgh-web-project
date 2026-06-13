@@ -18,6 +18,7 @@ import {
 	Calendar,
 	Star,
 	Trophy,
+	ShieldCheck,
 	User,
 	Phone,
 	Mail,
@@ -503,127 +504,173 @@ const turnstileSiteKey: string =
 
 		<div class="container mx-auto px-6 relative z-10">
 			<!-- Section Header -->
-			<div class="text-center mb-16">
-				<span class="text-[#F8B92F] uppercase tracking-[0.3em] text-sm font-bold">
-					Trusted By
+			<div class="text-center mb-14 lg:mb-16">
+				<span class="inline-flex items-center gap-3 text-[#F8B92F] uppercase tracking-[0.35em] text-xs font-bold">
+					<span class="h-px w-8 bg-gradient-to-r from-transparent to-[#F8B92F]/70"></span>
+					In Distinguished Company
+					<span class="h-px w-8 bg-gradient-to-l from-transparent to-[#F8B92F]/70"></span>
 				</span>
-				<h2 class="text-heading text-4xl lg:text-5xl text-white mt-4 mb-2">
+				<h2 class="text-heading text-4xl lg:text-6xl text-white mt-5 mb-4">
 					Our Esteemed <span class="gradient-text">Partners</span>
 				</h2>
-				<div class="w-24 h-1 bg-gradient-to-r from-transparent via-[#F8B92F] to-transparent mx-auto mt-6"></div>
+				<p class="text-xl lg:text-2xl text-white/55 max-w-2xl mx-auto italic" style="font-family: 'Cormorant Garamond', serif;">
+					Institutions and innovators standing with the diaspora to crown a new generation of Ghanaian excellence.
+				</p>
 			</div>
 
-			<!-- Scrolling Partner Logos Marquee -->
-			<div class="relative overflow-hidden max-w-6xl mx-auto">
-				<!-- Gradient Fade Edges -->
-				<div class="absolute left-0 top-0 bottom-0 w-32 bg-gradient-to-r from-[#1a1a1a] to-transparent z-10 pointer-events-none"></div>
-				<div class="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-[#1a1a1a] to-transparent z-10 pointer-events-none"></div>
-
-				<div class="partner-marquee flex gap-8 lg:gap-16">
-					<!-- First set of logos -->
-					{[
-						{ src: '/assets/images/partners/diaspora_logo.png', name: 'Diaspora Affairs' },
-						{ src: '/assets/images/partners/exim_logo.png', name: 'EXIM Bank' },
-						{ src: '/assets/images/partners/kes-logo.jpg', name: 'KES' },
-						{ src: '/assets/images/partners/gtdc_logo.jpg', name: 'GTDC' },
-						{ src: '/assets/images/partners/payaza_logo.png', name: 'Payaza', tag: 'Payment Partner' }
-					].map((partner) => (
-						<div
-							class="partner-card group relative flex-shrink-0 p-8 lg:p-10 rounded-2xl border border-[#F8B92F]/20 hover:border-[#F8B92F]/60 transition-all duration-500 hover:scale-105 w-64 lg:w-80"
-							style="background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(250, 250, 250, 0.98) 100%); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);"
-						>
-							<!-- Glow Effect on Hover -->
-							<div class="absolute inset-0 bg-gradient-to-br from-[#F8B92F]/0 to-[#FFD700]/0 group-hover:from-[#F8B92F]/15 group-hover:to-[#FFD700]/15 rounded-2xl transition-all duration-500"></div>
-
-							<!-- Logo Container -->
-							<div class="relative flex items-center justify-center h-32 lg:h-40">
-								<img
-									src={partner.src}
-									alt={partner.name}
-									loading="lazy"
-									class="max-w-full max-h-full w-auto h-auto object-contain filter drop-shadow-md group-hover:drop-shadow-xl transition-all duration-500 group-hover:scale-110"
-								/>
-							</div>
-
-							{partner.tag && (
-								<div class="relative mt-4 flex justify-center">
-									<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#1a1a1a]/5 border border-[#F8B92F]/40 text-[#1a1410] text-[0.65rem] font-semibold uppercase tracking-[0.18em]">
-										<span class="w-1.5 h-1.5 rounded-full bg-[#F8B92F]"></span>
-										{partner.tag}
-									</span>
-								</div>
-							)}
-
-							<!-- Decorative Border Bottom -->
-							<div class="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-0 h-1 bg-gradient-to-r from-[#F8B92F] to-[#FFD700] group-hover:w-3/4 transition-all duration-500 rounded-full"></div>
+			<!-- Featured Partner — Payaza payment spotlight -->
+			<div class="max-w-5xl mx-auto mb-12 lg:mb-14">
+				<div class="partner-card partner-feature group relative overflow-hidden rounded-3xl">
+					<span class="partner-shine" aria-hidden="true"></span>
+					<div class="relative flex flex-col md:flex-row items-center gap-7 md:gap-10 p-7 md:p-9">
+						<!-- Logo plate -->
+						<div class="partner-plate shrink-0 flex items-center justify-center w-full md:w-72 h-24 md:h-28">
+							<img
+								src="/assets/images/partners/payaza_logo.png"
+								alt="Payaza — Official Payment Partner"
+								loading="lazy"
+								class="max-h-12 md:max-h-14 w-auto object-contain"
+							/>
 						</div>
-					))}
-
-					<!-- Duplicate set for seamless loop -->
-					{[
-						{ src: '/assets/images/partners/diaspora_logo.png', name: 'Diaspora Affairs' },
-						{ src: '/assets/images/partners/exim_logo.png', name: 'EXIM Bank' },
-						{ src: '/assets/images/partners/kes-logo.jpg', name: 'KES' },
-						{ src: '/assets/images/partners/gtdc_logo.jpg', name: 'GTDC' },
-						{ src: '/assets/images/partners/payaza_logo.png', name: 'Payaza', tag: 'Payment Partner' }
-					].map((partner) => (
-						<div
-							class="partner-card group relative flex-shrink-0 p-8 lg:p-10 rounded-2xl border border-[#F8B92F]/20 hover:border-[#F8B92F]/60 transition-all duration-500 hover:scale-105 w-64 lg:w-80"
-							style="background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(250, 250, 250, 0.98) 100%); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);"
-							aria-hidden="true"
-						>
-							<!-- Glow Effect on Hover -->
-							<div class="absolute inset-0 bg-gradient-to-br from-[#F8B92F]/0 to-[#FFD700]/0 group-hover:from-[#F8B92F]/15 group-hover:to-[#FFD700]/15 rounded-2xl transition-all duration-500"></div>
-
-							<!-- Logo Container -->
-							<div class="relative flex items-center justify-center h-32 lg:h-40">
-								<img
-									src={partner.src}
-									alt={partner.name}
-									loading="lazy"
-									class="max-w-full max-h-full w-auto h-auto object-contain filter drop-shadow-md group-hover:drop-shadow-xl transition-all duration-500 group-hover:scale-110"
-								/>
-							</div>
-
-							{partner.tag && (
-								<div class="relative mt-4 flex justify-center">
-									<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#1a1a1a]/5 border border-[#F8B92F]/40 text-[#1a1410] text-[0.65rem] font-semibold uppercase tracking-[0.18em]">
-										<span class="w-1.5 h-1.5 rounded-full bg-[#F8B92F]"></span>
-										{partner.tag}
-									</span>
-								</div>
-							)}
-
-							<!-- Decorative Border Bottom -->
-							<div class="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-0 h-1 bg-gradient-to-r from-[#F8B92F] to-[#FFD700] group-hover:w-3/4 transition-all duration-500 rounded-full"></div>
+						<!-- Copy -->
+						<div class="text-center md:text-left">
+							<span class="inline-flex items-center gap-2 text-[#F8B92F] uppercase tracking-[0.28em] text-[0.7rem] font-bold mb-3">
+								<ShieldCheck class="w-4 h-4" />
+								Official Payment Partner
+							</span>
+							<h3 class="text-heading text-2xl md:text-3xl text-white mb-2.5">Powering secure global checkout</h3>
+							<p class="text-body-premium text-white/60 text-sm md:text-base max-w-md">
+								Every MDGH application is processed through Payaza's encrypted, bank-grade payment infrastructure — trusted by businesses across Africa and beyond.
+							</p>
 						</div>
-					))}
+					</div>
 				</div>
+			</div>
+
+			<!-- Institutional partners — curated logo wall -->
+			<div class="grid grid-cols-2 lg:grid-cols-4 gap-5 lg:gap-6 max-w-5xl mx-auto">
+				{[
+					{ src: '/assets/images/partners/diaspora_logo.png', name: 'Diaspora Affairs' },
+					{ src: '/assets/images/partners/exim_logo.png', name: 'EXIM Bank' },
+					{ src: '/assets/images/partners/kes-logo.jpg', name: 'KES' },
+					{ src: '/assets/images/partners/gtdc_logo.jpg', name: 'GTDC', dark: true }
+				].map((partner) => (
+					<div class="partner-card partner-tile group relative flex flex-col items-center">
+						<div class={`partner-plate ${partner.dark ? 'partner-plate--dark' : ''} flex items-center justify-center w-full h-28 lg:h-32`}>
+							<img
+								src={partner.src}
+								alt={partner.name}
+								loading="lazy"
+								class="max-h-16 lg:max-h-20 max-w-[72%] w-auto object-contain"
+							/>
+						</div>
+						<span class="partner-name">{partner.name}</span>
+					</div>
+				))}
 			</div>
 		</div>
 
 		<style>
-			.partner-marquee {
-				animation: scrollLeftToRight 30s linear infinite;
+			/* Esteemed Partners — refined patrons' wall */
+
+			/* Featured spotlight (Payaza) */
+			.partner-feature {
+				background: linear-gradient(135deg, rgba(42, 37, 32, 0.72) 0%, rgba(13, 11, 9, 0.88) 100%);
+				border: 1px solid rgba(248, 185, 47, 0.28);
+				box-shadow: 0 24px 60px -22px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+				backdrop-filter: blur(20px);
+				-webkit-backdrop-filter: blur(20px);
+				transition: border-color 0.5s ease, box-shadow 0.5s ease, transform 0.5s ease;
+			}
+			.partner-feature::before {
+				content: '';
+				position: absolute;
+				inset: 0;
+				background: radial-gradient(130% 130% at 0% 0%, rgba(248, 185, 47, 0.12), transparent 46%);
+				pointer-events: none;
+			}
+			.partner-feature:hover {
+				border-color: rgba(248, 185, 47, 0.6);
+				box-shadow: 0 30px 80px -22px rgba(248, 185, 47, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.08);
 			}
 
-			.partner-marquee:hover {
-				animation-play-state: paused;
+			/* Shimmer sweep across the featured plate on hover */
+			.partner-shine {
+				position: absolute;
+				top: 0;
+				left: -60%;
+				width: 45%;
+				height: 100%;
+				background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.10), transparent);
+				transform: skewX(-20deg);
+				pointer-events: none;
+				z-index: 1;
+			}
+			.partner-feature:hover .partner-shine {
+				animation: partnerShine 1.1s ease;
+			}
+			@keyframes partnerShine {
+				from { left: -60%; }
+				to { left: 130%; }
 			}
 
-			@keyframes scrollLeftToRight {
-				0% {
-					transform: translateX(0);
-				}
-				100% {
-					transform: translateX(-50%);
-				}
+			/* Light logo plates — required because several partner logos ship on white */
+			.partner-plate {
+				background: linear-gradient(160deg, #ffffff 0%, #fbfaf7 100%);
+				border-radius: 1rem;
+				padding: 1.1rem 1.4rem;
+				border: 1px solid rgba(248, 185, 47, 0.25);
+				box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.9), 0 12px 30px -14px rgba(0, 0, 0, 0.55);
+				transition: transform 0.5s ease, box-shadow 0.5s ease, border-color 0.5s ease;
+			}
+
+			/* Dark plate variant — for partner logos that ship on a dark background
+			   (e.g. GTDC), so the artwork sits seamlessly instead of as a black box. */
+			.partner-plate--dark {
+				background: linear-gradient(160deg, #1d1a16 0%, #0e0c0a 100%);
+				border-color: rgba(248, 185, 47, 0.32);
+				box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 12px 30px -14px rgba(0, 0, 0, 0.65);
+			}
+
+			/* Institutional grid tiles */
+			.partner-tile {
+				transition: transform 0.5s ease;
+			}
+			.partner-tile:hover {
+				transform: translateY(-6px);
+			}
+			.partner-tile:hover .partner-plate {
+				border-color: rgba(248, 185, 47, 0.7);
+				box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.9), 0 20px 42px -16px rgba(248, 185, 47, 0.38);
+			}
+			.partner-tile .partner-plate img {
+				filter: grayscale(18%);
+				transition: filter 0.5s ease, transform 0.5s ease;
+			}
+			.partner-tile:hover .partner-plate img {
+				filter: grayscale(0%);
+				transform: scale(1.06);
+			}
+
+			.partner-name {
+				margin-top: 0.95rem;
+				font-family: 'Inter', sans-serif;
+				font-size: 0.72rem;
+				font-weight: 600;
+				letter-spacing: 0.16em;
+				text-transform: uppercase;
+				color: rgba(255, 255, 255, 0.5);
+				transition: color 0.4s ease;
+			}
+			.partner-tile:hover .partner-name {
+				color: #F8B92F;
 			}
 
 			@media (prefers-reduced-motion: reduce) {
-				.partner-marquee {
-					animation: none;
-				}
+				.partner-feature:hover .partner-shine { animation: none; }
+				.partner-tile, .partner-plate, .partner-tile .partner-plate img { transition: none; }
+				.partner-tile:hover { transform: none; }
+				.partner-tile:hover .partner-plate img { transform: none; }
 			}
 		</style>
 	</section>
