@@ -58,18 +58,18 @@ const turnstileSiteKey: string =
 
 		<div class="container mx-auto px-6 relative z-10">
 			<!-- Section Header -->
-			<div class="text-center mb-20">
-				<div class="inline-block mb-6">
-					<span class="text-[#F8B92F] uppercase tracking-[0.3em] text-sm font-bold flex items-center gap-2">
-						<Sparkles class="w-4 h-4" />
-						Our Three Pillars
-					</span>
-				</div>
-				<h2 class="text-heading text-6xl lg:text-7xl text-white mb-6 max-w-4xl mx-auto">
+			<div class="text-center mb-16 lg:mb-20">
+				<span class="inline-flex items-center gap-3 text-[#F8B92F] uppercase tracking-[0.35em] text-xs font-bold">
+					<span class="h-px w-8 bg-gradient-to-r from-transparent to-[#F8B92F]/70"></span>
+					<Sparkles class="w-3.5 h-3.5" />
+					Our Three Pillars
+					<span class="h-px w-8 bg-gradient-to-l from-transparent to-[#F8B92F]/70"></span>
+				</span>
+				<h2 class="text-heading text-5xl lg:text-7xl text-white mt-5 mb-4 max-w-4xl mx-auto">
 					The Foundation of <span class="gradient-text">Excellence</span>
 				</h2>
-				<p class="text-body-premium text-xl text-white/75 max-w-2xl mx-auto">
-					Three core principles guide our mission to empower women across the diaspora
+				<p class="text-xl lg:text-2xl text-white/55 max-w-2xl mx-auto italic" style="font-family: 'Cormorant Garamond', serif;">
+					Three core principles guide our mission to empower women across the diaspora.
 				</p>
 			</div>
 
@@ -235,61 +235,101 @@ const turnstileSiteKey: string =
 		</div>
 		<div class="container mx-auto px-6 relative z-10">
 			<!-- Section Header -->
-			<div class="text-center mb-20">
-				<div class="inline-block mb-6">
-					<span class="text-[#F8B92F] uppercase tracking-[0.3em] text-sm font-bold flex items-center gap-2 justify-center">
-						<Target class="w-4 h-4" />
-						Our Mission & Objectives
-					</span>
-				</div>
-				<h2 class="text-heading text-6xl lg:text-7xl text-white mb-6">
+			<div class="text-center mb-16 lg:mb-20">
+				<span class="inline-flex items-center gap-3 text-[#F8B92F] uppercase tracking-[0.35em] text-xs font-bold">
+					<span class="h-px w-8 bg-gradient-to-r from-transparent to-[#F8B92F]/70"></span>
+					<Target class="w-3.5 h-3.5" />
+					Our Mission &amp; Objectives
+					<span class="h-px w-8 bg-gradient-to-l from-transparent to-[#F8B92F]/70"></span>
+				</span>
+				<h2 class="text-heading text-5xl lg:text-7xl text-white mt-5 mb-4">
 					Driving <span class="gradient-text">Change</span>
 				</h2>
-				<p class="text-body-premium text-xl text-white/75 max-w-3xl mx-auto">
-					Miss Diaspora Ghana highlights the invaluable role that Africans abroad play in national development
+				<p class="text-xl lg:text-2xl text-white/55 max-w-2xl mx-auto italic" style="font-family: 'Cormorant Garamond', serif;">
+					Highlighting the invaluable role Africans abroad play in shaping national development.
 				</p>
 			</div>
 
-			<!-- Objectives Grid -->
-			<div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+			<!-- Objectives — editorial ledger -->
+			<div class="obj-ledger max-w-5xl mx-auto grid lg:grid-cols-2 gap-x-14 xl:gap-x-20">
 				{[
-					{ icon: Target, title: 'Promote Cultural Identity', description: 'Celebrate and preserve Ghanaian heritage and traditions among diaspora communities worldwide.' },
-					{ icon: Crown, title: 'Empower Young Women', description: 'Provide a platform for young women of African descent to showcase their talents and leadership potential.' },
-					{ icon: Globe, title: 'Strengthen Diaspora Engagement', description: 'Foster meaningful connections between African communities abroad and their homeland.' },
-					{ icon: Plane, title: 'Promote Tourism & Investment', description: 'Position Ghana as a vibrant destination for cultural tourism and global partnership opportunities.' },
-					{ icon: Heart, title: 'Support Social Impact', description: 'Empower contestants to champion causes such as education, health, and women\'s empowerment.' },
-					{ icon: Megaphone, title: 'Create Brand Opportunities', description: 'Offer sponsors strong visibility and engagement across diverse global audiences.' }
+					{ icon: Target, num: '01', title: 'Promote Cultural Identity', description: 'Celebrate and preserve Ghanaian heritage and traditions among diaspora communities worldwide.' },
+					{ icon: Crown, num: '02', title: 'Empower Young Women', description: 'Provide a platform for young women of African descent to showcase their talents and leadership potential.' },
+					{ icon: Globe, num: '03', title: 'Strengthen Diaspora Engagement', description: 'Foster meaningful connections between African communities abroad and their homeland.' },
+					{ icon: Plane, num: '04', title: 'Promote Tourism & Investment', description: 'Position Ghana as a vibrant destination for cultural tourism and global partnership opportunities.' },
+					{ icon: Heart, num: '05', title: 'Support Social Impact', description: 'Empower contestants to champion causes such as education, health, and women\'s empowerment.' },
+					{ icon: Megaphone, num: '06', title: 'Create Brand Opportunities', description: 'Offer sponsors strong visibility and engagement across diverse global audiences.' }
 				].map((obj) => {
 					const IconComponent = obj.icon;
 					return (
-						<div class="objective-card glass p-8 rounded-2xl hover:border-[#F8B92F] border-2 border-transparent transition-all duration-500 group relative overflow-hidden">
-							<!-- Hover Background Effect -->
-							<div class="absolute inset-0 bg-gradient-to-br from-[#F8B92F]/0 to-[#F8B92F]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-
-							<!-- Icon -->
-							<div class="relative z-10 mb-6">
-								<div class="w-16 h-16 rounded-xl bg-[#F8B92F]/10 group-hover:bg-[#F8B92F]/20 flex items-center justify-center transition-all duration-500 group-hover:scale-110">
-									<IconComponent class="w-8 h-8 text-[#F8B92F]" stroke-width="2" />
+						<div class="objective-card obj-row group relative flex items-start gap-5 sm:gap-6 py-7">
+							<span class="obj-num">{obj.num}</span>
+							<div class="flex-1 pt-1.5">
+								<div class="flex items-center gap-2.5 mb-2">
+									<IconComponent class="w-4 h-4 text-[#F8B92F] shrink-0" stroke-width="2" />
+									<h3 class="obj-title text-heading text-xl sm:text-2xl font-semibold text-white">{obj.title}</h3>
 								</div>
+								<p class="text-body-premium text-white/60 leading-relaxed text-sm sm:text-base">{obj.description}</p>
 							</div>
-
-							<!-- Content -->
-							<div class="relative z-10">
-								<h3 class="text-heading text-2xl font-bold text-white mb-3 group-hover:text-[#F8B92F] transition-colors duration-300">
-									{obj.title}
-								</h3>
-								<p class="text-body-premium text-white/70 leading-relaxed">
-									{obj.description}
-								</p>
-							</div>
-
-							<!-- Decorative Line -->
-							<div class="absolute bottom-0 left-0 w-0 h-1 bg-gradient-to-r from-[#F8B92F] to-[#FFD700] group-hover:w-full transition-all duration-700"></div>
 						</div>
 					);
 				})}
 			</div>
 		</div>
+
+		<style>
+			/* Objectives — ruled editorial ledger */
+			.obj-row {
+				border-top: 1px solid rgba(248, 185, 47, 0.14);
+				padding-left: 0.25rem;
+				transition: background-color 0.4s ease, padding-left 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+			}
+			.obj-row::before {
+				content: '';
+				position: absolute;
+				left: 0;
+				top: -1px;
+				bottom: 0;
+				width: 2px;
+				background: linear-gradient(to bottom, #F8B92F, #FFD700);
+				transform: scaleY(0);
+				transform-origin: top;
+				transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+			}
+			.obj-row:hover::before { transform: scaleY(1); }
+			.obj-row:hover { padding-left: 1.1rem; }
+
+			/* Outlined serif numeral that fills with gold on hover */
+			.obj-num {
+				flex-shrink: 0;
+				min-width: 2.6rem;
+				font-family: 'Cormorant Garamond', serif;
+				font-size: 2.75rem;
+				font-weight: 600;
+				line-height: 1;
+				color: transparent;
+				-webkit-text-stroke: 1px rgba(248, 185, 47, 0.55);
+				transition: color 0.4s ease, -webkit-text-stroke-color 0.4s ease;
+			}
+			.obj-row:hover .obj-num {
+				color: #F8B92F;
+				-webkit-text-stroke-color: #F8B92F;
+			}
+
+			.obj-title { transition: color 0.3s ease; }
+			.obj-row:hover .obj-title { color: #F8B92F; }
+
+			/* Closing rule under the last pair of rows */
+			.obj-ledger {
+				border-bottom: 1px solid rgba(248, 185, 47, 0.14);
+			}
+
+			@media (prefers-reduced-motion: reduce) {
+				.obj-row, .obj-row::before, .obj-num { transition: none; }
+				.obj-row:hover { padding-left: 0.25rem; }
+				.obj-row:hover::before { transform: scaleY(1); }
+			}
+		</style>
 	</section>
 
 	<!-- Programs Section - Sophisticated Design -->
@@ -302,23 +342,24 @@ const turnstileSiteKey: string =
 		</div>
 		<div class="container mx-auto px-6 relative z-10">
 			<!-- Section Header -->
-			<div class="text-center mb-20">
-				<div class="inline-block mb-6">
-					<span class="text-[#F8B92F] uppercase tracking-[0.3em] text-sm font-bold flex items-center gap-2 justify-center">
-						<Calendar class="w-4 h-4" />
-						Programs & Initiatives
-					</span>
-				</div>
-				<h2 class="text-heading text-6xl lg:text-7xl text-white mb-6">
+			<div class="text-center mb-16 lg:mb-20">
+				<span class="inline-flex items-center gap-3 text-[#F8B92F] uppercase tracking-[0.35em] text-xs font-bold">
+					<span class="h-px w-8 bg-gradient-to-r from-transparent to-[#F8B92F]/70"></span>
+					<Calendar class="w-3.5 h-3.5" />
+					Programs &amp; Initiatives
+					<span class="h-px w-8 bg-gradient-to-l from-transparent to-[#F8B92F]/70"></span>
+				</span>
+				<h2 class="text-heading text-5xl lg:text-7xl text-white mt-5 mb-4">
 					Our <span class="gradient-text">Journey</span>
 				</h2>
-				<p class="text-body-premium text-xl text-white/75 max-w-3xl mx-auto">
-					Discover the impactful programs designed to uplift and empower women across the diaspora
+				<p class="text-xl lg:text-2xl text-white/55 max-w-2xl mx-auto italic" style="font-family: 'Cormorant Garamond', serif;">
+					The path from first application to crowned ambassador — every step designed to uplift.
 				</p>
 			</div>
 
-			<!-- Programs Grid -->
-			<div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+			<!-- Programs — journey timeline -->
+			<div class="prog-timeline relative max-w-3xl mx-auto">
+				<span class="prog-spine" aria-hidden="true"></span>
 				{[
 					{ num: '01', icon: Users, title: 'Mentorship Program', description: 'Connects young women with experienced leaders to guide their personal and professional journeys.' },
 					{ num: '02', icon: Palette, title: 'Cultural Workshops', description: 'Interactive workshops exploring Ghanaian traditions, arts, languages, and cultural practices.' },
@@ -329,28 +370,19 @@ const turnstileSiteKey: string =
 				].map((program) => {
 					const IconComponent = program.icon;
 					return (
-						<div class="program-card glass-dark p-10 rounded-3xl hover:scale-[1.02] transition-all duration-500 border border-white/10 hover:border-[#F8B92F]/30 relative overflow-hidden group">
-							<!-- Number Watermark -->
-							<div class="absolute top-6 right-6 text-display text-8xl font-black text-[#F8B92F]/5 group-hover:text-[#F8B92F]/10 transition-colors duration-500">
-								{program.num}
+						<div class="program-card prog-step group relative pl-20 sm:pl-24 pb-12 last:pb-0">
+							<!-- Node on the spine -->
+							<div class="prog-node">
+								<IconComponent class="w-5 h-5 text-black" stroke-width="2.2" />
 							</div>
 
-							<!-- Decorative Line -->
-							<div class="w-16 h-1 bg-gradient-to-r from-[#F8B92F] to-[#FFD700] mb-8 group-hover:w-full transition-all duration-700"></div>
-
-							<!-- Icon -->
-							<div class="relative z-10 mb-6">
-								<div class="w-14 h-14 rounded-xl bg-[#F8B92F]/10 flex items-center justify-center group-hover:bg-[#F8B92F]/20 transition-all duration-500">
-									<IconComponent class="w-7 h-7 text-[#F8B92F]" stroke-width="2" />
-								</div>
-							</div>
-
-							<!-- Content -->
-							<div class="relative z-10">
-								<h3 class="text-heading text-2xl font-bold text-white mb-4">
+							<!-- Step content -->
+							<div class="prog-step-body">
+								<span class="prog-kicker">Step {program.num}</span>
+								<h3 class="prog-title text-heading text-2xl font-semibold text-white mt-1.5 mb-2">
 									{program.title}
 								</h3>
-								<p class="text-body-premium text-white/70 leading-relaxed">
+								<p class="text-body-premium text-white/65 leading-relaxed">
 									{program.description}
 								</p>
 							</div>
@@ -359,6 +391,72 @@ const turnstileSiteKey: string =
 				})}
 			</div>
 		</div>
+
+		<style>
+			/* Programs — journey timeline */
+			.prog-spine {
+				position: absolute;
+				left: 23px;
+				top: 10px;
+				bottom: 18px;
+				width: 2px;
+				background: linear-gradient(
+					to bottom,
+					rgba(248, 185, 47, 0.05),
+					rgba(248, 185, 47, 0.55) 12%,
+					rgba(248, 185, 47, 0.55) 88%,
+					rgba(248, 185, 47, 0.05)
+				);
+			}
+			@media (min-width: 640px) {
+				.prog-spine { left: 27px; }
+			}
+
+			.prog-node {
+				position: absolute;
+				left: 0;
+				top: 0;
+				width: 48px;
+				height: 48px;
+				border-radius: 9999px;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				background: linear-gradient(135deg, #F8B92F 0%, #FFD700 100%);
+				box-shadow:
+					0 0 0 5px #1d1a16,
+					0 0 0 6px rgba(248, 185, 47, 0.28),
+					0 10px 22px -8px rgba(248, 185, 47, 0.55);
+				transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.45s ease;
+			}
+			@media (min-width: 640px) {
+				.prog-node { width: 56px; height: 56px; }
+			}
+			.prog-step:hover .prog-node {
+				transform: scale(1.08);
+				box-shadow:
+					0 0 0 5px #1d1a16,
+					0 0 0 6px rgba(248, 185, 47, 0.5),
+					0 14px 30px -8px rgba(248, 185, 47, 0.75);
+			}
+
+			.prog-kicker {
+				display: inline-block;
+				color: #F8B92F;
+				font-family: 'Inter', sans-serif;
+				font-size: 0.68rem;
+				font-weight: 700;
+				letter-spacing: 0.22em;
+				text-transform: uppercase;
+			}
+			.prog-title { transition: color 0.3s ease; }
+			.prog-step:hover .prog-title { color: #F8B92F; }
+
+			@media (prefers-reduced-motion: reduce) {
+				.prog-node { transition: none; }
+				.prog-step:hover .prog-node { transform: none; }
+			}
+		</style>
 	</section>
 
 	<!-- Mid-page Apply CTA band: catches scroll-readers who haven't headed
@@ -400,98 +498,245 @@ const turnstileSiteKey: string =
 
 		<div class="container mx-auto px-6 relative z-10">
 			<!-- Section Header -->
-			<div class="text-center mb-20">
-				<div class="inline-block mb-6">
-					<span class="text-[#F8B92F] uppercase tracking-[0.3em] text-sm font-bold flex items-center gap-2 justify-center">
-						<HeartHandshake class="w-4 h-4" />
-						Partnership Opportunities
-					</span>
-				</div>
-				<h2 class="text-heading text-6xl lg:text-7xl text-white mb-6">
+			<div class="text-center mb-16 lg:mb-20">
+				<span class="inline-flex items-center gap-3 text-[#F8B92F] uppercase tracking-[0.35em] text-xs font-bold">
+					<span class="h-px w-8 bg-gradient-to-r from-transparent to-[#F8B92F]/70"></span>
+					<HeartHandshake class="w-3.5 h-3.5" />
+					Partnership Opportunities
+					<span class="h-px w-8 bg-gradient-to-l from-transparent to-[#F8B92F]/70"></span>
+				</span>
+				<h2 class="text-heading text-5xl lg:text-7xl text-white mt-5 mb-4">
 					Partnership <span class="gradient-text">Levels</span>
 				</h2>
-				<p class="text-body-premium text-xl text-white/75 max-w-3xl mx-auto">
-					Join us in empowering young women and connecting the diaspora with Ghana through strategic partnerships. Let's discuss how we can collaborate.
+				<p class="text-xl lg:text-2xl text-white/55 max-w-2xl mx-auto italic" style="font-family: 'Cormorant Garamond', serif;">
+					Empowering young women and connecting the diaspora with Ghana through strategic partnerships.
 				</p>
 			</div>
 
 			<!-- Tiers Grid -->
-			<div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+			<div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-7 items-stretch">
 				{[
 					{
 						tier: 'Platinum',
 						level: 'Elite Partner',
 						description: 'Title Sponsor Level',
-						gradient: 'from-yellow-400 via-yellow-500 to-yellow-600',
+						icon: Crown,
+						accent: '#FFD700',
+						accent2: '#F8B92F',
+						featured: true,
 						benefits: ['Exclusive title sponsor status', 'Maximum brand visibility', 'Premium speaking opportunities', 'VIP access & hospitality', 'Full-page advertisement placement']
 					},
 					{
 						tier: 'Gold',
 						level: 'Premier Partner',
 						description: 'Major Supporter Level',
-						gradient: 'from-yellow-500 via-yellow-600 to-yellow-700',
+						icon: Trophy,
+						accent: '#F8B92F',
+						accent2: '#E0A024',
+						featured: false,
 						benefits: ['Prominent brand positioning', 'VIP event access', 'Strategic media presence', 'Product showcase opportunities', 'Extensive marketing exposure']
 					},
 					{
 						tier: 'Silver',
 						level: 'Valued Partner',
 						description: 'Core Supporter Level',
-						gradient: 'from-gray-300 via-gray-400 to-gray-500',
+						icon: Star,
+						accent: '#C7CCD1',
+						accent2: '#9BA1A8',
+						featured: false,
 						benefits: ['Brand recognition across events', 'VIP guest privileges', 'Marketing collateral inclusion', 'Social media acknowledgment', 'Community engagement opportunities']
 					},
 					{
 						tier: 'Bronze',
 						level: 'Supporting Partner',
 						description: 'Foundation Level',
-						gradient: 'from-amber-600 via-amber-700 to-amber-800',
+						icon: HeartHandshake,
+						accent: '#CD8B5C',
+						accent2: '#A9683B',
+						featured: false,
 						benefits: ['Official partner recognition', 'Event participation access', 'Brand acknowledgment', 'Branded materials inclusion', 'Network engagement']
 					}
-				].map((tier, index) => (
-					<div class={`tier-card glass p-8 rounded-3xl hover:scale-[1.02] transition-all duration-500 border-2 border-[#F8B92F]/30 hover:border-[#F8B92F] relative overflow-hidden group ${index === 0 ? 'lg:transform lg:-translate-y-4' : ''}`}>
-						<!-- Premium Badge -->
-						<div class={`inline-flex items-center gap-2 px-5 py-2 bg-gradient-to-r ${tier.gradient} text-white font-bold rounded-full text-sm mb-6 shadow-lg`}>
-							{tier.tier === 'Platinum' && <Crown class="w-4 h-4" />}
-							{tier.tier}
-						</div>
+				].map((tier) => {
+					const IconComponent = tier.icon;
+					return (
+						<div class={`tier-card tier-card2 group flex flex-col ${tier.featured ? 'featured' : ''}`} style={`--tier: ${tier.accent}; --tier2: ${tier.accent2}`}>
+							{tier.featured && <span class="tier-flag">Featured</span>}
 
-						<!-- Partnership Level Display -->
-						<div class="mb-8">
-							<h3 class="text-3xl font-bold text-white mb-2">{tier.level}</h3>
-							<p class="text-[#F8B92F] text-lg font-semibold">{tier.description}</p>
-						</div>
-
-						<!-- Benefits List -->
-						<ul class="space-y-4 mb-10">
-							{tier.benefits.map((benefit) => (
-								<li class="flex items-start gap-3 text-white/80">
-									<div class="flex-shrink-0 mt-1">
-										<div class="w-6 h-6 rounded-full bg-[#F8B92F]/20 flex items-center justify-center">
-											<Check class="w-4 h-4 text-[#F8B92F]" stroke-width="3" />
-										</div>
-									</div>
-									<span class="text-body-premium">{benefit}</span>
-								</li>
-							))}
-						</ul>
-
-						<!-- CTA Button -->
-						<a
-							href="#contact"
-							class="block w-full text-center px-6 py-4 bg-gradient-to-r from-[#F8B92F] to-[#FFD700] text-black font-bold rounded-full hover:shadow-2xl hover:shadow-[#F8B92F]/30 transition-all duration-300 group-hover:scale-105"
-						>
-							Discuss Partnership
-						</a>
-
-						<!-- Decorative Element -->
-						{index === 0 && (
-							<div class="absolute -top-3 -right-3 bg-gradient-to-br from-[#F8B92F] to-[#FFD700] text-black text-xs font-bold px-4 py-2 rounded-full transform rotate-12 shadow-lg">
-								FEATURED
+							<!-- Tier emblem + identity -->
+							<div class="tier-emblem">
+								<IconComponent class="w-7 h-7" stroke-width="1.8" />
 							</div>
-						)}
-					</div>
-				))}
+							<span class="tier-label">{tier.tier}</span>
+							<h3 class="text-heading text-2xl font-bold text-white mt-1.5 mb-1">{tier.level}</h3>
+							<p class="tier-desc">{tier.description}</p>
+
+							<div class="tier-divider"></div>
+
+							<!-- Benefits -->
+							<ul class="space-y-3.5 mb-8 flex-1">
+								{tier.benefits.map((benefit) => (
+									<li class="flex items-start gap-3">
+										<span class="tier-check">
+											<Check class="w-3 h-3" stroke-width="3.5" />
+										</span>
+										<span class="text-body-premium text-white/75 text-sm leading-relaxed">{benefit}</span>
+									</li>
+								))}
+							</ul>
+
+							<!-- CTA -->
+							<a href="#contact" class="tier-cta mt-auto">Discuss Partnership</a>
+						</div>
+					);
+				})}
 			</div>
 		</div>
+
+		<style>
+			/* Partnership tiers — refined metallic cards */
+			.tier-card2 {
+				position: relative;
+				border-radius: 1.5rem;
+				padding: 2rem 1.75rem;
+				background: linear-gradient(160deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.015));
+				border: 1px solid rgba(255, 255, 255, 0.09);
+				backdrop-filter: blur(16px);
+				-webkit-backdrop-filter: blur(16px);
+				overflow: hidden;
+				transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.5s ease, box-shadow 0.5s ease;
+			}
+			/* Metallic top accent rule, tinted per tier */
+			.tier-card2::before {
+				content: '';
+				position: absolute;
+				top: 0;
+				left: 0;
+				right: 0;
+				height: 3px;
+				background: linear-gradient(90deg, transparent, var(--tier), transparent);
+				opacity: 0.75;
+			}
+			.tier-card2:hover {
+				transform: translateY(-6px);
+				border-color: rgba(248, 185, 47, 0.4);
+				box-shadow: 0 26px 54px -24px rgba(0, 0, 0, 0.6);
+			}
+
+			/* Featured (Platinum) — gold-framed, lifted, spotlit */
+			.tier-card2.featured {
+				background:
+					radial-gradient(120% 90% at 50% 0%, rgba(248, 185, 47, 0.14), transparent 55%),
+					linear-gradient(160deg, rgba(248, 185, 47, 0.08), rgba(255, 255, 255, 0.02));
+				border-color: rgba(248, 185, 47, 0.5);
+				box-shadow: 0 28px 64px -26px rgba(248, 185, 47, 0.45);
+			}
+			@media (min-width: 1024px) {
+				.tier-card2.featured { transform: translateY(-1rem); }
+				.tier-card2.featured:hover { transform: translateY(calc(-1rem - 6px)); }
+			}
+
+			.tier-emblem {
+				width: 3.5rem;
+				height: 3.5rem;
+				border-radius: 1rem;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				color: var(--tier);
+				background: rgba(255, 255, 255, 0.04);
+				border: 1px solid var(--tier);
+				box-shadow: inset 0 0 20px -8px var(--tier);
+				margin-bottom: 1.25rem;
+				transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+			}
+			.tier-card2:hover .tier-emblem { transform: scale(1.08); }
+
+			.tier-label {
+				display: inline-block;
+				color: var(--tier);
+				font-family: 'Inter', sans-serif;
+				font-size: 0.7rem;
+				font-weight: 700;
+				letter-spacing: 0.25em;
+				text-transform: uppercase;
+			}
+			.tier-desc {
+				color: var(--tier);
+				font-size: 0.875rem;
+				font-weight: 600;
+				opacity: 0.95;
+			}
+
+			.tier-divider {
+				height: 1px;
+				margin: 1.5rem 0;
+				background: linear-gradient(90deg, var(--tier), transparent);
+				opacity: 0.4;
+			}
+
+			.tier-check {
+				flex-shrink: 0;
+				margin-top: 2px;
+				width: 1.2rem;
+				height: 1.2rem;
+				border-radius: 9999px;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				color: var(--tier);
+				background: rgba(255, 255, 255, 0.06);
+				border: 1px solid var(--tier);
+			}
+
+			/* CTA — ghost by default, solid gold on the featured card */
+			.tier-cta {
+				display: block;
+				text-align: center;
+				padding: 0.85rem 1.5rem;
+				border-radius: 9999px;
+				font-weight: 700;
+				font-size: 0.95rem;
+				color: #F8B92F;
+				border: 1px solid rgba(248, 185, 47, 0.5);
+				transition: background 0.3s ease, color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+			}
+			.tier-cta:hover {
+				background: linear-gradient(90deg, #F8B92F, #FFD700);
+				color: #000;
+				border-color: transparent;
+			}
+			.tier-card2.featured .tier-cta {
+				background: linear-gradient(90deg, #F8B92F, #FFD700);
+				color: #000;
+				border-color: transparent;
+			}
+			.tier-card2.featured .tier-cta:hover {
+				box-shadow: 0 12px 28px -8px rgba(248, 185, 47, 0.6);
+				transform: translateY(-2px);
+			}
+
+			.tier-flag {
+				position: absolute;
+				top: 1.1rem;
+				right: 1.1rem;
+				font-size: 0.6rem;
+				font-weight: 700;
+				letter-spacing: 0.18em;
+				text-transform: uppercase;
+				color: #000;
+				background: linear-gradient(90deg, #F8B92F, #FFD700);
+				padding: 0.3rem 0.7rem;
+				border-radius: 9999px;
+				box-shadow: 0 6px 16px -6px rgba(248, 185, 47, 0.7);
+			}
+
+			@media (prefers-reduced-motion: reduce) {
+				.tier-card2, .tier-emblem, .tier-cta { transition: none; }
+				.tier-card2:hover { transform: none; }
+				.tier-card2.featured:hover { transform: translateY(-1rem); }
+				.tier-card2:hover .tier-emblem { transform: none; }
+			}
+		</style>
 	</section>
 
 	<!-- Partners Section - Scrolling Marquee Animation -->
@@ -685,18 +930,18 @@ const turnstileSiteKey: string =
 		</div>
 		<div class="container mx-auto px-6 relative z-10">
 			<!-- Section Header -->
-			<div class="text-center mb-20">
-				<div class="inline-block mb-6">
-					<span class="text-[#F8B92F] uppercase tracking-[0.3em] text-sm font-bold flex items-center gap-2 justify-center">
-						<Mail class="w-4 h-4" />
-						Get In Touch
-					</span>
-				</div>
-				<h2 class="text-heading text-6xl lg:text-7xl text-white mb-6">
+			<div class="text-center mb-16 lg:mb-20">
+				<span class="inline-flex items-center gap-3 text-[#F8B92F] uppercase tracking-[0.35em] text-xs font-bold">
+					<span class="h-px w-8 bg-gradient-to-r from-transparent to-[#F8B92F]/70"></span>
+					<Mail class="w-3.5 h-3.5" />
+					Get In Touch
+					<span class="h-px w-8 bg-gradient-to-l from-transparent to-[#F8B92F]/70"></span>
+				</span>
+				<h2 class="text-heading text-5xl lg:text-7xl text-white mt-5 mb-4">
 					Let's <span class="gradient-text">Connect</span>
 				</h2>
-				<p class="text-body-premium text-xl text-white/75 max-w-3xl mx-auto">
-					We'd love to hear from you. Reach out about the pageant, partnership opportunities, or how to get involved
+				<p class="text-xl lg:text-2xl text-white/55 max-w-2xl mx-auto italic" style="font-family: 'Cormorant Garamond', serif;">
+					We'd love to hear from you — about the pageant, partnerships, or how to get involved.
 				</p>
 			</div>
 
@@ -869,48 +1114,169 @@ const turnstileSiteKey: string =
 		</div>
 	</section>
 
-	<!-- Footer - Elegant Minimal Design -->
-	<footer class="relative py-16 border-t border-white/10" style="background: linear-gradient(180deg, #1a1a1a 0%, #252525 100%);">
+	<!-- Footer - Branded Editorial -->
+	<footer class="relative pt-20 pb-28 sm:pb-10 border-t border-[#F8B92F]/15 overflow-hidden" style="background: linear-gradient(180deg, #161412 0%, #1f1d1a 100%);">
 		<!-- Subtle Glow -->
-		<div class="absolute inset-0 opacity-20">
-			<div class="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-96 h-32 bg-[#F8B92F] rounded-full blur-[100px]"></div>
+		<div class="absolute inset-0 opacity-20 pointer-events-none" aria-hidden="true">
+			<div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-[600px] h-40 bg-[#F8B92F] rounded-full blur-[130px]"></div>
 		</div>
-		<div class="container mx-auto px-6">
-			<div class="flex flex-col items-center space-y-8">
-				<!-- Logo -->
-				<picture>
-					<source srcset="/assets/images/logos/mdgh main logo mini.webp" type="image/webp" />
-					<img src="/assets/images/logos/mdgh main logo mini.png" alt="Miss Diaspora Ghana logo" loading="lazy" decoding="async" width="91" height="80" class="h-20 opacity-90 hover:opacity-100 transition-opacity" />
-				</picture>
 
-				<!-- Copyright -->
-				<p class="text-white/50 text-center text-sm leading-relaxed">
-					© 2025 Miss Diaspora Ghana (MDGH). All rights reserved.<br />
-					An initiative of <span class="text-white/70 font-semibold">Nubian Crown Company Limited</span>.
-				</p>
-
-				<!-- Navigation Links -->
-				<div class="flex flex-wrap justify-center gap-8">
-					{[
-						{ label: 'Home', href: '#home' },
-						{ label: 'About', href: '#about' },
-						{ label: 'Programs', href: '#programs' },
-						{ label: 'Partnership', href: '#sponsorship' },
-						{ label: 'Contact', href: '#contact' }
-					].map((link) => (
-						<a
-							href={link.href}
-							class="text-white/75 hover:text-[#F8B92F] transition-colors duration-300 font-medium text-sm uppercase tracking-wider"
-						>
-							{link.label}
-						</a>
-					))}
+		<div class="container mx-auto px-6 relative z-10">
+			<div class="grid gap-12 lg:gap-10 md:grid-cols-2 lg:grid-cols-[1.7fr_1fr_1fr_1.3fr]">
+				<!-- Brand -->
+				<div>
+					<picture>
+						<source srcset="/assets/images/logos/mdgh main logo mini.webp" type="image/webp" />
+						<img src="/assets/images/logos/mdgh main logo mini.png" alt="Miss Diaspora Ghana logo" loading="lazy" decoding="async" width="73" height="64" class="h-16 w-auto opacity-95" />
+					</picture>
+					<p class="mt-5 text-white/55 text-sm leading-relaxed max-w-xs">
+						The global pageant celebrating the beauty, heritage and impact of women of African descent across the diaspora.
+					</p>
+					<a
+						href="/apply"
+						class="footer-apply group mt-6 inline-flex items-center gap-2.5 px-6 py-3 rounded-full bg-gradient-to-r from-[#F8B92F] to-[#FFD700] text-black font-bold text-sm transition-all duration-300"
+					>
+						Begin Your Application
+						<svg class="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+						</svg>
+					</a>
 				</div>
 
-				<!-- Decorative Line -->
-				<div class="w-full max-w-md h-px bg-gradient-to-r from-transparent via-[#F8B92F]/30 to-transparent"></div>
+				<!-- Explore -->
+				<div>
+					<h4 class="footer-h">Explore</h4>
+					<ul class="space-y-3">
+						{[
+							{ label: 'Home', href: '#home' },
+							{ label: 'About MDGH', href: '#about' },
+							{ label: 'Our Journey', href: '#programs' },
+							{ label: 'Partnership Levels', href: '#sponsorship' }
+						].map((link) => (
+							<li><a href={link.href} class="footer-link">{link.label}</a></li>
+						))}
+					</ul>
+				</div>
+
+				<!-- Get Involved -->
+				<div>
+					<h4 class="footer-h">Get Involved</h4>
+					<ul class="space-y-3">
+						{[
+							{ label: 'Apply Now', href: '/apply' },
+							{ label: 'Become a Sponsor', href: '#sponsorship' },
+							{ label: 'Send a Message', href: '#contact' }
+						].map((link) => (
+							<li><a href={link.href} class="footer-link">{link.label}</a></li>
+						))}
+					</ul>
+				</div>
+
+				<!-- Connect -->
+				<div>
+					<h4 class="footer-h">Connect</h4>
+					<ul class="space-y-3.5">
+						<li>
+							<a href="mailto:info@missdiasporagh.org" class="footer-contact group">
+								<Mail class="w-4 h-4 text-[#F8B92F] shrink-0" />
+								<span>info@missdiasporagh.org</span>
+							</a>
+						</li>
+						<li>
+							<a href="tel:+233591942227" class="footer-contact group">
+								<Phone class="w-4 h-4 text-[#F8B92F] shrink-0" />
+								<span>+233 591 942 227</span>
+							</a>
+						</li>
+						<li>
+							<span class="footer-contact">
+								<WebIcon class="w-4 h-4 text-[#F8B92F] shrink-0" />
+								<span>Accra, Ghana</span>
+							</span>
+						</li>
+					</ul>
+
+					<!-- Social row -->
+					<div class="flex items-center gap-3 mt-6">
+						<a href="https://instagram.com/missdiasporagh" target="_blank" rel="noopener noreferrer" aria-label="Instagram" class="footer-social">
+							<Instagram class="w-4 h-4" />
+						</a>
+						<a href="https://www.facebook.com/share/1HEzAJq1ye/?mibextid=wwXIfr" target="_blank" rel="noopener noreferrer" aria-label="Facebook" class="footer-social">
+							<Facebook class="w-4 h-4" />
+						</a>
+						<a href="https://tiktok.com/@missdiasporagh" target="_blank" rel="noopener noreferrer" aria-label="TikTok" class="footer-social">
+							<img src="/assets/images/icons/tiktok.png" alt="" class="w-4 h-4" />
+						</a>
+						<a href="https://wa.me/233591942227" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp" class="footer-social">
+							<MessageCircle class="w-4 h-4" />
+						</a>
+					</div>
+				</div>
+			</div>
+
+			<!-- Bottom bar -->
+			<div class="mt-16 pt-8 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
+				<p class="text-white/40 text-xs">© 2025 Miss Diaspora Ghana (MDGH). All rights reserved.</p>
+				<p class="text-white/40 text-xs">An initiative of <span class="text-white/65 font-semibold">Nubian Crown Company Limited</span>.</p>
 			</div>
 		</div>
+
+		<style>
+			.footer-h {
+				color: #ffffff;
+				font-family: 'Inter', sans-serif;
+				font-size: 0.8rem;
+				font-weight: 600;
+				letter-spacing: 0.16em;
+				text-transform: uppercase;
+				margin-bottom: 1.25rem;
+			}
+			.footer-link {
+				color: rgba(255, 255, 255, 0.55);
+				font-size: 0.875rem;
+				transition: color 0.3s ease, padding-left 0.3s ease;
+			}
+			.footer-link:hover {
+				color: #F8B92F;
+				padding-left: 0.3rem;
+			}
+			.footer-contact {
+				display: flex;
+				align-items: center;
+				gap: 0.6rem;
+				color: rgba(255, 255, 255, 0.55);
+				font-size: 0.875rem;
+				transition: color 0.3s ease;
+			}
+			a.footer-contact:hover { color: #F8B92F; }
+			.footer-social {
+				display: inline-flex;
+				align-items: center;
+				justify-content: center;
+				width: 2.5rem;
+				height: 2.5rem;
+				border-radius: 9999px;
+				color: rgba(255, 255, 255, 0.7);
+				border: 1px solid rgba(248, 185, 47, 0.25);
+				background: rgba(255, 255, 255, 0.03);
+				transition: all 0.3s ease;
+			}
+			.footer-social:hover {
+				color: #000;
+				background: linear-gradient(135deg, #F8B92F, #FFD700);
+				border-color: transparent;
+				transform: translateY(-2px);
+			}
+			.footer-apply:hover {
+				box-shadow: 0 12px 28px -8px rgba(248, 185, 47, 0.6);
+				transform: translateY(-2px);
+			}
+			@media (prefers-reduced-motion: reduce) {
+				.footer-link, .footer-social, .footer-apply { transition: none; }
+				.footer-social:hover, .footer-apply:hover { transform: none; }
+				.footer-link:hover { padding-left: 0; }
+			}
+		</style>
 	</footer>
 
 	<!-- WhatsApp Chat Widget -->
