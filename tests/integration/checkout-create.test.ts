@@ -4,7 +4,7 @@ import { POST } from '@/pages/api/checkout/create';
 function fakeEnv(opts: { paidEmails?: string[] } = {}) {
   const cycles = [{
     id: 'MDGH-2026', display_name: 'Miss Diaspora Ghana 2026',
-    application_fee_cents: 2599, application_currency: 'USD',
+    application_fee_cents: 5000, application_currency: 'GHS',
     privacy_policy_version: 'v1.0',
     applications_open_at: '2026-01-01T00:00:00Z',
     applications_close_at: '2099-01-01T00:00:00Z', is_active: 1,

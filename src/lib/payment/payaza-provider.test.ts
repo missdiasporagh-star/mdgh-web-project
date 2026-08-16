@@ -7,13 +7,13 @@ describe('classifyPayazaVerifyResult', () => {
   it('maps a successful transaction to paid', () => {
     const json = {
       message: 'Transaction data found',
-      data: { transaction_status: 'Success', amount: 25.99, currency: 'USD', transaction_id: 'P-C-123' },
+      data: { transaction_status: 'Success', amount: 50.00, currency: 'GHS', transaction_id: 'P-C-123' },
     };
     const r = classifyPayazaVerifyResult(true, 200, json, REF);
     expect(r.ok).toBe(true);
     if (r.ok) {
       expect(r.status).toBe('paid');
-      expect(r.amountCents).toBe(2599);
+      expect(r.amountCents).toBe(5000);
       expect(r.providerTransactionId).toBe('P-C-123');
     }
   });
@@ -79,8 +79,8 @@ describe('classifyPayazaVerifyResult', () => {
       message: 'Transaction data found',
       data: {
         transaction_status: 'Successful',
-        amount_received: 25.99,
-        currency: 'USD',
+        amount_received: 50.00,
+        currency: 'GHS',
         transaction_reference: 'P-C-20260524-UR85J96FOB',
         merchant_transaction_reference: REF,
         current_status_date: '2026-05-24 20:12:00',
@@ -90,7 +90,7 @@ describe('classifyPayazaVerifyResult', () => {
     expect(r.ok).toBe(true);
     if (r.ok) {
       expect(r.status).toBe('paid');
-      expect(r.amountCents).toBe(2599);
+      expect(r.amountCents).toBe(5000);
       expect(r.providerTransactionId).toBe('P-C-20260524-UR85J96FOB');
       expect(r.paidAt).toBe('2026-05-24 20:12:00');
     }

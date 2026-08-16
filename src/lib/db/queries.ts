@@ -343,3 +343,30 @@ export async function getAdminByEmail(db: D1Database, email: string): Promise<Ad
     .first<AdminRow>();
   return r ?? null;
 }
+
+export async function listCycles(db: D1Database): Promise<CycleRow[]> {
+  const result = await db.prepare(`SELECT * FROM cycles ORDER BY applications_open_at DESC`).all<CycleRow>();
+  return result.results ?? [];
+}
+
+export async function updateCycle(
+  db: D1Database,
+  id: string,
+  fields: {
+    is_active?: number;
+    application_fee_cents?: number;
+    application_currency?: string;
+    applications_close_at?: string;
+  }
+): Promise<void> {
+  const setters: string[] = [];
+  const params: unknown[] = [];
+  if (fields.is_active !== undefined) { setters.push('is_active = ?'); params.push(fields.is_active); }
+  if (fields.application_fee_cents !== undefined) { setters.push('application_fee_cents = ?'); params.push(fields.application_fee_cents); }
+  if (fields.application_currency !== undefined) { setters.push('application_currency = ?'); params.push(fields.application_currency); }
+  if (fields.applications_close_at !== undefined) { setters.push('applications_close_at = ?'); params.push(fields.applications_close_at); }
+  if (setters.length === 0) return;
+  params.push(id);
+  await db.prepare(`UPDATE cycles SET ${setters.join(', ')} WHERE id = ?`)
+    .bind(...params).run();
+}

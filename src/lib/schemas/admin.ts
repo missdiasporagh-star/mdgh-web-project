@@ -11,3 +11,12 @@ export const adminStatusUpdateSchema = z.object({
   adminNotes: z.string().max(2000).nullable().optional(),
 });
 export type AdminStatusUpdateInput = z.infer<typeof adminStatusUpdateSchema>;
+
+export const cycleUpdateSchema = z.object({
+  id: z.string().min(1).max(64),
+  isActive: z.boolean().optional(),
+  applicationFeeCents: z.number().int().min(0).max(10000000).optional(),
+  applicationCurrency: z.enum(['USD', 'NGN', 'GHS']).optional(),
+  applicationsCloseAt: z.string().datetime().optional(),
+});
+export type CycleUpdateInput = z.infer<typeof cycleUpdateSchema>;

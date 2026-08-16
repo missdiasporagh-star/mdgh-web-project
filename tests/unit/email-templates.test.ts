@@ -53,13 +53,13 @@ describe('email templates', () => {
     const e = renderPaymentPaidAlert({
       reference: 'MDGH-2026-AAAA1111',
       email: 'applicant@example.com',
-      amountLabel: '25.99 USD',
+      amountLabel: '50.00 GHS',
       dashboardUrl: 'https://missdiasporagh.org/admin/applications/abc',
     });
     expect(e.category).toBe('payment_paid');
     expect(e.subject).toBe('[MDGH 💰 Payment] New paid application — MDGH-2026-AAAA1111');
     expect(e.html).toContain('applicant@example.com');
-    expect(e.html).toContain('25.99 USD');
+    expect(e.html).toContain('50.00 GHS');
     expect(e.html).toContain('https://missdiasporagh.org/admin/applications/abc');
     expect(e.text).toContain('MDGH-2026-AAAA1111');
   });

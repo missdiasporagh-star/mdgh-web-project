@@ -6,7 +6,7 @@ const provider = new MockProvider();
 describe('MockProvider.init', () => {
   it('returns ok with a checkoutUrl carrying the reference', async () => {
     const r = await provider.init({
-      amountCents: 2599, currency: 'USD', reference: 'MDGH-2026-AAAAAAAA',
+      amountCents: 5000, currency: 'GHS', reference: 'MDGH-2026-AAAAAAAA',
       customerEmail: 'a@b.com', callbackUrl: 'https://x/return',
     });
     expect(r.ok).toBe(true);
@@ -23,8 +23,8 @@ describe('MockProvider.verify', () => {
     expect(r.ok).toBe(true);
     if (r.ok) {
       expect(r.status).toBe('paid');
-      expect(r.amountCents).toBe(2599);
-      expect(r.currency).toBe('USD');
+      expect(r.amountCents).toBe(5000);
+      expect(r.currency).toBe('GHS');
       expect(r.paymentMethod).toBe('card');
       expect(r.paidAt).toBeDefined();
     }

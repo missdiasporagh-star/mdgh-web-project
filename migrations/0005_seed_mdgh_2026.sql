@@ -5,6 +5,9 @@ INSERT INTO cycles (
 ) VALUES (
   'MDGH-2026',
   'Miss Diaspora Ghana 2026',
+  5000,
+  'GHS',
+  'Miss Diaspora Ghana 2026',
   2599,
   'USD',
   'v1.0',

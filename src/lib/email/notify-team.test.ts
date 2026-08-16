@@ -19,7 +19,7 @@ describe('notifyTeam', () => {
     const kv = fakeKV();
     await notifyTeam({ ...baseEnv, KV: kv as any }, {
       kind: 'payment_paid', appId: 'app1', reference: 'REF1',
-      email: 'x@y.com', amountLabel: '25.99 USD', dashboardUrl: 'https://d/app1',
+      email: 'x@y.com', amountLabel: '50.00 GHS', dashboardUrl: 'https://d/app1',
     }, provider);
 
     expect(provider.sent).toHaveLength(1);
@@ -34,7 +34,7 @@ describe('notifyTeam', () => {
     const env = { ...baseEnv, KV: kv as any };
     const event = {
       kind: 'payment_paid' as const, appId: 'app1', reference: 'REF1',
-      email: 'x@y.com', amountLabel: '25.99 USD', dashboardUrl: 'https://d/app1',
+      email: 'x@y.com', amountLabel: '50.00 GHS', dashboardUrl: 'https://d/app1',
     };
     await notifyTeam(env, event, provider);
     await notifyTeam(env, event, provider);
