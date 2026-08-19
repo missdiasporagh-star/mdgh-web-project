@@ -24,7 +24,7 @@ describe('MockProvider.verify', () => {
     if (r.ok) {
       expect(r.status).toBe('paid');
       expect(r.amountCents).toBe(2000);
-      expect(r.currency).toBe('GHS');
+      expect(r.currency).toBe('USD');
       expect(r.paymentMethod).toBe('card');
       expect(r.paidAt).toBeDefined();
     }
