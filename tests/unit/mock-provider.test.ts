@@ -23,7 +23,7 @@ describe('MockProvider.verify', () => {
     expect(r.ok).toBe(true);
     if (r.ok) {
       expect(r.status).toBe('paid');
-      expect(r.amountCents).toBe(5000);
+      expect(r.amountCents).toBe(2000);
       expect(r.currency).toBe('GHS');
       expect(r.paymentMethod).toBe('card');
       expect(r.paidAt).toBeDefined();

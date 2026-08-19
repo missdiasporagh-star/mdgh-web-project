@@ -19,7 +19,7 @@ export class MockProvider implements PaymentProvider {
       ok: true,
       status,
       providerTransactionId: `mock-${reference}`,
-      amountCents: 5000,
+      amountCents: 2000,
       currency: 'GHS',
       paidAt: status === 'paid' ? new Date().toISOString() : undefined,
       paymentMethod: 'card',
