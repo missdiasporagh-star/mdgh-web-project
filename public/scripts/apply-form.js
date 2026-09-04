@@ -185,12 +185,47 @@ function setupEmail(state, validate) {
 }
 
 function setupPhone(state, validate) {
+  const country = document.getElementById('phone-country');
+  const prefix = document.getElementById('phone-prefix');
   const input = document.querySelector('input[name="phone"]');
-  if (!input) return;
-  input.addEventListener('input', () => {
-    state.phone = input.value.trim().replace(/[\s\-()]/g, '');
+  if (!country || !prefix || !input) return;
+  const hint = document.getElementById('phone-help');
+  const defaultHint = hint ? hint.textContent : '';
+
+  function recompute() {
+    const isOther = country.value === 'other';
+    prefix.style.display = isOther ? 'none' : '';
+    prefix.textContent = `+${country.value}`;
+    input.placeholder = isOther ? '+27 82 000 0000' : '202 555 0142';
+
+    if (isOther) {
+      // Free-form full international number; formatting characters ignored.
+      state.phone = input.value.trim().replace(/[\s\-()]/g, '');
+    } else {
+      // Country code comes from the dropdown; only the national part is typed.
+      const national = input.value.replace(/\D/g, '');
+      state.phone = national ? `+${country.value}${national}` : '';
+    }
+
+    if (hint) {
+      if (!state.phone) {
+        hint.textContent = defaultHint;
+        hint.style.color = '';
+      } else if (isValidPhone(state.phone)) {
+        hint.textContent = `Looks good — ${state.phone}`;
+        hint.style.color = '#7BC67E';
+      } else {
+        hint.textContent = isOther
+          ? 'Include the country code, e.g. +27 82 000 0000'
+          : 'Keep typing — your number without the country code';
+        hint.style.color = '#FFD166';
+      }
+    }
     validate();
-  });
+  }
+
+  country.addEventListener('change', recompute);
+  input.addEventListener('input', recompute);
 }
 
 function setupTurnstile(siteKey, onToken) {

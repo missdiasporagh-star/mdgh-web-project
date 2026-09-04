@@ -45,6 +45,10 @@ const currency = cycle.application_currency;
       <div class="fade-up">
         <span class="pill">{cycle.display_name} &middot; Cycle Open</span>
       </div>
+      <!-- TEMP: remove once Payaza confirms the international-card fix (reported 2026-09-04) -->
+      <p class="fade-up" style="max-width:520px;margin:18px auto 0;font-size:12px;line-height:1.6;color:#FFD166;border:1px solid rgba(255,209,102,0.25);border-radius:10px;padding:10px 14px;background:rgba(255,209,102,0.06)">
+        Heads-up: our payment provider (Payaza) is currently resolving an issue affecting some internationally issued cards. If your payment doesn't go through, you are <strong>not</strong> charged — please try again later.
+      </p>
     </section>
 
     <form id="apply-form">
@@ -62,9 +66,35 @@ const currency = cycle.application_currency;
         <div class="label" style="margin-bottom:14px">Step 2 — Your contact</div>
         <label for="apply-email" class="muted" style="font-size:12px;display:block;margin-bottom:4px">Email address</label>
         <input id="apply-email" class="input" type="email" name="email" placeholder="email@example.com" required maxlength="254" autocomplete="email" style="margin-bottom:10px" />
-        <label for="apply-phone" class="muted" style="font-size:12px;display:block;margin-bottom:4px">Phone number (with country code)</label>
-        <input id="apply-phone" class="input" type="tel" name="phone" placeholder="+233 24 000 0000" required maxlength="20" pattern="^\+[1-9][0-9 \-()]{6,20}$" autocomplete="tel" aria-describedby="phone-help" />
-        <p id="phone-help" class="muted" style="font-size:11px;margin:8px 0 0;letter-spacing:0.03em">Include country code (e.g. <code>+233</code> for Ghana). Used for payment + cycle updates.</p>
+        <label for="phone-country" class="muted" style="font-size:12px;display:block;margin-bottom:4px">Phone number</label>
+        <div class="phone-row" style="display:flex;gap:8px;align-items:stretch">
+          <select id="phone-country" class="input" style="flex:0 1 auto;width:auto;min-width:0" aria-label="Country (sets the country code)">
+            <option value="1" selected>USA / Canada (+1)</option>
+            <option value="44">United Kingdom (+44)</option>
+            <option value="233">Ghana (+233)</option>
+            <option value="234">Nigeria (+234)</option>
+            <option value="49">Germany (+49)</option>
+            <option value="31">Netherlands (+31)</option>
+            <option value="33">France (+33)</option>
+            <option value="39">Italy (+39)</option>
+            <option value="34">Spain (+34)</option>
+            <option value="353">Ireland (+353)</option>
+            <option value="32">Belgium (+32)</option>
+            <option value="41">Switzerland (+41)</option>
+            <option value="46">Sweden (+46)</option>
+            <option value="47">Norway (+47)</option>
+            <option value="27">South Africa (+27)</option>
+            <option value="254">Kenya (+254)</option>
+            <option value="61">Australia (+61)</option>
+            <option value="971">UAE (+971)</option>
+            <option value="other">Other country…</option>
+          </select>
+          <div class="input" style="flex:1;display:flex;align-items:center;gap:6px;width:auto;min-width:0">
+            <span id="phone-prefix" class="muted" style="white-space:nowrap">+1</span>
+            <input id="apply-phone" type="tel" inputmode="tel" name="phone" placeholder="202 555 0142" required maxlength="24" autocomplete="tel-national" aria-describedby="phone-help" style="flex:1;min-width:0;border:none;background:transparent;outline:none;color:inherit;font:inherit;padding:0" />
+          </div>
+        </div>
+        <p id="phone-help" class="muted" style="font-size:11px;margin:8px 0 0;letter-spacing:0.03em">Pick your country — the code is added for you — then type your number. Used for payment + cycle updates.</p>
       </section>
 
       <section class="card">

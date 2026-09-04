@@ -285,8 +285,22 @@ const absoluteOgImage = new URL(ogImage, SITE_URL).toString();
       box-sizing: border-box;
       transition: all 200ms ease;
     }
-    .input:focus { outline: none; border-color: #F8B92F; box-shadow: 0 0 0 3px rgba(248,185,47,0.12); }
+    .input:focus, .input:focus-within { outline: none; border-color: #F8B92F; box-shadow: 0 0 0 3px rgba(248,185,47,0.12); }
     .input::placeholder { color: rgba(255,255,255,0.3); }
+    select.input {
+      appearance: none;
+      -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23F8B92F' fill='none' stroke-width='1.5'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      padding-right: 32px;
+      cursor: pointer;
+    }
+    select.input option { background: #141414; color: #eee; }
+    @media (max-width: 520px) {
+      .phone-row { flex-direction: column; }
+      .phone-row select.input { width: 100%; }
+    }
 
     /* Buttons */
     .btn {
