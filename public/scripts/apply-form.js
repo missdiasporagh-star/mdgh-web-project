@@ -292,7 +292,7 @@ function setupSubmit(state, validate, resetTurnstile) {
         } else {
           errEl.textContent = json.message || (json.error === 'turnstile_failed'
             ? 'Please complete the refreshed security check and try again.'
-            : 'We could not open payment instructions. Please try again or contact us on 0598913323.');
+            : 'We could not open payment instructions. Please try again or message us on WhatsApp at +233 27 223 7722.');
         }
         errEl.style.display = 'block';
         return;

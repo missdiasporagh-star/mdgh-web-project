@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { manualPaymentsEnabled, MOMO_NUMBER, MOMO_RECIPIENT, MOMO_INTERNATIONAL, MOMO_WHATSAPP, MOMO_FEE_CENTS } from '@/lib/payment/manual';
+import { manualPaymentsEnabled, MOMO_NUMBER, MOMO_RECIPIENT, MOMO_INTERNATIONAL, MOMO_WHATSAPP, MOMO_CONFIRMATION_NUMBER, MOMO_FEE_CENTS } from '@/lib/payment/manual';
 import { runPaymentVerification } from '@/lib/payment/verify-flow';
 import { POST } from '@/pages/api/admin/applications/[id]/confirm-payment';
 import { checkAdminAuth } from '@/middleware/admin-auth';
@@ -33,7 +33,8 @@ describe('manual payment controls', () => {
     expect(MOMO_NUMBER).toBe('0598913323');
     expect(MOMO_RECIPIENT).toBe('Ebenezer Adjetey Sowah');
     expect(MOMO_INTERNATIONAL).toBe('+233598913323');
-    expect(MOMO_WHATSAPP).toBe('https://wa.me/233598913323');
+    expect(MOMO_WHATSAPP).toBe('https://wa.me/233272237722');
+    expect(MOMO_CONFIRMATION_NUMBER).toBe('+233 27 223 7722');
     expect(MOMO_FEE_CENTS).toBe(23000);
   });
   it('public verification never calls a gateway or marks a manual reference paid', async () => {

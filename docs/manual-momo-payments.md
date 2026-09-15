@@ -2,13 +2,14 @@
 
 - Fee: **GHS 230.00**.
 - Recipient number: **0598913323** (+233 598 913 323).
-- Recipient and payment contact: **Ebenezer Adjetey Sowah**. Applicants must check this name before authorizing a transfer.
+- MoMo recipient: **Ebenezer Adjetey Sowah**. Applicants must check this name before authorizing a transfer.
 - New production checkout defaults to manual MoMo. `MOCK_PAYMENTS=true` preserves test checkout; `PAYMENT_MODE=payaza` restores gateway checkout.
+- WhatsApp payment confirmation: **+233 27 223 7722**, separate from the receiving account.
 - The temporary fee is defined in `src/lib/payment/manual.ts`. Existing gateway/cycle prices are preserved for rollback. Admin cycle settings explain this override.
 
 ## Applicant flow
 
-Complete eligibility and consent, then receive a `MOMO-` application reference and payment instructions. Send GHS 230 with that reference, then send the receipt transaction ID, amount and date to Ebenezer Adjetey Sowah on WhatsApp at 0598913323. Payment stays pending until staff verifies it. The instruction page displays payment status when refreshed. Never request a PIN or OTP.
+Complete eligibility and consent, then receive a `MOMO-` application reference and payment instructions. Send GHS 230 with that reference, then send the receipt transaction ID, amount and date to the confirmation team on WhatsApp at +233 27 223 7722. Payment stays pending until staff verifies it. The instruction page displays payment status when refreshed. Never request a PIN or OTP.
 
 ## Staff flow
 

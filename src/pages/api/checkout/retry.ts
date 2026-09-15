@@ -4,7 +4,7 @@ import { getActiveCycle, getApplicationByReference, resetApplicationForRetry } f
 import { newTransactionReference } from '@/lib/ids/reference';
 import { hashIp } from '@/lib/crypto/hash';
 import { getPaymentProvider } from '@/lib/payment';
-import { manualPaymentsEnabled, MOMO_RECIPIENT, MOMO_NUMBER } from '@/lib/payment/manual';
+import { manualPaymentsEnabled, MOMO_CONFIRMATION_NUMBER } from '@/lib/payment/manual';
 import { checkRateLimit } from '@/lib/ratelimit/kv-limiter';
 
 export const prerender = false;
@@ -16,7 +16,7 @@ const retrySchema = z.object({ reference: z.string().min(1).max(64) });
 
 export const POST: APIRoute = async ({ request, locals, clientAddress }) => {
   const env = locals.runtime.env;
-  if (manualPaymentsEnabled(env)) return j({ ok: false, error: 'manual_payment_required', message: `Card checkout is temporarily paused. Contact ${MOMO_RECIPIENT} on ${MOMO_NUMBER} with your existing reference before making another payment.` }, 409);
+  if (manualPaymentsEnabled(env)) return j({ ok: false, error: 'manual_payment_required', message: `Card checkout is temporarily paused. Message the team on WhatsApp at ${MOMO_CONFIRMATION_NUMBER} with your existing reference before making another payment.` }, 409);
 
   let body: unknown;
   try { body = await request.json(); } catch { return j({ ok: false, error: 'invalid_json' }, 400); }

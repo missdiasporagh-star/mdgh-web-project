@@ -7,7 +7,7 @@ import { newTransactionReference } from '@/lib/ids/reference';
 import { hashIp } from '@/lib/crypto/hash';
 import { verifyTurnstile } from '@/lib/turnstile/verify';
 import { getPaymentProvider } from '@/lib/payment';
-import { manualPaymentsEnabled, MANUAL_REFERENCE_PREFIX, MOMO_FEE_CENTS, MOMO_CURRENCY, MOMO_RECIPIENT, MOMO_NUMBER } from '@/lib/payment/manual';
+import { manualPaymentsEnabled, MANUAL_REFERENCE_PREFIX, MOMO_FEE_CENTS, MOMO_CURRENCY, MOMO_CONFIRMATION_NUMBER } from '@/lib/payment/manual';
 import { checkRateLimit } from '@/lib/ratelimit/kv-limiter';
 
 export const prerender = false;
@@ -126,7 +126,7 @@ async function checkoutLimit(kv: KVNamespace, key: string, max: number, windowSe
 
 function limited(retryAfter: number): Response {
   const wait = retryAfter < 60 ? `${retryAfter} seconds` : `${Math.ceil(retryAfter / 60)} minutes`;
-  const response = json({ ok: false, error: 'rate_limited', retryAfter, message: `Too many recent attempts. Please wait ${wait}, then try again. Your form details are still on this page. For help, contact ${MOMO_RECIPIENT} on ${MOMO_NUMBER}.` }, 429);
+  const response = json({ ok: false, error: 'rate_limited', retryAfter, message: `Too many recent attempts. Please wait ${wait}, then try again. Your form details are still on this page. For help, message the team on WhatsApp at ${MOMO_CONFIRMATION_NUMBER}.` }, 429);
   response.headers.set('Retry-After', String(retryAfter));
   response.headers.set('Cache-Control', 'no-store');
   return response;
