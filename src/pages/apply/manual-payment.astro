@@ -1,4 +1,5 @@
 ---
+import { Check, Copy, MessageCircle, RefreshCw, ShieldCheck, ArrowUpRight, Clock3 } from 'lucide-astro';
 import ApplyLayout from '@/layouts/ApplyLayout.astro';
 import { getApplicationByReference, getCycle } from '@/lib/db/queries';
 import { MOMO_NUMBER, MOMO_RECIPIENT, MOMO_INTERNATIONAL, MOMO_WHATSAPP, MOMO_CONFIRMATION_NUMBER, isManualReference } from '@/lib/payment/manual';
@@ -14,27 +15,180 @@ Astro.response.headers.set('Referrer-Policy', 'no-referrer');
 Astro.response.headers.set('X-Robots-Tag', 'noindex, nofollow');
 const contact = `${MOMO_WHATSAPP}?text=${encodeURIComponent(`Hello MDGH team, I am contacting you about my MDGH MoMo payment. Application reference: ${reference}`)}`;
 ---
-<ApplyLayout title="Manual MoMo payment | MDGH">
-  <div class="wrap">
-    <h1>Manual MoMo payment</h1>
-    <section class="card">
-      <p>Application reference: <strong style="overflow-wrap:anywhere">{reference}</strong></p>
-      {app.payment_status === 'paid' ? <>
-        <h2>Payment confirmed</h2>
-        <p>Check your email for your application link. If it has not arrived, <a href="/apply/recover">recover your link</a>.</p>
-      </> : payable ? <>
-        <p>Application fee: <strong>{app.payment_currency} {(app.payment_amount_cents / 100).toFixed(2)}</strong></p>
-        <p>Recipient: <strong>{MOMO_RECIPIENT}</strong></p>
-        <p>MoMo receiving number: <a href={`tel:${MOMO_INTERNATIONAL}`}><strong>{MOMO_NUMBER}</strong></a> ({MOMO_INTERNATIONAL})</p>
-        {app.payment_currency !== 'GHS' && <p class="err">Before sending, <a href={contact}>contact the team</a> to confirm the exact amount in Ghana cedis. Do not send the displayed foreign-currency amount as cedis.</p>}
-        <ol>
-          <li>Check that your MoMo confirmation shows <strong>{MOMO_RECIPIENT}</strong> before authorizing your transfer.</li>
-          <li>Send the confirmed fee to {MOMO_NUMBER}. Use your application reference above as the transfer reference.</li>
-          <li><a href={contact}>Send your payment details for confirmation on WhatsApp ({MOMO_CONFIRMATION_NUMBER})</a>: application reference, MoMo transaction ID, amount, and payment date. Never send your PIN or OTP.</li>
-        </ol>
-        <p>Staff will check the received payment and email your application link after confirmation. Keep this page and your receipt. If you have already sent payment, do not pay again.</p>
-        <a class="btn-ghost" href={Astro.url.pathname + '?reference=' + encodeURIComponent(reference)}>Refresh payment status</a>
-      </> : <p>Please contact <a href={contact}>the team on WhatsApp ({MOMO_CONFIRMATION_NUMBER})</a> with this reference before sending any payment. This application is no longer awaiting payment or its application window has closed.</p>}
-    </section>
+<ApplyLayout title="Manual MoMo payment | MDGH" calm>
+  <div class="payment-page">
+    <header class="payment-header">
+      <p class="brand-line">Miss Diaspora Ghana</p>
+      <h1>{app.payment_status === 'paid' ? 'Your payment is confirmed.' : payable ? 'Complete your payment.' : 'Let’s check your application.'}</h1>
+      <p class="intro">{app.payment_status === 'paid' ? 'You’re ready for the next part of your application.' : payable ? 'Your application starts here. Pay by MoMo, then send your receipt for confirmation.' : 'Contact our team with your reference before sending a payment.'}</p>
+    </header>
+
+    <ol class="progress" aria-label="Application progress">
+      <li class="step-complete"><span class="step-marker"><Check size={15} aria-hidden="true" /></span><span>Eligibility</span></li>
+      <li aria-current={app.payment_status !== 'paid' ? 'step' : undefined} class:list={{ 'step-complete': app.payment_status === 'paid', 'step-current': app.payment_status !== 'paid' }}><span class="step-marker">{app.payment_status === 'paid' ? <Check size={15} aria-hidden="true" /> : '2'}</span><span>Payment</span></li>
+      <li aria-current={app.payment_status === 'paid' ? 'step' : undefined} class:list={{ 'step-current': app.payment_status === 'paid' }}><span class="step-marker">3</span><span>Application</span></li>
+    </ol>
+
+    {payable ? (
+      <div class="payment-panel">
+        <section class="transfer-section" aria-labelledby="transfer-heading">
+          <div class="section-heading"><h2 id="transfer-heading">Send your payment</h2><span class="status-badge"><Clock3 size={13} aria-hidden="true" /> Awaiting payment</span></div>
+          <div class="fee-row"><div><span class="field-label">Application fee</span><p class="fee"><span>{app.payment_currency}</span> {(app.payment_amount_cents / 100).toFixed(2)}</p></div><span class="fee-note">One-time fee<br />Non-refundable</span></div>
+          <div class="recipient-details">
+            <span class="field-label">MoMo receiving number</span>
+            <div class="copy-row"><a class="phone-value" href={`tel:${MOMO_INTERNATIONAL}`}>{MOMO_NUMBER}</a><button class="copy-button" type="button" data-copy={MOMO_NUMBER} data-copy-name="MoMo number" aria-label="Copy MoMo receiving number"><Copy size={16} aria-hidden="true" /><span>Copy</span></button></div>
+            <div class="recipient-name"><span class="field-label">Account name</span><strong>{MOMO_RECIPIENT}</strong></div>
+            <p class="detail-note"><ShieldCheck size={17} aria-hidden="true" /><span>Check that this name appears before you confirm the transfer.</span></p>
+          </div>
+          <div class="reference-block">
+            <label class="field-label" for="payment-reference">Your payment reference</label>
+            <div class="copy-row reference-row"><input id="payment-reference" class="reference-value" value={reference} readonly aria-describedby="reference-help" /><button class="copy-button" type="button" data-copy={reference} data-copy-name="Payment reference" aria-label="Copy payment reference"><Copy size={16} aria-hidden="true" /><span>Copy</span></button></div>
+            <p id="reference-help" class="helper">Use this reference when sending your MoMo payment.</p>
+          </div>
+          {app.payment_currency !== 'GHS' && <p class="currency-notice">Before paying, <a href={contact} target="_blank" rel="noopener noreferrer">confirm the exact cedi amount with the team</a>. Do not send the foreign-currency amount as cedis.</p>}
+        </section>
+
+        <section class="confirmation-section" aria-labelledby="confirmation-heading">
+          <span class="confirmation-icon"><MessageCircle size={24} aria-hidden="true" /></span>
+          <h2 id="confirmation-heading">Already made the transfer?</h2>
+          <p>Send your payment details to our team on WhatsApp.</p>
+          <ul class="receipt-list">
+            <li><Check size={16} aria-hidden="true" /> Application reference</li>
+            <li><Check size={16} aria-hidden="true" /> MoMo transaction ID</li>
+            <li><Check size={16} aria-hidden="true" /> Amount and payment date</li>
+          </ul>
+          <a class="primary-action" href={contact} target="_blank" rel="noopener noreferrer"><MessageCircle size={19} aria-hidden="true" /><span>Send payment confirmation</span><ArrowUpRight size={17} aria-hidden="true" /></a>
+          <p class="confirmation-number">WhatsApp: {MOMO_CONFIRMATION_NUMBER}</p>
+          <p class="privacy-note">Never share your MoMo PIN or OTP.</p>
+          <div class="next-step"><h3>What happens next?</h3><p>Once we verify your payment, we’ll email you a link to complete your full application.</p></div>
+        </section>
+      </div>
+    ) : (
+      <section class="state-panel" aria-labelledby="state-heading">
+        <span class="confirmation-icon">{app.payment_status === 'paid' ? <Check size={26} aria-hidden="true" /> : <MessageCircle size={26} aria-hidden="true" />}</span>
+        <h2 id="state-heading">{app.payment_status === 'paid' ? 'Check your inbox' : 'Contact us before paying'}</h2>
+        <p>{app.payment_status === 'paid' ? 'Your application link is sent to the email you used to register. Check your spam folder, or request your link again below.' : 'This application is no longer awaiting payment, or its application window has closed. Send us your reference so we can help.'}</p>
+        <p class="state-reference">Reference: <strong>{reference}</strong></p>
+        {app.payment_status === 'paid' ? <a class="primary-action" href="/apply/recover">Recover application link <ArrowUpRight size={18} aria-hidden="true" /></a> : <a class="primary-action" href={contact} target="_blank" rel="noopener noreferrer">Contact the team on WhatsApp <ArrowUpRight size={18} aria-hidden="true" /></a>}
+      </section>
+    )}
+
+    {payable && <footer class="payment-footer"><p>Already sent your receipt? Keep this page handy.<br /><strong>Please don’t pay again while we check your transfer.</strong></p><a class="refresh-action" href={Astro.url.pathname + '?reference=' + encodeURIComponent(reference)}><RefreshCw size={16} aria-hidden="true" /> Refresh payment status</a></footer>}
+    <p id="copy-feedback" class="copy-feedback" role="status" aria-live="polite"></p>
   </div>
 </ApplyLayout>
+
+<script>
+  const feedback = document.getElementById('copy-feedback');
+  document.querySelectorAll<HTMLButtonElement>('[data-copy]').forEach(button => {
+    button.addEventListener('click', async () => {
+      const value = button.dataset.copy;
+      if (!value || !feedback) return;
+      try {
+        await navigator.clipboard.writeText(value);
+        feedback.textContent = `${button.dataset.copyName} copied.`;
+      } catch {
+        feedback.textContent = `Could not copy automatically. Select and copy: ${value}`;
+      }
+    });
+  });
+</script>
+
+<style>
+  .payment-page {
+    --payment-surface: #171714;
+    --payment-aside: #1e1e18;
+    --payment-line: #39392d;
+    --payment-text: #f3f2eb;
+    --payment-muted: #b5b5a7;
+    --payment-accent: #f8c453;
+    --payment-ink: #17140b;
+    color: var(--payment-text);
+    max-width: 1040px;
+    margin: 0 auto;
+    padding: 104px 32px max(40px, env(safe-area-inset-bottom));
+    font-size: 16px;
+    line-height: 1.6;
+  }
+  .payment-page p, .payment-page h1, .payment-page h2, .payment-page h3 { margin: 0; }
+  .brand-line { font-size: 14px; color: var(--payment-accent); font-weight: 500; }
+  .payment-header h1 { font-size: clamp(36px, 4.5vw, 56px); line-height: 1.1; letter-spacing: -.025em; margin: 12px 0 16px; font-weight: 600; }
+  .intro { color: var(--payment-muted); max-width: 580px; }
+  .progress { display: flex; list-style: none; padding: 0; margin: 32px 0 24px; gap: 24px; font-size: 13px; color: var(--payment-muted); }
+  .progress li { display: flex; align-items: center; gap: 8px; }
+  .step-marker { width: 26px; height: 26px; border: 1px solid var(--payment-line); border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; flex-shrink: 0; }
+  .step-current { color: var(--payment-text); font-weight: 600; }
+  .step-current .step-marker { background: var(--payment-accent); color: var(--payment-ink); border-color: var(--payment-accent); }
+  .step-complete .step-marker { border-color: var(--payment-accent); color: var(--payment-accent); }
+  .payment-panel { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); background: var(--payment-surface); border: 1px solid var(--payment-line); border-radius: 20px; overflow: hidden; }
+  .transfer-section { padding: 32px; min-width: 0; }
+  .section-heading { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; }
+  .payment-page h2 { font-family: 'Inter', sans-serif; font-size: 18px; line-height: 1.4; font-weight: 600; letter-spacing: -.02em; }
+  .status-badge { display: inline-flex; align-items: center; gap: 6px; color: var(--payment-accent); font-size: 11px; }
+  .field-label { display: block; color: var(--payment-muted); font-size: 13px; margin-bottom: 6px; }
+  .fee-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 24px 0; border-bottom: 1px solid var(--payment-line); }
+  .payment-page .fee { font-size: 40px; line-height: 1.15; font-weight: 600; letter-spacing: -.035em; font-variant-numeric: tabular-nums; }
+  .fee span { font-size: 16px; font-weight: 500; letter-spacing: 0; color: var(--payment-muted); }
+  .fee-note { color: var(--payment-muted); font-size: 11px; text-align: right; }
+  .recipient-details { padding-top: 24px; }
+  .copy-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-width: 0; }
+  .phone-value { font-size: clamp(24px, 3vw, 30px); font-weight: 600; letter-spacing: .015em; color: var(--payment-text); font-variant-numeric: tabular-nums; line-height: 1.4; }
+  .copy-button { display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-width: 76px; min-height: 44px; padding: 8px 12px; border: 1px solid var(--payment-line); border-radius: 8px; background: transparent; color: var(--payment-accent); font: inherit; font-size: 12px; cursor: pointer; flex-shrink: 0; }
+  .recipient-name { margin-top: 16px; }
+  .recipient-name strong { font-weight: 500; font-size: 16px; }
+  .payment-page .detail-note { display: flex; align-items: flex-start; gap: 8px; font-size: 12px; color: var(--payment-muted); margin-top: 12px; }
+  .detail-note svg { flex-shrink: 0; margin-top: 2px; color: var(--payment-accent); }
+  .reference-block { border-top: 1px solid var(--payment-line); padding-top: 24px; margin-top: 24px; }
+  .reference-row { flex-wrap: wrap; }
+  .reference-value { flex: 1 1 230px; min-width: 0; max-width: 100%; border: 0; background: transparent; color: var(--payment-text); padding: 8px 0; font: 500 13px/1.5 'Inter', sans-serif; text-overflow: ellipsis; }
+  .payment-page .helper { font-size: 12px; color: var(--payment-muted); margin-top: 8px; }
+  .confirmation-section { background: var(--payment-aside); border-left: 1px solid var(--payment-line); padding: 32px; min-width: 0; }
+  .confirmation-icon { display: inline-flex; align-items: center; justify-content: center; width: 48px; height: 48px; border: 1px solid var(--payment-line); border-radius: 12px; color: var(--payment-accent); margin-bottom: 20px; }
+  .confirmation-section > p { color: var(--payment-muted); font-size: 14px; margin-top: 12px; }
+  .receipt-list { list-style: none; padding: 0; margin: 20px 0 24px; display: grid; gap: 12px; font-size: 13px; }
+  .receipt-list li { display: flex; align-items: center; gap: 8px; }
+  .receipt-list svg { color: var(--payment-accent); flex-shrink: 0; }
+  .primary-action { display: flex; justify-content: center; align-items: center; gap: 8px; min-height: 52px; padding: 14px 16px; border-radius: 10px; background: var(--payment-accent); color: var(--payment-ink); font-size: 13px; line-height: 1.5; font-weight: 600; text-align: center; text-decoration: none; transition: filter 180ms ease; }
+  .primary-action svg { flex-shrink: 0; }
+  .primary-action:hover { color: var(--payment-ink); text-decoration: none; filter: brightness(1.08); }
+  .confirmation-section .confirmation-number { font-size: 12px; text-align: center; margin-top: 12px; }
+  .confirmation-section .privacy-note { text-align: center; font-size: 11px; margin-top: 4px; }
+  .next-step { border-top: 1px solid var(--payment-line); margin-top: 24px; padding-top: 24px; }
+  .payment-page h3 { font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 600; }
+  .next-step p { color: var(--payment-muted); font-size: 13px; margin-top: 8px; }
+  .payment-footer { display: flex; align-items: center; justify-content: space-between; gap: 24px; margin-top: 24px; }
+  .payment-footer p { color: var(--payment-muted); font-size: 12px; }
+  .payment-footer strong { font-weight: 400; }
+  .refresh-action { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; font-size: 12px; color: var(--payment-text); border: 1px solid var(--payment-line); border-radius: 10px; padding: 12px 16px; flex-shrink: 0; }
+  .copy-button:hover, .refresh-action:hover { border-color: var(--payment-accent); color: var(--payment-accent); text-decoration: none; }
+  .payment-page :is(a, button, input):focus-visible { outline: 2px solid var(--payment-accent); outline-offset: 4px; }
+  .copy-feedback { font-size: 13px; color: var(--payment-accent); min-height: 24px; margin-top: 16px !important; overflow-wrap: anywhere; }
+  .state-panel { max-width: 640px; border: 1px solid var(--payment-line); background: var(--payment-surface); border-radius: 20px; padding: 32px; }
+  .state-panel > p { margin-top: 16px; color: var(--payment-muted); font-size: 15px; }
+  .state-panel .primary-action { margin-top: 24px; }
+  .state-reference { overflow-wrap: anywhere; }
+  .currency-notice { margin-top: 16px !important; font-size: 13px; color: var(--payment-accent); }
+  @media (max-width: 740px) {
+    .payment-page { padding: 88px 20px max(32px, env(safe-area-inset-bottom)); }
+    .payment-header h1 { font-size: 40px; }
+    .intro { font-size: 14px; max-width: 440px; }
+    .progress { justify-content: space-between; gap: 8px; margin: 24px 0 20px; font-size: 12px; }
+    .payment-panel { grid-template-columns: minmax(0, 1fr); border-radius: 16px; }
+    .transfer-section, .confirmation-section { padding: 24px; }
+    .confirmation-section { border-left: 0; border-top: 1px solid var(--payment-line); }
+    .confirmation-icon { display: none; }
+    .section-heading { gap: 8px; }
+    .payment-footer { align-items: stretch; flex-direction: column; gap: 16px; }
+    .payment-footer p { text-align: center; }
+    .primary-action { font-size: 14px; }
+  }
+  @media (max-width: 380px) {
+    .payment-page { padding-left: 16px; padding-right: 16px; }
+    .payment-header h1 { font-size: 34px; }
+    .transfer-section, .confirmation-section { padding: 20px; }
+    .progress li { gap: 6px; font-size: 11px; }
+    .payment-page .fee { font-size: 34px; }
+    .primary-action { font-size: 12px; padding-inline: 12px; }
+    .section-heading { align-items: flex-start; flex-direction: column; }
+  }
+</style>

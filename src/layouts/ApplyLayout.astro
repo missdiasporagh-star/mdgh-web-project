@@ -3,9 +3,11 @@ interface Props {
   title: string;
   description?: string;
   ogImage?: string;
+  calm?: boolean;
 }
 const {
   title,
+  calm = false,
   description = 'Apply for Miss Diaspora Ghana — the global pageant celebrating Ghanaian heritage. Open casting for young women of African descent worldwide.',
   ogImage = '/assets/images/logos/mdgh main logo mini.webp',
 } = Astro.props;
@@ -460,6 +462,10 @@ const absoluteOgImage = new URL(ogImage, SITE_URL).toString();
     @media (max-width: 480px) {
       .back-to-main { top: 12px; left: 12px; font-size: 11px; padding: 6px 12px; }
     }
+    /* A quieter backdrop for payment details; other application screens retain their styling. */
+    .payment-layout .bg-stage { display: none; }
+    .payment-layout::before { opacity: 0.015; }
+    .payment-layout .back-to-main { position: absolute; min-height: 44px; top: 16px; left: max(16px, env(safe-area-inset-left)); }
     /* Skip-to-content link (WCAG 2.4.1 Bypass Blocks) */
     .skip-link {
       position: absolute;
@@ -485,7 +491,7 @@ const absoluteOgImage = new URL(ogImage, SITE_URL).toString();
     }
   </style>
 </head>
-<body>
+<body class:list={{ 'payment-layout': calm }}>
   <!-- Skip-to-content link: first focusable element. WCAG 2.4.1. -->
   <a href="#main-content" class="skip-link">Skip to content</a>
   <div class="bg-stage" aria-hidden="true">
