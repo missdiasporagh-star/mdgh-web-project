@@ -68,3 +68,22 @@ emailButton?.addEventListener('click', async () => {
   } catch { result.textContent = 'The email request could not be confirmed. Check the inbox before retrying.'; }
   finally { emailButton.disabled = false; }
 });
+
+const gatewayForm = document.getElementById('gateway-confirmation-form');
+gatewayForm?.addEventListener('submit', async (event) => {
+  event.preventDefault();
+  const button = gatewayForm.querySelector('button');
+  if (button.disabled) return;
+  const result = document.getElementById('gateway-result');
+  button.disabled = true;
+  result.textContent = 'Confirming previous payment…';
+  try {
+    const response = await fetch(`/api/admin/applications/${encodeURIComponent(id)}/confirm-gateway-payment`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ note: document.getElementById('gateway-note').value, confirmed: document.getElementById('gateway-confirmed').checked }),
+    });
+    const data = await response.json().catch(() => null);
+    result.textContent = response.ok && data?.ok ? (data.emailSent ? 'Previous payment confirmed. Application link accepted for email delivery.' : 'Previous payment confirmed. Reload this page and use Email application link to send a fresh email.') : `Could not confirm: ${data?.error || 'server error'}.`;
+  } catch { result.textContent = 'Request could not be confirmed. Reload to check payment status before retrying.'; }
+  finally { button.disabled = false; }
+});

@@ -91,6 +91,15 @@ try { socials = app.socials_json ? JSON.parse(app.socials_json) : {}; } catch {}
         <button type="submit" class="btn">Confirm payment and email application link</button>
         <p id="momo-result" role="status"></p>
       </form>}
+      {['pending', 'failed'].includes(app.payment_status) && !app.submitted_at && <form id="gateway-confirmation-form" style="margin-top:24px;border-top:1px solid currentColor;padding-top:24px">
+        <h2 style="font-size:22px">Already paid through the previous gateway?</h2>
+        <p>Confirm the existing payment as an administrator and email the main application link. This records your confirmation separately from automatic gateway verification. No MoMo receipt is required.</p>
+        <label for="gateway-note">Confirmation note</label>
+        <textarea id="gateway-note" class="input" rows={3} required minlength="10" maxlength="1000" placeholder="Explain the earlier payment and why you are confirming it." style="width:100%"></textarea>
+        <label style="display:block;margin:16px 0"><input type="checkbox" id="gateway-confirmed" required /> I confirm the applicant already paid through the previous gateway and authorize application access.</label>
+        <button type="submit" class="btn">Confirm previous payment and email link</button>
+        <p id="gateway-result" role="status"></p>
+      </form>}
       {app.payment_status === 'paid' && !app.submitted_at && <div>
         <p>Send a fresh main application link to {app.email}.</p>
         <button type="button" class="btn" id="email-application-link">Email application link</button>
@@ -101,5 +110,5 @@ try { socials = app.socials_json ? JSON.parse(app.socials_json) : {}; } catch {}
   </div>
 
   <meta name="application-id" content={app.id} />
-  <script type="module" src="/scripts/admin-application-detail.js?v=payment-recovery-20260915"></script>
+  <script type="module" src="/scripts/admin-application-detail.js?v=gateway-confirmation-20260915"></script>
 </ApplyLayout>

@@ -37,3 +37,7 @@ Existing gateway references remain eligible for gateway verification. Card retry
 Collect the successful gateway receipt/reference and reconcile it against the original gateway payment. Do not enter placeholder IDs such as `ALREADYPAID` in the MoMo form or treat an original card payment as a MoMo transfer. A pending gateway response is not confirmation of receipt. Once the original application is paid, staff can open its detail page and use **Email application link**, or the applicant can use Recover with that original reference and email.
 
 Manual confirmation audit events use the existing `status_change` action with `event: manual_momo_confirmation` in details. Email requests use `signed_url_issued` with `event: application_link_email_requested`. Both respect the production audit table CHECK constraint; no schema migration is needed for this repair.
+
+### Staff-confirmed previous gateway payment
+
+For an applicant who already paid through the previous gateway, open her application and choose **Confirm previous payment and email link**. Enter a note explaining the earlier payment and tick the authorization checkbox. No MoMo transaction number is needed. This records `staff_gateway_payment_confirmation` with `verificationSource: staff_attestation` and `providerVerified: false`, preserves the original transaction ID (including null), and marks this application paid before emailing access. The one-paid-application-per-email-per-cycle database constraint remains enforced. If email fails, reload and use **Email application link**.
