@@ -81,7 +81,7 @@ try { socials = app.socials_json ? JSON.parse(app.socials_json) : {}; } catch {}
       <p>Amount: {(app.payment_amount_cents / 100).toFixed(2)} {app.payment_currency}</p>
       <p>Verified at: {app.payment_verified_at ?? '—'}</p>
       <p>Payment transaction ID: <code>{app.payaza_transaction_id ?? '—'}</code></p>
-      {isManualReference(app.transaction_reference) && ['pending', 'paid'].includes(app.payment_status) && <form id="confirm-payment-form">
+      {isManualReference(app.transaction_reference) && app.payment_status === 'pending' && <form id="confirm-payment-form">
         <p>Verify the transfer in the MoMo account of {MOMO_RECIPIENT} ({MOMO_NUMBER}) before confirming. For a foreign-currency fee, check the agreed cedi equivalent with the applicant.</p>
         <label for="momo-receipt">MoMo transaction ID</label>
         <input class="input" id="momo-receipt" required minlength="3" maxlength="80" pattern="[A-Za-z0-9-]+" value={app.payaza_transaction_id?.replace(/^MOMO:/, '') ?? ''} />
@@ -91,10 +91,15 @@ try { socials = app.socials_json ? JSON.parse(app.socials_json) : {}; } catch {}
         <button type="submit" class="btn">Confirm payment and email application link</button>
         <p id="momo-result" role="status"></p>
       </form>}
+      {app.payment_status === 'paid' && !app.submitted_at && <div>
+        <p>Send a fresh main application link to {app.email}.</p>
+        <button type="button" class="btn" id="email-application-link">Email application link</button>
+        <p id="email-link-result" role="status"></p>
+      </div>}
       {app.email_bounced_at && <p style="color:#FF6B6B"><strong>Email bounced</strong> at {app.email_bounced_at}</p>}
     </section>
   </div>
 
   <meta name="application-id" content={app.id} />
-  <script type="module" src="/scripts/admin-application-detail.js"></script>
+  <script type="module" src="/scripts/admin-application-detail.js?v=payment-recovery-20260915"></script>
 </ApplyLayout>

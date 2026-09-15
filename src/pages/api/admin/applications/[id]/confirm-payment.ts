@@ -35,13 +35,13 @@ export const POST: APIRoute = async ({ request, locals, params, clientAddress })
   if (existing) return json({ ok: false, error: 'receipt_already_used' }, 409);
   // Preserve who authorized the receipt and the actual cedi amount before granting access.
   await insertAdminAudit(env.DB, {
-    id: newUlid(), adminEmail: auth.adminEmail, action: 'manual_momo_confirmation', targetApplicationId: app.id,
-    detailsJson: JSON.stringify({ receipt, receivedAmountGhs: parsed.data.receivedAmountGhs, feeCurrency: app.payment_currency, feeCents: app.payment_amount_cents }),
+    id: newUlid(), adminEmail: auth.adminEmail, action: 'status_change', targetApplicationId: app.id,
+    detailsJson: JSON.stringify({ event: 'manual_momo_confirmation', receipt, receivedAmountGhs: parsed.data.receivedAmountGhs, feeCurrency: app.payment_currency, feeCents: app.payment_amount_cents }),
     ipHash: await hashIp(clientAddress ?? 'unknown', env.IP_HASH_SALT),
   });
   const paid = await markPaymentPaid(env.DB, app.id, receipt, new Date().toISOString());
   if (!paid.ok) return json({ ok: false, error: 'duplicate_payment_or_application' }, 409);
   const outcome = await deliverPaidApplication(env, app, new URL(request.url).origin);
   if (!outcome.ok) return json({ ok: false, error: outcome.error }, outcome.httpStatus);
-  return json({ ok: true, emailSent: outcome.status === 'paid' && outcome.emailSent === true });
+  return json({ ok: true, emailSent: outcome.status === 'paid' && outcome.emailSent === true, emailAlreadySent: outcome.status === 'paid' && outcome.emailAlreadySent === true });
 };

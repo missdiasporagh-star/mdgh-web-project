@@ -43,6 +43,9 @@ export const POST: APIRoute = async ({ request, locals }) => {
   const cycle = await getCycle(env.DB, app.cycle_id);
   if (!cycle) return j({ ok: false, error: 'cycle_missing' }, 500);
 
+  if (cycle.is_active !== 1 || Date.now() >= Date.parse(cycle.applications_close_at)) return j({ ok: false, error: 'cycle_closed' }, 409);
+  if (env.MOCK_EMAIL !== 'true' && !env.RESEND_API_KEY) return j({ ok: false, error: 'email_unavailable' }, 503);
+
   // Mint fresh token
   const cycleCloseUnix = Math.floor(new Date(cycle.applications_close_at).getTime() / 1000);
   const thirtyDays = Math.floor(Date.now() / 1000) + 30 * 24 * 3600;
@@ -57,7 +60,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
 
   const emailProvider = getEmailProvider(env);
   const magicLink = new URL(`/apply/form?token=${encodeURIComponent(token)}`, request.url).toString();
-  await emailProvider.send({
+  const sent = await emailProvider.send({
     to: app.email,
     ...renderRecoveryEmail({
       reference: app.transaction_reference,
@@ -65,6 +68,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
       cycleClose: cycle.applications_close_at.slice(0, 10),
     }),
   });
+  if (!sent.ok) return j({ ok: false, error: 'email_send_failed' }, 502);
   await setApplyTokenIssued(env.DB, app.id, new Date().toISOString());
 
   return j({ ok: true });

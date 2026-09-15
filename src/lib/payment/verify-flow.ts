@@ -9,7 +9,7 @@ import type { ApplicationRow } from '@/lib/db/queries';
 import { notifyTeam } from '@/lib/email/notify-team';
 
 export type VerifyOutcome =
-  | { ok: true; status: 'paid'; applicationId: string; token?: string; emailSent?: boolean; alreadyPaid?: boolean }
+  | { ok: true; status: 'paid'; applicationId: string; token?: string; emailSent?: boolean; alreadyPaid?: boolean; emailAlreadySent?: boolean }
   | { ok: true; status: 'pending' | 'failed'; applicationId: string }
   | { ok: false; error: string; code?: string; message?: string; httpStatus: number };
 
@@ -79,7 +79,7 @@ export async function deliverPaidApplication(env: Env, app: ApplicationRow, base
   const sendKey = `magic-link-sent:${app.id}`;
   const alreadySent = await env.KV.get(sendKey);
   let emailSent = false;
-  if (!alreadySent) {
+  if (!alreadySent && (env.RESEND_API_KEY || env.MOCK_EMAIL === 'true')) {
     const email = getEmailProvider(env);
     const magicLink = new URL(`/apply/form?token=${encodeURIComponent(token)}`, baseUrl).toString();
     const e = renderMagicLinkEmail({
@@ -93,7 +93,7 @@ export async function deliverPaidApplication(env: Env, app: ApplicationRow, base
       await env.KV.put(sendKey, '1', { expirationTtl: 86400 });
     }
   }
-  await setApplyTokenIssued(env.DB, app.id, new Date().toISOString());
+  if (emailSent) await setApplyTokenIssued(env.DB, app.id, new Date().toISOString());
 
   // Team activity alert. Awaited like the magic-link send above: on Workers a
   // floating promise is cancelled once the response returns, and this branch is
@@ -110,5 +110,5 @@ export async function deliverPaidApplication(env: Env, app: ApplicationRow, base
     dashboardUrl: new URL(`/admin/applications/${app.id}`, baseUrl).toString(),
   }).catch(() => {});
 
-  return { ok: true, status: 'paid', applicationId: app.id, token, emailSent };
+  return { ok: true, status: 'paid', applicationId: app.id, token, emailSent, emailAlreadySent: Boolean(alreadySent) };
 }

@@ -46,8 +46,25 @@ momoForm?.addEventListener('submit', async (event) => {
         receivedAmountGhs: Number(document.getElementById('momo-amount').value),
         confirmed: document.getElementById('momo-confirmed').checked }),
     });
-    const data = await response.json();
-    result.textContent = data.ok ? (data.emailSent ? 'Payment confirmed. Application link emailed.' : 'Payment confirmed. Email may already have been sent; the applicant can use Recover link.') : `Could not confirm: ${data.error}`;
+    const data = await response.json().catch(() => null);
+    if (response.ok && data?.ok) {
+      result.textContent = data.emailSent ? 'Payment confirmed. Application link accepted for email delivery.' : data.emailAlreadySent ? 'Payment confirmed. A link was sent earlier. Reload this page to send a fresh link.' : 'Payment confirmed, but the application email was not sent. Reload this page and use Email application link.';
+    } else {
+      result.textContent = response.status === 401 ? 'Your admin session expired. Sign in again, then retry.' : `Could not confirm: ${data?.error || 'server error'}. Reload to check payment status before retrying.`;
+    }
   } catch { result.textContent = 'Request failed. Retry with the same transaction ID.'; }
   finally { button.disabled = false; }
+});
+
+const emailButton = document.getElementById('email-application-link');
+emailButton?.addEventListener('click', async () => {
+  const result = document.getElementById('email-link-result');
+  emailButton.disabled = true;
+  result.textContent = 'Sending application link…';
+  try {
+    const response = await fetch(`/api/admin/applications/${encodeURIComponent(id)}/email-link`, { method: 'POST' });
+    const data = await response.json().catch(() => null);
+    result.textContent = response.ok && data?.emailSent ? 'Application link accepted for email delivery. Ask the applicant to check her inbox and spam folder.' : `Email not confirmed: ${data?.error || 'server error'}. You can retry without confirming payment again.`;
+  } catch { result.textContent = 'The email request could not be confirmed. Check the inbox before retrying.'; }
+  finally { emailButton.disabled = false; }
 });

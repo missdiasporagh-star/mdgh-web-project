@@ -1,9 +1,11 @@
+import { DatabaseSync } from 'node:sqlite';
+import { readFileSync } from 'node:fs';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { manualPaymentsEnabled, MOMO_NUMBER, MOMO_RECIPIENT, MOMO_INTERNATIONAL, MOMO_WHATSAPP, MOMO_CONFIRMATION_NUMBER, MOMO_FEE_CENTS } from '@/lib/payment/manual';
 import { runPaymentVerification } from '@/lib/payment/verify-flow';
 import { POST } from '@/pages/api/admin/applications/[id]/confirm-payment';
 import { checkAdminAuth } from '@/middleware/admin-auth';
-import { getApplicationById, getApplicationByReference, getCycle, markPaymentPaid } from '@/lib/db/queries';
+import { getApplicationById, getApplicationByReference, getCycle, markPaymentPaid, insertAdminAudit } from '@/lib/db/queries';
 import { getPaymentProvider } from '@/lib/payment';
 vi.mock('@/middleware/admin-auth', () => ({ checkAdminAuth: vi.fn() }));
 vi.mock('@/lib/db/queries', () => ({ getApplicationById: vi.fn(), getApplicationByReference: vi.fn(), getCycle: vi.fn(), markPaymentPaid: vi.fn(), markPaymentFailed: vi.fn(), setApplyTokenIssued: vi.fn(), insertAdminAudit: vi.fn() }));
@@ -59,11 +61,22 @@ describe('manual payment controls', () => {
   it('confirms a verified receipt and emails access without exposing the token in the API response', async () => {
     const ctx = context(receipt);
     ctx.locals.runtime.env.DB = { prepare: () => ({ bind: () => ({ first: async () => null }) }) } as unknown as D1Database;
+    ctx.locals.runtime.env.MOCK_EMAIL = 'true';
     ctx.locals.runtime.env.KV = { get: async () => null, put: async () => {} } as unknown as KVNamespace;
     vi.mocked(markPaymentPaid).mockResolvedValue({ ok: true });
+    // Exercise the real production CHECK constraint; a permissive audit mock hid the incident.
+    const sqlite = new DatabaseSync(':memory:');
+    sqlite.exec(readFileSync('migrations/0004_admin_audit.sql', 'utf8'));
+    vi.mocked(insertAdminAudit).mockImplementation(async (_db, audit) => {
+      sqlite.prepare('INSERT INTO admin_audit (id, admin_email, action, details_json, created_at) VALUES (?, ?, ?, ?, ?)')
+        .run(audit.id, audit.adminEmail, audit.action, audit.detailsJson ?? null, new Date().toISOString());
+    });
     const response = await POST(ctx);
+    expect(sqlite.prepare('SELECT action FROM admin_audit').get()).toMatchObject({ action: 'status_change' });
+    sqlite.close();
+    vi.mocked(insertAdminAudit).mockReset();
     expect(response.status).toBe(200);
-    expect(await response.json()).toEqual({ ok: true, emailSent: true });
+    expect(await response.json()).toEqual({ ok: true, emailSent: true, emailAlreadySent: false });
     expect(markPaymentPaid).toHaveBeenCalledWith(ctx.locals.runtime.env.DB, 'one', 'MOMO:123456', expect.any(String));
   });
   it('rejects a receipt already used by another application', async () => {
