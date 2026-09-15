@@ -1,4 +1,5 @@
 ---
+import { isManualReference, MOMO_RECIPIENT, MOMO_NUMBER } from '@/lib/payment/manual';
 import ApplyLayout from '@/layouts/ApplyLayout.astro';
 import { checkAdminAuth } from '@/middleware/admin-auth';
 import { getApplicationById } from '@/lib/db/queries';
@@ -79,7 +80,17 @@ try { socials = app.socials_json ? JSON.parse(app.socials_json) : {}; } catch {}
       <p>Status: <strong>{app.payment_status}</strong></p>
       <p>Amount: {(app.payment_amount_cents / 100).toFixed(2)} {app.payment_currency}</p>
       <p>Verified at: {app.payment_verified_at ?? '—'}</p>
-      <p>Payaza transaction id: <code>{app.payaza_transaction_id ?? '—'}</code></p>
+      <p>Payment transaction ID: <code>{app.payaza_transaction_id ?? '—'}</code></p>
+      {isManualReference(app.transaction_reference) && ['pending', 'paid'].includes(app.payment_status) && <form id="confirm-payment-form">
+        <p>Verify the transfer in the MoMo account of {MOMO_RECIPIENT} ({MOMO_NUMBER}) before confirming. For a foreign-currency fee, check the agreed cedi equivalent with the applicant.</p>
+        <label for="momo-receipt">MoMo transaction ID</label>
+        <input class="input" id="momo-receipt" required minlength="3" maxlength="80" pattern="[A-Za-z0-9-]+" value={app.payaza_transaction_id?.replace(/^MOMO:/, '') ?? ''} />
+        <label for="momo-amount">Amount received (GHS)</label>
+        <input class="input" id="momo-amount" type="number" min="0.01" step="0.01" required />
+        <label><input id="momo-confirmed" type="checkbox" required /> I verified receipt and the full agreed fee in the receiving account.</label>
+        <button type="submit" class="btn">Confirm payment and email application link</button>
+        <p id="momo-result" role="status"></p>
+      </form>}
       {app.email_bounced_at && <p style="color:#FF6B6B"><strong>Email bounced</strong> at {app.email_bounced_at}</p>}
     </section>
   </div>

@@ -69,7 +69,7 @@ astro.config.mjs        # Astro + Cloudflare adapter config
 
 ## Deployment
 
-Auto-deployed to Cloudflare Pages on every push to `main`.
+Auto-deployed to the Cloudflare Worker through GitHub Actions on every push to `main`. The workflow tests, builds, applies the manual MoMo receipt index, and deploys using `wrangler.jsonc`.
 
 - **Source repo:** `missdiasporagh-star/mdgh-web-project`
 - **Project:** `mdgh-web-project`

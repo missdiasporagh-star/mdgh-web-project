@@ -7,6 +7,7 @@ import { newTransactionReference } from '@/lib/ids/reference';
 import { hashIp } from '@/lib/crypto/hash';
 import { verifyTurnstile } from '@/lib/turnstile/verify';
 import { getPaymentProvider } from '@/lib/payment';
+import { manualPaymentsEnabled, MANUAL_REFERENCE_PREFIX, MOMO_FEE_CENTS, MOMO_CURRENCY } from '@/lib/payment/manual';
 import { checkRateLimit } from '@/lib/ratelimit/kv-limiter';
 
 export const prerender = false;
@@ -60,15 +61,16 @@ export const POST: APIRoute = async ({ request, locals, clientAddress }) => {
   }
 
   const id = newUlid();
-  const reference = newTransactionReference(cycle.id);
+  const manual = manualPaymentsEnabled(env);
+  const reference = `${manual ? MANUAL_REFERENCE_PREFIX : ''}${newTransactionReference(cycle.id)}`;
   const ipHash = await hashIp(clientAddress ?? 'unknown', env.IP_HASH_SALT);
   const userAgent = request.headers.get('user-agent') ?? null;
 
   await insertPendingApplication(env.DB, {
     id, cycle_id: cycle.id, transaction_reference: reference,
     email: input.email,
-    payment_amount_cents: cycle.application_fee_cents,
-    payment_currency: cycle.application_currency,
+    payment_amount_cents: manual ? MOMO_FEE_CENTS : cycle.application_fee_cents,
+    payment_currency: manual ? MOMO_CURRENCY : cycle.application_currency,
     eligibility_age_band: input.ageBand,
     eligibility_is_woman: input.isWoman ? 1 : 0,
     eligibility_african_descent: input.africanDescent ? 1 : 0,
@@ -81,6 +83,7 @@ export const POST: APIRoute = async ({ request, locals, clientAddress }) => {
     ip_hash: ipHash, user_agent: userAgent,
   });
 
+  if (manual) return json({ ok: true, flow: 'redirect', reference, checkoutUrl: `/apply/manual-payment?reference=${encodeURIComponent(reference)}` });
   const provider = getPaymentProvider(env);
   const callbackUrl = new URL('/apply/return', request.url).toString();
   const init = await provider.init({

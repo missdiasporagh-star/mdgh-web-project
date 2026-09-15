@@ -1,9 +1,11 @@
 ---
+import { isManualReference } from '@/lib/payment/manual';
 import ApplyLayout from '@/layouts/ApplyLayout.astro';
 import { runPaymentVerification } from '@/lib/payment/verify-flow';
 
 const reference = Astro.url.searchParams.get('reference');
 if (!reference) return Astro.redirect('/apply');
+if (isManualReference(reference)) return Astro.redirect(`/apply/manual-payment?reference=${encodeURIComponent(reference)}`);
 
 const env = Astro.locals.runtime.env;
 const data = await runPaymentVerification(env, reference, Astro.url.toString());

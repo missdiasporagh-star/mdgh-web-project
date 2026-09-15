@@ -159,3 +159,23 @@ describe('POST /api/checkout/create', () => {
     expect(j.error).toBe('already_paid_for_cycle');
   });
 });
+
+
+describe('temporary manual MoMo checkout', () => {
+  it('saves GHS 230 pending payment and returns manual instructions without gateway checkout', async () => {
+    const env = fakeEnv();
+    env.MOCK_PAYMENTS = 'false';
+    env.PAYAZA_PUBLIC_KEY = '';
+    const response = await POST(makeContext(env, VALID_INPUT));
+    expect(response.status).toBe(200);
+    const data = await response.json() as { flow: string; reference: string; checkoutUrl: string; sdkBootstrap?: unknown };
+    expect(data.flow).toBe('redirect');
+    expect(data.reference).toMatch(/^MOMO-/);
+    expect(data.checkoutUrl).toBe(`/apply/manual-payment?reference=${data.reference}`);
+    expect(data.sdkBootstrap).toBeUndefined();
+    expect(env._applications).toHaveLength(1);
+    const params = env._applications[0].params as unknown[];
+    expect(params).toContain(23000);
+    expect(params).toContain('GHS');
+  });
+});

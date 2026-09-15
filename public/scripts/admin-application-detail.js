@@ -31,3 +31,23 @@ document.querySelectorAll('[data-media-preview]').forEach(btn => {
     previewMedia(id, which);
   });
 });
+
+const momoForm = document.getElementById('confirm-payment-form');
+momoForm?.addEventListener('submit', async (event) => {
+  event.preventDefault();
+  const button = momoForm.querySelector('button');
+  const result = document.getElementById('momo-result');
+  button.disabled = true;
+  result.textContent = 'Confirming…';
+  try {
+    const response = await fetch(`/api/admin/applications/${encodeURIComponent(id)}/confirm-payment`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ transactionId: document.getElementById('momo-receipt').value,
+        receivedAmountGhs: Number(document.getElementById('momo-amount').value),
+        confirmed: document.getElementById('momo-confirmed').checked }),
+    });
+    const data = await response.json();
+    result.textContent = data.ok ? (data.emailSent ? 'Payment confirmed. Application link emailed.' : 'Payment confirmed. Email may already have been sent; the applicant can use Recover link.') : `Could not confirm: ${data.error}`;
+  } catch { result.textContent = 'Request failed. Retry with the same transaction ID.'; }
+  finally { button.disabled = false; }
+});

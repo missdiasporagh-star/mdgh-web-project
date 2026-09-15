@@ -53,13 +53,24 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Run tests
+        run: npm test
+
       - name: Build Astro Worker bundle
         run: npm run build
+
+      # This additive migration is idempotent. Apply it before releasing the
+      # staff confirmation endpoint; do not replay historical seed migrations.
+      - name: Apply manual MoMo receipt uniqueness migration
+        uses: cloudflare/wrangler-action@v4
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: '233d917842862e30ed5207cf7b95bc33'
+          command: d1 execute mdgh-applications-db --remote --config wrangler.jsonc --file migrations/0011_manual_momo_receipt_unique.sql
 
       - name: Deploy to Cloudflare Workers
         uses: cloudflare/wrangler-action@v4
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: '233d917842862e30ed5207cf7b95bc33'
-          # Defaults to running `wrangler deploy` with the wrangler.jsonc at
-          # the repo root, which is what we want.
+          command: deploy --config wrangler.jsonc

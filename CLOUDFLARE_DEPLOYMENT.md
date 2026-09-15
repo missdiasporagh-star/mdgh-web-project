@@ -1,83 +1,43 @@
-# Cloudflare Pages Deployment
+# Cloudflare Worker deployment
 
-The site is already live at **[missdiasporagh.org](https://missdiasporagh.org)**. This doc describes the current setup so future deploys (or a recreate) are reproducible.
+Production is the **mdgh-web-project Worker with static assets**, using `wrangler.jsonc`. The Pages instructions previously in this file are obsolete. The successful deployment of commit `3a2ac7267529e0d3fa1812dd04a939e5936e0284` on 2026-09-04 used the GitHub Actions workflow below.
 
-## Current Setup
+## Target
 
-| | |
-|---|---|
-| Pages project | `mdgh-web-project` |
-| Account ID | `233d917842862e30ed5207cf7b95bc33` |
-| Source repo | `missdiasporagh-star/mdgh-web-project` (branch `main`) |
-| Production URL | `mdgh-web-project-4h7.pages.dev` |
-| Custom domains | missdiasporagh.org, www.missdiasporagh.org |
-| Framework | Astro 5 (auto-detected) |
-| Build command | `npm run build` |
-| Output dir | `dist` |
-| Compatibility date | 2025-11-12 |
-| Bindings (prod) | KV namespace `SESSION` (id `e617b51f080c451abe6aade5373fcf6d`) |
+- Repository: `missdiasporagh-star/mdgh-web-project`, branch `main`.
+- Workflow: `.github/workflows/deploy.yml` (Deploy Worker).
+- Worker: `mdgh-web-project` in the account selected by the workflow.
+- Domains: `missdiasporagh.org`, `www.missdiasporagh.org`, `apply.missdiasporagh.org`.
+- Entry: `dist/_worker.js/index.js`; static assets: `dist`.
+- Database: `mdgh-applications-db`, binding `DB`.
+- KV: `KV`; R2: `MEDIA` (`mdgh-applications`).
+- The legacy `wrangler.toml` and the named `production` environment target a different deployment shape. Always pass `--config wrangler.jsonc` and use the top-level configuration for this site.
 
-## How Auto-Deploy Works
+## Release process
 
-1. Push to `main` on `missdiasporagh-star/mdgh-web-project`
-2. Cloudflare Pages picks up the webhook → builds with `npm run build`
-3. Deploys to `mdgh-web-project-4h7.pages.dev` and the custom domains
-4. PRs get preview deployments at `<short-id>.mdgh-web-project-4h7.pages.dev`
+1. Review the exact diff; exclude unrelated local files and secrets.
+2. Run `npm ci`, `npm test`, and `npm run build`.
+3. Commit and push the reviewed change to `main`. This triggers Deploy Worker.
+4. CI installs dependencies, runs tests, and builds Astro.
+5. CI applies the additive, idempotent `0011_manual_momo_receipt_unique.sql` to the configured remote D1 database. It does not replay historical seed migrations.
+6. CI deploys with `wrangler deploy --config wrangler.jsonc` using the existing GitHub Cloudflare secret.
+7. Wait for that exact commit's workflow to complete; inspect migration and deployment logs and record the Worker version.
+8. Verify the live application page and API protections. For this release, the page must show **GHS 230**, **Ebenezer Adjetey Sowah**, and **0598913323**, with no Payaza checkout script on the manual application page. Unauthenticated staff confirmation must return 401.
 
-Watch deploys in the Cloudflare dashboard → Workers & Pages → `mdgh-web-project`.
+## Manual fallback
 
-## Local Development
+Use the same configuration and account as CI. Apply only the reviewed migration before deploying; do not run a fresh replay of historical migrations against production.
 
-```bash
-git clone https://github.com/missdiasporagh-star/mdgh-web-project.git
-cd mdgh-web-project
-npm install
-npm run dev      # http://localhost:4321
+```sh
+npx wrangler d1 execute mdgh-applications-db --remote --config wrangler.jsonc --file migrations/0011_manual_momo_receipt_unique.sql
+npm run build
+npx wrangler deploy --config wrangler.jsonc
 ```
 
-## Recreate from Scratch (if ever needed)
+## Payment rollback
 
-If the Pages project gets deleted and you need to rebuild it:
+Set `PAYMENT_MODE=payaza` in the deployed top-level Worker variables and redeploy to restore gateway checkout. Preserve the receipt uniqueness index and staff confirmation route for outstanding manual applications. The temporary manual fee override does not change the saved gateway cycle price. See [manual MoMo operations](docs/manual-momo-payments.md).
 
-1. **Cloudflare dashboard** → Workers & Pages → Create → Pages → Connect to Git
-2. Authorize the Cloudflare GitHub App on `missdiasporagh-star/mdgh-web-project`
-3. Configure:
-   - Production branch: `main`
-   - Build command: `npm run build`
-   - Output directory: `dist`
-   - Compatibility date: latest
-4. Re-attach custom domains under **Custom Domains** tab
-5. Re-create the `SESSION` KV namespace and bind it under **Settings → Functions → KV namespace bindings**
+## Credentials
 
-## Troubleshooting
-
-**Build fails**
-- Check the Cloudflare build log
-- Verify `npm run build` succeeds locally
-- Ensure `package.json` and `package-lock.json` are committed
-
-**Images not loading**
-- Place under `public/assets/`
-- Reference as `/assets/...` (absolute), not `../assets/...`
-- Filenames are case-sensitive on Cloudflare
-
-**WhatsApp widget not appearing**
-- Check `src/pages/index.astro` for the `.whatsapp-widget` element
-- Confirm GSAP loaded (browser console)
-
-**Contact form not sending**
-- EmailJS service ID / template ID / public key must be set in the form's client-side code
-- Check browser console for EmailJS errors
-
-## Performance Targets
-
-- Lighthouse Performance: 90+
-- FCP <1s, TTI <2s
-- Cloudflare CDN global edge (free tier covers MDGH's traffic)
-
-## Useful Links
-
-- [Astro Docs](https://docs.astro.build)
-- [Astro Cloudflare adapter](https://docs.astro.build/en/guides/integrations-guide/cloudflare/)
-- [Cloudflare Pages Docs](https://developers.cloudflare.com/pages)
-- [Wrangler CLI](https://developers.cloudflare.com/workers/wrangler/)
+CI uses the existing `CLOUDFLARE_API_TOKEN` GitHub Actions secret and the account configured in the workflow. Runtime secrets stay in Cloudflare. Never commit `.dev.vars`, tokens, or credentials.

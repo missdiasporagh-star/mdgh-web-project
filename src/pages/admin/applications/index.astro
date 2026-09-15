@@ -1,4 +1,5 @@
 ---
+import { manualPaymentsEnabled, MOMO_FEE_CENTS } from '@/lib/payment/manual';
 import ApplyLayout from '@/layouts/ApplyLayout.astro';
 import { checkAdminAuth } from '@/middleware/admin-auth';
 import { listApplicationsForAdmin } from '@/lib/db/queries';
@@ -32,6 +33,7 @@ const { rows, total } = await listApplicationsForAdmin(env.DB, {
         <h2 style="margin:0;font-size:16px;color:#F8B92F;letter-spacing:0.1em;text-transform:uppercase">Cycle Settings</h2>
         <span id="cycle-save-status" style="font-size:12px;display:none"></span>
       </div>
+      {manualPaymentsEnabled(env) && <p>Temporary manual MoMo checkout charges GHS {(MOMO_FEE_CENTS / 100).toFixed(2)}. The cycle fee below applies when gateway checkout is restored.</p>}
       <div id="cycle-settings-loading" style="font-size:13px;opacity:0.7">Loading cycle settings…</div>
       <div id="cycle-settings-form" style="display:none">
         <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:end">
@@ -96,7 +98,7 @@ const { rows, total } = await listApplicationsForAdmin(env.DB, {
               <td style="padding:10px;font-size:13px"><a href={`/admin/applications/${r.id}`}>{r.full_name ?? '(no name)'}</a></td>
               <td style="padding:10px;font-size:13px">{r.email}</td>
               <td style="padding:10px;font-size:12px;font-family:monospace;color:#F8B92F">{r.transaction_reference}</td>
-              <td style="padding:10px;font-size:13px">{r.status}</td>
+              <td style="padding:10px;font-size:13px">{r.status} · Payment: {r.payment_status}</td>
             </tr>
           ))}
         </tbody>

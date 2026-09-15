@@ -4,6 +4,8 @@ import {
 import { getPaymentProvider } from '@/lib/payment';
 import { signApplyToken } from '@/lib/tokens/apply-token';
 import { getEmailProvider, renderMagicLinkEmail } from '@/lib/email';
+import { isManualReference } from './manual';
+import type { ApplicationRow } from '@/lib/db/queries';
 import { notifyTeam } from '@/lib/email/notify-team';
 
 export type VerifyOutcome =
@@ -29,6 +31,7 @@ export async function runPaymentVerification(
     return { ok: true, status: 'paid', applicationId: app.id, alreadyPaid: true };
   }
 
+  if (isManualReference(reference)) return { ok: true, status: 'pending', applicationId: app.id };
   const provider = getPaymentProvider(env);
   const verify = await provider.verify(reference);
   if (!verify.ok) {
@@ -60,6 +63,11 @@ export async function runPaymentVerification(
     return { ok: false, error: DUPLICATE_EMAIL_PAID, httpStatus: 409, message: 'A paid application already exists for this email.' };
   }
 
+  return deliverPaidApplication(env, app, baseUrl);
+}
+
+/** Called only after server verification or authenticated staff confirmation. */
+export async function deliverPaidApplication(env: Env, app: ApplicationRow, baseUrl: string): Promise<VerifyOutcome> {
   const cycle = await getCycle(env.DB, app.cycle_id);
   if (!cycle) return { ok: false, error: 'cycle_missing', httpStatus: 500 };
 

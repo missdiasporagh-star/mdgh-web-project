@@ -22,7 +22,7 @@ export default defineConfig({
       filter: (page) =>
         !page.includes('/admin') &&
         !page.includes('/api/') &&
-        !page.match(/\/apply\/(return|form|recover|closed|done)/) &&
+        !page.match(/\/apply\/(return|form|recover|closed|done|manual-payment)/) &&
         !page.includes('/mock-checkout'),
     }),
   ],

@@ -1,9 +1,11 @@
 ---
+import { manualPaymentsEnabled, MOMO_NUMBER, MOMO_RECIPIENT, MOMO_FEE_CENTS, MOMO_CURRENCY } from '@/lib/payment/manual';
 import ApplyLayout from '@/layouts/ApplyLayout.astro';
 import { getActiveCycle } from '@/lib/db/queries';
 
 const env = Astro.locals.runtime.env;
 const cycle = await getActiveCycle(env.DB);
+const manual = manualPaymentsEnabled(env);
 
 if (!cycle || cycle.is_active !== 1) {
   return Astro.redirect('/apply/closed');
@@ -14,8 +16,8 @@ const now = new Date();
 if (now > closeAt) return Astro.redirect('/apply/closed');
 
 const turnstileSiteKey = env.TURNSTILE_SITE_KEY;
-const fee = (cycle.application_fee_cents / 100).toFixed(2);
-const currency = cycle.application_currency;
+const fee = ((manual ? MOMO_FEE_CENTS : cycle.application_fee_cents) / 100).toFixed(2);
+const currency = manual ? MOMO_CURRENCY : cycle.application_currency;
 ---
 <ApplyLayout
   title="Apply for Miss Diaspora Ghana 2026 — Open Casting"
@@ -45,9 +47,9 @@ const currency = cycle.application_currency;
       <div class="fade-up">
         <span class="pill">{cycle.display_name} &middot; Cycle Open</span>
       </div>
-      <!-- TEMP: remove once Payaza confirms the international-card fix (reported 2026-09-04) -->
+      <!-- Temporary manual MoMo instructions; gateway remains available via PAYMENT_MODE. -->
       <p class="fade-up" style="max-width:520px;margin:18px auto 0;font-size:12px;line-height:1.6;color:#FFD166;border:1px solid rgba(255,209,102,0.25);border-radius:10px;padding:10px 14px;background:rgba(255,209,102,0.06)">
-        Heads-up: our payment provider (Payaza) is currently resolving an issue affecting some internationally issued cards. If your payment doesn't go through, you are <strong>not</strong> charged — please try again later.
+        {manual ? `We are temporarily accepting manual MoMo payments to ${MOMO_RECIPIENT} on ${MOMO_NUMBER}. Continue below for your payment reference and instructions. Staff will confirm receipt before emailing your application link.` : 'Continue below to pay your application fee securely.'}
       </p>
     </section>
 
@@ -131,7 +133,7 @@ const currency = cycle.application_currency;
         Continue to payment — {currency} {fee} →
       </button>
       <p class="muted" style="text-align:center;margin-top:14px;font-size:11px;letter-spacing:0.04em">
-        Card payment secured by Payaza &middot; one-time non-refundable fee
+        {manual ? 'Manual MoMo payment · staff verification required' : 'Card payment secured by Payaza'} &middot; one-time non-refundable fee
       </p>
       <p id="form-err" class="err" role="alert" aria-live="polite" style="text-align:center;display:none"></p>
     </form>
@@ -146,6 +148,6 @@ const currency = cycle.application_currency;
 
   <meta name="turnstile-site-key" content={turnstileSiteKey} />
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
-  <script src="https://checkout-v2.payaza.africa/js/v1/bundle.js" defer></script>
+  {!manual && <script is:inline src="https://checkout-v2.payaza.africa/js/v1/bundle.js" defer></script>}
   <script type="module" src="/scripts/apply-form-bootstrap.js"></script>
 </ApplyLayout>

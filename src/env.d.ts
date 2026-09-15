@@ -22,6 +22,7 @@ type CloudflareEnv = {
   TURNSTILE_SITE_KEY: string;
   TURNSTILE_SECRET_KEY: string;
   MOCK_PAYMENTS?: string;
+  PAYMENT_MODE?: string;
   MOCK_EMAIL?: string;
 };
 

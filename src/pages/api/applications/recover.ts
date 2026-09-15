@@ -1,6 +1,7 @@
 import type { APIRoute } from 'astro';
 import { recoverSchema } from '@/lib/schemas/form';
 import { getApplicationByReference, getCycle, markPaymentPaid, setApplyTokenIssued } from '@/lib/db/queries';
+import { isManualReference } from '@/lib/payment/manual';
 import { getPaymentProvider } from '@/lib/payment';
 import { signApplyToken } from '@/lib/tokens/apply-token';
 import { getEmailProvider, renderRecoveryEmail } from '@/lib/email';
@@ -24,6 +25,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
 
   // If not yet paid, re-run verify
   if (app.payment_status !== 'paid') {
+    if (isManualReference(app.transaction_reference)) return j({ ok: false, error: 'not_paid' }, 400);
     const provider = getPaymentProvider(env);
     const v = await provider.verify(parsed.data.reference);
     if (!v.ok || v.status !== 'paid') return j({ ok: false, error: 'not_paid' }, 400);

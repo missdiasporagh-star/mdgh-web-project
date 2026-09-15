@@ -659,7 +659,7 @@ const chatbotKnowledgeBase = {
     },
     'apply': {
         keywords: ['apply', 'application', 'how to', 'register', 'sign up', 'join', 'participate'],
-        response: 'To apply for Miss Diaspora Ghana, scroll to the "Contact" section and fill out the form with your details. Select "Pageant Application" as the subject. You can also reach us at info@missdiasporagh.org or call +233 591942227.'
+        response: 'To apply for Miss Diaspora Ghana, scroll to the "Contact" section and fill out the form with your details. Select "Pageant Application" as the subject. You can also reach us at info@missdiasporagh.org or call +233 598913323.'
     },
     'requirements': {
         keywords: ['requirements', 'eligible', 'eligibility', 'qualify', 'criteria'],
@@ -671,7 +671,7 @@ const chatbotKnowledgeBase = {
     },
     'contact': {
         keywords: ['contact', 'reach', 'email', 'phone', 'call', 'message', 'location'],
-        response: 'You can reach us at:\n📧 info@missdiasporagh.org\n📞 +233 591942227 or +233 256123084\n👤 Yvonne Kofigah, General Manager\n🌐 www.missdiasporagh.org'
+        response: 'You can reach us at:\n📧 info@missdiasporagh.org\n📞 +233 598913323 or +233 256123084\n👤 Ebenezer Adjetey Sowah\n🌐 www.missdiasporagh.org'
     },
     'programs': {
         keywords: ['programs', 'initiatives', 'activities', 'events', 'what do', 'immersion'],

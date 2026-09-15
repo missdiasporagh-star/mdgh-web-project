@@ -280,7 +280,7 @@ export async function setEmailBounced(db: D1Database, email: string): Promise<vo
 export async function listApplicationsForAdmin(
   db: D1Database, opts: { cycleId?: string; status?: string; q?: string; limit: number; offset: number }
 ): Promise<{ rows: ApplicationRow[]; total: number }> {
-  const where: string[] = [`submitted_at IS NOT NULL`];
+  const where: string[] = [`(submitted_at IS NOT NULL OR transaction_reference LIKE 'MOMO-%')`];
   const params: unknown[] = [];
   if (opts.cycleId) { where.push(`cycle_id = ?`); params.push(opts.cycleId); }
   if (opts.status) { where.push(`status = ?`); params.push(opts.status); }

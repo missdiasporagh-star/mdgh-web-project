@@ -1,0 +1,40 @@
+---
+import ApplyLayout from '@/layouts/ApplyLayout.astro';
+import { getApplicationByReference, getCycle } from '@/lib/db/queries';
+import { MOMO_NUMBER, MOMO_RECIPIENT, MOMO_INTERNATIONAL, MOMO_WHATSAPP, isManualReference } from '@/lib/payment/manual';
+const reference = Astro.url.searchParams.get('reference') ?? '';
+if (reference.length > 64 || !isManualReference(reference)) return new Response('Not found', { status: 404 });
+const app = await getApplicationByReference(Astro.locals.runtime.env.DB, reference);
+if (!app) return new Response('Not found', { status: 404 });
+const cycle = await getCycle(Astro.locals.runtime.env.DB, app.cycle_id);
+const open = cycle?.is_active === 1 && Date.now() <= Date.parse(cycle.applications_close_at);
+const payable = app.payment_status === 'pending' && open;
+Astro.response.headers.set('Cache-Control', 'no-store');
+Astro.response.headers.set('Referrer-Policy', 'no-referrer');
+Astro.response.headers.set('X-Robots-Tag', 'noindex, nofollow');
+const contact = `${MOMO_WHATSAPP}?text=${encodeURIComponent(`Hello ${MOMO_RECIPIENT}, I am contacting you about my MDGH MoMo payment. Application reference: ${reference}`)}`;
+---
+<ApplyLayout title="Manual MoMo payment | MDGH">
+  <div class="wrap">
+    <h1>Manual MoMo payment</h1>
+    <section class="card">
+      <p>Application reference: <strong style="overflow-wrap:anywhere">{reference}</strong></p>
+      {app.payment_status === 'paid' ? <>
+        <h2>Payment confirmed</h2>
+        <p>Check your email for your application link. If it has not arrived, <a href="/apply/recover">recover your link</a>.</p>
+      </> : payable ? <>
+        <p>Application fee: <strong>{app.payment_currency} {(app.payment_amount_cents / 100).toFixed(2)}</strong></p>
+        <p>Recipient: <strong>{MOMO_RECIPIENT}</strong></p>
+        <p>MoMo number and payment contact: <a href={`tel:${MOMO_INTERNATIONAL}`}><strong>{MOMO_NUMBER}</strong></a> ({MOMO_INTERNATIONAL})</p>
+        {app.payment_currency !== 'GHS' && <p class="err">Before sending, <a href={contact}>contact the team</a> to confirm the exact amount in Ghana cedis. Do not send the displayed foreign-currency amount as cedis.</p>}
+        <ol>
+          <li>Check that your MoMo confirmation shows <strong>{MOMO_RECIPIENT}</strong> before authorizing your transfer.</li>
+          <li>Send the confirmed fee to {MOMO_NUMBER}. Use your application reference above as the transfer reference.</li>
+          <li><a href={contact}>Send your payment details to {MOMO_RECIPIENT} on WhatsApp ({MOMO_NUMBER})</a>: application reference, MoMo transaction ID, amount, and payment date. Never send your PIN or OTP.</li>
+        </ol>
+        <p>Staff will check the received payment and email your application link after confirmation. Keep this page and your receipt. If you have already sent payment, do not pay again.</p>
+        <a class="btn-ghost" href={Astro.url.pathname + '?reference=' + encodeURIComponent(reference)}>Refresh payment status</a>
+      </> : <p>Please contact <a href={contact}>{MOMO_RECIPIENT} on {MOMO_NUMBER}</a> with this reference before sending any payment. This application is no longer awaiting payment or its application window has closed.</p>}
+    </section>
+  </div>
+</ApplyLayout>
