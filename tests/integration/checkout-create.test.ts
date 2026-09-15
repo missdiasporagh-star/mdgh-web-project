@@ -1,4 +1,5 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { hashIp } from '@/lib/crypto/hash';
 import { POST } from '@/pages/api/checkout/create';
 
 function fakeEnv(opts: { paidEmails?: string[] } = {}) {
@@ -58,13 +59,15 @@ function fakeEnv(opts: { paidEmails?: string[] } = {}) {
 }
 
 let originalFetch: typeof globalThis.fetch;
+let turnstileSucceeds = true;
 
 beforeEach(() => {
+  turnstileSucceeds = true;
   originalFetch = globalThis.fetch;
   globalThis.fetch = (async (input: RequestInfo | URL) => {
     const url = typeof input === 'string' ? input : input instanceof URL ? input.toString() : input.url;
     if (url.includes('turnstile/v0/siteverify')) {
-      return new Response(JSON.stringify({ success: true }), { status: 200 });
+      return new Response(JSON.stringify({ success: turnstileSucceeds, 'error-codes': turnstileSucceeds ? [] : ['timeout-or-duplicate'] }), { status: 200 });
     }
     return originalFetch(input as RequestInfo | URL);
   }) as typeof globalThis.fetch;
@@ -72,6 +75,7 @@ beforeEach(() => {
 
 afterEach(() => {
   globalThis.fetch = originalFetch;
+  vi.useRealTimers();
 });
 
 function makeContext(env: ReturnType<typeof fakeEnv>, body: unknown, ip = '1.2.3.4') {
@@ -177,5 +181,53 @@ describe('temporary manual MoMo checkout', () => {
     const params = env._applications[0].params as unknown[];
     expect(params).toContain(23000);
     expect(params).toContain('GHS');
+  });
+});
+
+
+describe('checkout retry limits', () => {
+  it('does not inherit the old shared-IP hour-long lockout', async () => {
+    const env = fakeEnv();
+    const key = await hashIp('1.2.3.4', env.IP_HASH_SALT);
+    await env.KV.put(`rl:checkout-create:${key}`, '5');
+    expect((await POST(makeContext(env, VALID_INPUT))).status).toBe(200);
+  });
+  it('does not charge failed or expired CAPTCHA checks against the applicant allowance', async () => {
+    const env = fakeEnv();
+    turnstileSucceeds = false;
+    for (let i = 0; i < 6; i++) expect((await POST(makeContext(env, VALID_INPUT))).status).toBe(400);
+    expect(env._applications).toHaveLength(0);
+    turnstileSucceeds = true;
+    expect((await POST(makeContext(env, VALID_INPUT))).status).toBe(200);
+  });
+  it('allows different applicants sharing one IP beyond the old five-attempt cap', async () => {
+    const env = fakeEnv();
+    for (let i = 0; i < 6; i++) {
+      expect((await POST(makeContext(env, { ...VALID_INPUT, email: `person${i}@example.com` }))).status).toBe(200);
+    }
+  });
+  it('retains the per-applicant cap, a clear message, and an exact reset time', async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-09-15T12:15:00Z'));
+    const env = fakeEnv();
+    for (let i = 0; i < 5; i++) expect((await POST(makeContext(env, VALID_INPUT))).status).toBe(200);
+    const response = await POST(makeContext(env, { ...VALID_INPUT, email: 'A@B.com' }));
+    expect(response.status).toBe(429);
+    expect(response.headers.get('Retry-After')).toBe('2700');
+    expect(await response.json()).toMatchObject({ retryAfter: 2700, message: expect.stringContaining('45 minutes') });
+    expect(env._applications).toHaveLength(5);
+    vi.setSystemTime(new Date('2026-09-15T13:00:00Z'));
+    expect((await POST(makeContext(env, VALID_INPUT))).status).toBe(200);
+  });
+  it('still blocks bursts of unverified requests at the IP guard', async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-09-15T12:15:20Z'));
+    const env = fakeEnv();
+    turnstileSucceeds = false;
+    for (let i = 0; i < 30; i++) expect((await POST(makeContext(env, VALID_INPUT))).status).toBe(400);
+    const response = await POST(makeContext(env, VALID_INPUT));
+    expect(response.status).toBe(429);
+    expect(response.headers.get('Retry-After')).toBe('40');
+    expect(env._applications).toHaveLength(0);
   });
 });

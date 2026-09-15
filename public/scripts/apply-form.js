@@ -11,6 +11,7 @@ export function init({ turnstileSiteKey }) {
     ageBand: null, isWoman: null, africanDescent: null, outsideGhana: null,
     validPassport: null, consentMediaUse: null, consentMarketing: null,
     consentPolicy: false, consentRefund: false, email: '', phone: '', turnstileToken: null,
+    submitting: false, retryAt: 0,
   };
 
   renderQuiz(state, validate);
@@ -18,8 +19,8 @@ export function init({ turnstileSiteKey }) {
   setupCheckbox(state, validate);
   setupEmail(state, validate);
   setupPhone(state, validate);
-  setupTurnstile(turnstileSiteKey, (token) => { state.turnstileToken = token; validate(); });
-  setupSubmit(state);
+  const resetTurnstile = setupTurnstile(turnstileSiteKey, (token) => { state.turnstileToken = token; validate(); });
+  setupSubmit(state, validate, resetTurnstile);
 
   function validate() {
     const eligible =
@@ -35,7 +36,7 @@ export function init({ turnstileSiteKey }) {
       state.consentPolicy && state.consentRefund && state.consentMediaUse !== null && state.consentMarketing !== null &&
       isValidEmail(state.email) && isValidPhone(state.phone) && !!state.turnstileToken;
 
-    document.getElementById('submit-btn').disabled = !(eligible && allAnswered);
+    document.getElementById('submit-btn').disabled = state.submitting || Date.now() < state.retryAt || !(eligible && allAnswered);
 
     const dq = document.getElementById('disqualified-card');
     if (dq) dq.remove();
@@ -230,58 +231,90 @@ function setupPhone(state, validate) {
 
 function setupTurnstile(siteKey, onToken) {
   const host = document.getElementById('turnstile-host');
+  let widgetId;
   const interval = setInterval(() => {
     if (window.turnstile) {
       clearInterval(interval);
-      window.turnstile.render(host, { sitekey: siteKey, callback: onToken });
+      widgetId = window.turnstile.render(host, {
+        sitekey: siteKey, callback: onToken,
+        'expired-callback': () => onToken(null),
+        'error-callback': () => onToken(null),
+      });
     }
   }, 100);
+  return () => {
+    onToken(null);
+    if (widgetId !== undefined && window.turnstile) window.turnstile.reset(widgetId);
+  };
 }
 
-function setupSubmit(state) {
+function setupSubmit(state, validate, resetTurnstile) {
   const form = document.getElementById('apply-form');
   const errEl = document.getElementById('form-err');
+  const button = document.getElementById('submit-btn');
+  const buttonLabel = button.textContent;
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
+    if (state.submitting || Date.now() < state.retryAt || !state.turnstileToken) return;
+    state.submitting = true;
+    validate();
+    button.textContent = 'Opening payment instructions…';
+    button.setAttribute('aria-busy', 'true');
     errEl.style.display = 'none';
-    const honeypot = form.elements.honeypot.value;
-
-    const res = await fetch('/api/checkout/create', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        email: state.email, phone: state.phone, ageBand: state.ageBand,
-        isWoman: state.isWoman, africanDescent: state.africanDescent,
-        outsideGhana: state.outsideGhana, validPassport: state.validPassport,
-        consentPolicy: state.consentPolicy, consentRefund: state.consentRefund,
-        consentMediaUse: state.consentMediaUse, consentMarketing: state.consentMarketing,
-        honeypot, turnstileToken: state.turnstileToken,
-      }),
-    });
-    const json = await res.json();
-    if (!res.ok || !json.ok) {
-      if (json.error === 'already_paid_for_cycle') {
-        errEl.innerHTML = '';
-        errEl.appendChild(document.createTextNode(
-          json.message || 'You have already paid for this cycle.'
-        ));
-        errEl.appendChild(document.createTextNode(' '));
-        const link = document.createElement('a');
-        link.href = json.recoverUrl || '/apply/recover';
-        link.textContent = 'Recover your application link';
-        errEl.appendChild(link);
+    let leaving = false;
+    try {
+      const res = await fetch('/api/checkout/create', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: state.email, phone: state.phone, ageBand: state.ageBand,
+          isWoman: state.isWoman, africanDescent: state.africanDescent,
+          outsideGhana: state.outsideGhana, validPassport: state.validPassport,
+          consentPolicy: state.consentPolicy, consentRefund: state.consentRefund,
+          consentMediaUse: state.consentMediaUse, consentMarketing: state.consentMarketing,
+          honeypot: form.elements.honeypot.value, turnstileToken: state.turnstileToken,
+        }),
+      });
+      const json = await res.json();
+      if (!res.ok || !json.ok) {
+        if (res.status === 429) {
+          const supplied = Number(json.retryAfter ?? res.headers.get('Retry-After'));
+          const seconds = Number.isFinite(supplied) && supplied > 0 ? Math.min(supplied, 3600) : 60;
+          state.retryAt = Date.now() + seconds * 1000;
+          errEl.textContent = json.message || `Too many recent attempts. Please wait ${Math.ceil(seconds / 60)} minute(s), then try again. Your details are still on this page.`;
+          setTimeout(() => { resetTurnstile(); validate(); }, seconds * 1000);
+        } else if (json.error === 'already_paid_for_cycle') {
+          errEl.textContent = json.message || 'You have already paid for this cycle.';
+          errEl.appendChild(document.createTextNode(' '));
+          const link = document.createElement('a');
+          link.href = '/apply/recover';
+          link.textContent = 'Recover your application link';
+          errEl.appendChild(link);
+        } else {
+          errEl.textContent = json.message || (json.error === 'turnstile_failed'
+            ? 'Please complete the refreshed security check and try again.'
+            : 'We could not open payment instructions. Please try again or contact us on 0598913323.');
+        }
         errEl.style.display = 'block';
         return;
       }
-      errEl.textContent = json.message ?? json.error ?? 'Something went wrong. Please try again.';
+      if (json.flow === 'sdk') {
+        openPayazaCheckout(json.sdkBootstrap, json.reference, errEl);
+        return;
+      }
+      window.location.assign(json.checkoutUrl);
+      leaving = true;
+    } catch {
+      errEl.textContent = 'We could not connect to the portal. Your details are still on this page. Please complete the refreshed security check and try again.';
       errEl.style.display = 'block';
-      return;
+    } finally {
+      if (!leaving) {
+        state.submitting = false;
+        button.textContent = buttonLabel;
+        button.removeAttribute('aria-busy');
+        resetTurnstile();
+        validate();
+      }
     }
-    if (json.flow === 'sdk') {
-      openPayazaCheckout(json.sdkBootstrap, json.reference, errEl);
-      return;
-    }
-    window.location.href = json.checkoutUrl;
   });
 }
 

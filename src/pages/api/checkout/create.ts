@@ -7,7 +7,7 @@ import { newTransactionReference } from '@/lib/ids/reference';
 import { hashIp } from '@/lib/crypto/hash';
 import { verifyTurnstile } from '@/lib/turnstile/verify';
 import { getPaymentProvider } from '@/lib/payment';
-import { manualPaymentsEnabled, MANUAL_REFERENCE_PREFIX, MOMO_FEE_CENTS, MOMO_CURRENCY } from '@/lib/payment/manual';
+import { manualPaymentsEnabled, MANUAL_REFERENCE_PREFIX, MOMO_FEE_CENTS, MOMO_CURRENCY, MOMO_RECIPIENT, MOMO_NUMBER } from '@/lib/payment/manual';
 import { checkRateLimit } from '@/lib/ratelimit/kv-limiter';
 
 export const prerender = false;
@@ -35,12 +35,14 @@ export const POST: APIRoute = async ({ request, locals, clientAddress }) => {
   });
   if (!eligibility.eligible) return json({ ok: false, error: 'not_eligible', rule: eligibility.disqualifyingRule }, 400);
 
-  const ipHashForRl = await hashIp(clientAddress ?? 'unknown', env.IP_HASH_SALT);
-  const rl = await checkRateLimit(env.KV, `rl:checkout-create:${ipHashForRl}`, 5, 3600);
-  if (!rl.allowed) return json({ ok: false, error: 'rate_limited', retryAfter: rl.retryAfterSeconds }, 429);
+  const ipHash = await hashIp(clientAddress ?? 'unknown', env.IP_HASH_SALT);
+  // Shared networks must not exhaust one applicant's hour-long allowance.
+  // Keep a short IP guard before CAPTCHA, and count verified applicants separately.
+  const requestLimit = await checkoutLimit(env.KV, `rl:checkout-request-v2:${ipHash}`, 30, 60);
+  if (!requestLimit.allowed) return limited(requestLimit.retryAfterSeconds);
 
   const ts = await verifyTurnstile(input.turnstileToken, env.TURNSTILE_SECRET_KEY, clientAddress);
-  if (!ts.ok) return json({ ok: false, error: 'turnstile_failed', reason: ts.reason }, 400);
+  if (!ts.ok) return json({ ok: false, error: 'turnstile_failed', reason: ts.reason, message: 'The security check expired or could not be verified. Please complete the refreshed check and try again.' }, 400);
 
   const cycle = await getActiveCycle(env.DB);
   if (!cycle || cycle.is_active !== 1) return json({ ok: false, error: 'cycle_not_active' }, 400);
@@ -60,10 +62,13 @@ export const POST: APIRoute = async ({ request, locals, clientAddress }) => {
     }, 409);
   }
 
+  const applicantHash = await hashIp(`${ipHash}:${input.email.toLowerCase()}`, env.IP_HASH_SALT);
+  const applicantLimit = await checkoutLimit(env.KV, `rl:checkout-applicant-v2:${applicantHash}`, 5, 3600);
+  if (!applicantLimit.allowed) return limited(applicantLimit.retryAfterSeconds);
+
   const id = newUlid();
   const manual = manualPaymentsEnabled(env);
   const reference = `${manual ? MANUAL_REFERENCE_PREFIX : ''}${newTransactionReference(cycle.id)}`;
-  const ipHash = await hashIp(clientAddress ?? 'unknown', env.IP_HASH_SALT);
   const userAgent = request.headers.get('user-agent') ?? null;
 
   await insertPendingApplication(env.DB, {
@@ -108,4 +113,21 @@ function json(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), {
     status, headers: { 'Content-Type': 'application/json' },
   });
+}
+
+// Time-bucketed keys give a predictable reset, rather than extending the window
+// on every retry. KV provides best-effort throttling, as on the other endpoints.
+async function checkoutLimit(kv: KVNamespace, key: string, max: number, windowSeconds: number) {
+  const nowSeconds = Math.floor(Date.now() / 1000);
+  const bucket = Math.floor(nowSeconds / windowSeconds);
+  const result = await checkRateLimit(kv, `${key}:${bucket}`, max, windowSeconds);
+  return result.allowed ? result : { allowed: false as const, retryAfterSeconds: (bucket + 1) * windowSeconds - nowSeconds };
+}
+
+function limited(retryAfter: number): Response {
+  const wait = retryAfter < 60 ? `${retryAfter} seconds` : `${Math.ceil(retryAfter / 60)} minutes`;
+  const response = json({ ok: false, error: 'rate_limited', retryAfter, message: `Too many recent attempts. Please wait ${wait}, then try again. Your form details are still on this page. For help, contact ${MOMO_RECIPIENT} on ${MOMO_NUMBER}.` }, 429);
+  response.headers.set('Retry-After', String(retryAfter));
+  response.headers.set('Cache-Control', 'no-store');
+  return response;
 }
